@@ -5,6 +5,12 @@ plugins {
   id("com.diffplug.spotless")
 }
 
+kotlin { explicitApi() }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+  kotlinOptions { moduleName = "kage" }
+}
+
 configure<SpotlessExtension> {
   kotlin {
     ktfmt().googleStyle()
