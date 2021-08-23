@@ -1,0 +1,5 @@
+[versions]
+kotlin = "1.5.21"
+
+[libraries]
+kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
