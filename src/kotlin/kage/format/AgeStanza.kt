@@ -49,7 +49,7 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
      * Example:
      * ->(RECIPIENT_PREFIX) X25519(TYPE_NAME) 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8(ARGUMENTS)
      */
-    private fun parseRecipientLine(recipientLine: String): Pair<String, List<String>> {
+    internal fun parseRecipientLine(recipientLine: String): Pair<String, List<String>> {
       val (prefix, args) = splitArgs(recipientLine)
 
       if (prefix != RECIPIENT_PREFIX)
@@ -57,15 +57,15 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
       if (args.isEmpty())
         throw ParseException("Recipient line does not contain any type: $recipientLine")
 
+      args.forEach { arg ->
+        if (!isValidArbitraryString(arg))
+          throw ParseException("Argument: '$arg' is not a valid arbitrary string")
+      }
+
       // First element is the type name
       val type = args.first()
       // Second is the list of stanza arguments
       val stanzaArgs = args.drop(1)
-
-      stanzaArgs.forEach { arg ->
-        if (!isValidArbitraryString(arg))
-          throw ParseException("Argument: '$arg' is not a valid arbitrary string")
-      }
 
       return Pair(type, stanzaArgs)
     }
@@ -74,12 +74,16 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
      * ... The rest of the recipient stanza is a body of canonical base64 from RFC 4648 without padding wrapped at
      * exactly 64 columns.
      */
-    private fun parseBodyLines(reader: BufferedReader): ByteArray {
+    internal fun parseBodyLines(reader: BufferedReader): ByteArray {
       // Create a mutable byteList which will hold all the bytes while we're parsing the body
       val byteList = mutableListOf<Byte>()
       var stopParsing = false
       do {
-        val line = reader.readLine()
+        val line =
+          reader.readLine()
+            ?: throw ParseException(
+              "Line is null, did you forget an extra newline after a full length body chunk?"
+            )
         val bytes = Base64.getDecoder().decode(line)
         if (bytes.size > BYTES_PER_LINE) throw ParseException("Body line is too long: $line")
 
@@ -95,10 +99,11 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
     /*
      * Splits a line over ' ' and returns a pair with the line prefix and the arguments
      */
-    private fun splitArgs(recipientLine: String): Pair<String, List<String>> {
+    internal fun splitArgs(recipientLine: String): Pair<String, List<String>> {
       // Split recipient line over " "
       val parts = recipientLine.split(" ")
-      // Drop '->' (RECIPIENT_PREFIX) from recipient line and return the remaining arguments
+      // Drop '->' (RECIPIENT_PREFIX) from recipient line and return it along with the remaining
+      // arguments
       return Pair(parts.first(), parts.drop(1))
     }
 
@@ -106,7 +111,8 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
      * Age Spec:
      * ... an arbitrary string is a sequence of ASCII characters with values 33 to 126.
      */
-    private fun isValidArbitraryString(string: String): Boolean {
+    internal fun isValidArbitraryString(string: String): Boolean {
+      if (string.isEmpty()) throw ParseException("Arbitrary string should not be empty")
       string.forEach { char -> if (char.code < 33 || char.code > 126) return false }
       return true
     }
