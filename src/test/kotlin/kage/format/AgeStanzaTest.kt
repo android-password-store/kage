@@ -1,9 +1,9 @@
 package kage.format
 
-import java.util.*
+import java.util.Base64
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import org.junit.Test
 
 class AgeStanzaTest {
   @Test
@@ -104,6 +104,22 @@ class AgeStanzaTest {
     // without the '\n' characters
     // The writer test should cover wrapping the lines at 64 columns.
     assertEquals(bytes.decodeToString(), base64Body.split("\n").joinToString(""))
+  }
+
+  @org.junit.Test
+  fun testIncorrectBodyThrowsException() {
+    // Here the body does not end on a partial line and hence should throw an error
+    val stanza =
+      """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
+            |5rVkW/7hCBSqEPQwabC6O5ls75uNjeSURwHAaIwtQ6riL9arjVpHMl8O7GWSRnx3
+            |""".trimMargin()
+
+    val reader = stanza.reader().buffered()
+
+    // Read recipient line
+    reader.readLine()
+
+    assertFailsWith<ParseException> { AgeStanza.parseBodyLines(reader) }
   }
 
   @Test
