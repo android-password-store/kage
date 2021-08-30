@@ -106,7 +106,7 @@ class AgeStanzaTest {
     assertEquals(bytes.decodeToString(), base64Body.split("\n").joinToString(""))
   }
 
-  @org.junit.Test
+  @Test
   fun testIncorrectBodyThrowsException() {
     // Here the body does not end on a partial line and hence should throw an error
     val stanza =
