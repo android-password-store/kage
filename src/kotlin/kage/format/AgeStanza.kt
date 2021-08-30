@@ -6,10 +6,10 @@ import java.util.*
 public data class AgeStanza(val type: String, val args: List<String>, val body: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (javaClass != other?.javaClass) return false
+    if (other == null) return false
+    if (other !is AgeStanza) return false
 
-    other as AgeStanza
+    if (this === other) return true
 
     if (type != other.type) return false
     if (args != other.args) return false
@@ -25,12 +25,13 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
     return result
   }
 
-  public companion object {
+  internal companion object {
     private const val RECIPIENT_PREFIX = "->"
     private const val COLUMNS_PER_LINE = 64
     private const val BYTES_PER_LINE = COLUMNS_PER_LINE / 4 * 3
 
-    public fun parse(reader: BufferedReader): AgeStanza {
+    @JvmStatic
+    internal fun parse(reader: BufferedReader): AgeStanza {
       // The first line should be a recipient line with at least one argument
       val recipientLine = reader.readLine()
       val (type, args) = parseRecipientLine(recipientLine)
@@ -49,6 +50,7 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
      * Example:
      * ->(RECIPIENT_PREFIX) X25519(TYPE_NAME) 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8(ARGUMENTS)
      */
+    @JvmStatic
     internal fun parseRecipientLine(recipientLine: String): Pair<String, List<String>> {
       val (prefix, args) = splitArgs(recipientLine)
 
@@ -74,6 +76,7 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
      * ... The rest of the recipient stanza is a body of canonical base64 from RFC 4648 without padding wrapped at
      * exactly 64 columns.
      */
+    @JvmStatic
     internal fun parseBodyLines(reader: BufferedReader): ByteArray {
       // Create a mutable byteList which will hold all the bytes while we're parsing the body
       val byteList = mutableListOf<Byte>()
@@ -99,6 +102,7 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
     /*
      * Splits a line over ' ' and returns a pair with the line prefix and the arguments
      */
+    @JvmStatic
     internal fun splitArgs(recipientLine: String): Pair<String, List<String>> {
       // Split recipient line over " "
       val parts = recipientLine.split(" ")
@@ -111,6 +115,7 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
      * Age Spec:
      * ... an arbitrary string is a sequence of ASCII characters with values 33 to 126.
      */
+    @JvmStatic
     internal fun isValidArbitraryString(string: String): Boolean {
       if (string.isEmpty()) throw ParseException("Arbitrary string should not be empty")
       string.forEach { char -> if (char.code < 33 || char.code > 126) return false }
