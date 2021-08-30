@@ -1,7 +1,7 @@
 package kage.format
 
 import java.io.BufferedReader
-import java.util.*
+import java.util.Base64
 
 public data class AgeStanza(val type: String, val args: List<String>, val body: ByteArray) {
 
@@ -87,6 +87,9 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
             ?: throw ParseException(
               "Line is null, did you forget an extra newline after a full length body chunk?"
             )
+
+        // TODO: Check if a new header or a new footer starts here and throw an error
+
         val bytes = Base64.getDecoder().decode(line)
         if (bytes.size > BYTES_PER_LINE) throw ParseException("Body line is too long: $line")
 
