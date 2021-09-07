@@ -2,6 +2,11 @@ package kage.format
 
 import java.io.BufferedReader
 import java.util.Base64
+import kage.format.AgeKey.Companion.BYTES_PER_LINE
+import kage.format.AgeKey.Companion.FOOTER_PREFIX
+import kage.format.AgeKey.Companion.RECIPIENT_PREFIX
+import kage.format.ParseUtils.isValidArbitraryString
+import kage.format.ParseUtils.splitArgs
 
 public data class AgeStanza(val type: String, val args: List<String>, val body: ByteArray) {
 
@@ -26,10 +31,6 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
   }
 
   internal companion object {
-    private const val RECIPIENT_PREFIX = "->"
-    private const val COLUMNS_PER_LINE = 64
-    private const val BYTES_PER_LINE = COLUMNS_PER_LINE / 4 * 3
-
     @JvmStatic
     internal fun parse(reader: BufferedReader): AgeStanza {
       // The first line should be a recipient line with at least one argument
@@ -80,15 +81,35 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
     internal fun parseBodyLines(reader: BufferedReader): ByteArray {
       // Create a mutable byteList which will hold all the bytes while we're parsing the body
       val byteList = mutableListOf<Byte>()
+      val charArray = CharArray(3)
       var stopParsing = false
+
       do {
+        // Add a mark to be able to reset the reader after reading the first 3 characters of the line
+        reader.mark(3)
+        reader.read(charArray)
+        val incompleteString = charArray.concatToString()
+
+        // Reset the reader back to the start of the line
+        reader.reset()
+
+        // Always check using startsWith instead of contains otherwise "\n->" will be a false positive
+        if (incompleteString.startsWith(RECIPIENT_PREFIX)) {
+          throw ParseException(
+            "Encountered a new stanza while parsing the current one : ${reader.readLine()}"
+          )
+        }
+        if (incompleteString.startsWith(FOOTER_PREFIX)) {
+          throw ParseException(
+            "Encountered the footer while parsing the current stanza: ${reader.readLine()}"
+          )
+        }
+
         val line =
           reader.readLine()
             ?: throw ParseException(
               "Line is null, did you forget an extra newline after a full length body chunk?"
             )
-
-        // TODO: Check if a new header or a new footer starts here and throw an error
 
         val bytes = Base64.getDecoder().decode(line)
         if (bytes.size > BYTES_PER_LINE) throw ParseException("Body line is too long: $line")
@@ -100,29 +121,6 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
       } while (!stopParsing)
 
       return byteList.toByteArray()
-    }
-
-    /*
-     * Splits a line over ' ' and returns a pair with the line prefix and the arguments
-     */
-    @JvmStatic
-    internal fun splitArgs(recipientLine: String): Pair<String, List<String>> {
-      // Split recipient line over " "
-      val parts = recipientLine.split(" ")
-      // Drop '->' (RECIPIENT_PREFIX) from recipient line and return it along with the remaining
-      // arguments
-      return Pair(parts.first(), parts.drop(1))
-    }
-
-    /*
-     * Age Spec:
-     * ... an arbitrary string is a sequence of ASCII characters with values 33 to 126.
-     */
-    @JvmStatic
-    internal fun isValidArbitraryString(string: String): Boolean {
-      if (string.isEmpty()) throw ParseException("Arbitrary string should not be empty")
-      string.forEach { char -> if (char.code < 33 || char.code > 126) return false }
-      return true
     }
   }
 }

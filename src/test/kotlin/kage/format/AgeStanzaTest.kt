@@ -126,7 +126,7 @@ class AgeStanzaTest {
   fun testArgumentsAreSplitCorrectly() {
     val recipientLine = "-> X25519 ARG1 ARG2"
 
-    val (prefix, args) = AgeStanza.splitArgs(recipientLine)
+    val (prefix, args) = ParseUtils.splitArgs(recipientLine)
 
     assertEquals(prefix, "->")
     assertEquals(args.size, 3)
@@ -139,7 +139,7 @@ class AgeStanzaTest {
   fun testArbitraryStringFailsIfEmpty() {
     val arbitraryString = ""
 
-    assertFailsWith<ParseException> { AgeStanza.isValidArbitraryString(arbitraryString) }
+    assertFailsWith<ParseException> { ParseUtils.isValidArbitraryString(arbitraryString) }
   }
 
   @Test
@@ -148,10 +148,10 @@ class AgeStanzaTest {
     val charCode127String = Char(127).toString() // DEL
 
     // Here we're checking both limits individually to make sure both are correct
-    val code32Result = AgeStanza.isValidArbitraryString(charCode32String)
+    val code32Result = ParseUtils.isValidArbitraryString(charCode32String)
     assertEquals(false, code32Result)
 
-    val code127Result = AgeStanza.isValidArbitraryString(charCode127String)
+    val code127Result = ParseUtils.isValidArbitraryString(charCode127String)
     assertEquals(false, code127Result)
   }
 
@@ -161,7 +161,7 @@ class AgeStanzaTest {
 
     // Here we don't need to check limits individually since any error will change the result to
     // false
-    val result = AgeStanza.isValidArbitraryString(arbitraryString)
+    val result = ParseUtils.isValidArbitraryString(arbitraryString)
     assertEquals(true, result)
   }
 }
