@@ -28,13 +28,6 @@ constructor(
   cause: Throwable? = null,
 ) : ParseException(message, cause)
 
-public class IncompleteRecipientException
-@JvmOverloads
-constructor(
-  message: String? = null,
-  cause: Throwable? = null,
-) : ParseException(message, cause)
-
 public class InvalidFooterException
 @JvmOverloads
 constructor(

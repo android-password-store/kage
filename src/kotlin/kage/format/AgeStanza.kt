@@ -97,12 +97,12 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
         // Always check using startsWith instead of contains otherwise "\n->" will be a false
         // positive
         if (incompleteString.startsWith(RECIPIENT_PREFIX)) {
-          throw IncompleteRecipientException(
+          throw InvalidRecipientException(
             "Encountered a new stanza while parsing the current one : ${reader.readLine()}"
           )
         }
         if (incompleteString.startsWith(FOOTER_PREFIX)) {
-          throw IncompleteRecipientException(
+          throw InvalidRecipientException(
             "Encountered the footer while parsing the current stanza: ${reader.readLine()}"
           )
         }
