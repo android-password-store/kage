@@ -60,7 +60,7 @@ public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray)
         // line
         reader.mark(3)
         if (reader.read(characterArray) == -1)
-          throw IncompleteRecipientException("End of stream reached while reading recipients")
+          throw InvalidRecipientException("End of stream reached while reading recipients")
 
         val line = characterArray.concatToString()
         reader.reset()
