@@ -1,34 +1,43 @@
 package kage.format
 
-public sealed class ParseException(message: String? = null, cause: Throwable? = null) :
-  Exception(message, cause)
+public sealed class ParseException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : Exception(message, cause)
 
-public class InvalidArbitraryStringException : ParseException {
-  public constructor() : super()
-  public constructor(message: String) : super(message)
-  public constructor(message: String, cause: Throwable) : super(message, cause)
-}
+public class InvalidArbitraryStringException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
 
-public class InvalidVersionException : ParseException {
-  public constructor() : super()
-  public constructor(message: String) : super(message)
-  public constructor(message: String, cause: Throwable) : super(message, cause)
-}
+public class InvalidVersionException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
 
-public class InvalidRecipientException : ParseException {
-  public constructor() : super()
-  public constructor(message: String) : super(message)
-  public constructor(message: String, cause: Throwable) : super(message, cause)
-}
+public class InvalidRecipientException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
 
-public class IncompleteRecipientException : ParseException {
-  public constructor() : super()
-  public constructor(message: String) : super(message)
-  public constructor(message: String, cause: Throwable) : super(message, cause)
-}
+public class IncompleteRecipientException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
 
-public class InvalidFooterException : ParseException {
-  public constructor() : super()
-  public constructor(message: String) : super(message)
-  public constructor(message: String, cause: Throwable) : super(message, cause)
-}
+public class InvalidFooterException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
