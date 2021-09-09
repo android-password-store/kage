@@ -19,7 +19,8 @@ internal object ParseUtils {
    */
   @JvmStatic
   internal fun isValidArbitraryString(string: String): Boolean {
-    if (string.isEmpty()) throw ParseException("Arbitrary string should not be empty")
+    if (string.isEmpty())
+      throw InvalidArbitraryStringException("Arbitrary string should not be empty")
     string.forEach { char -> if (char.code < 33 || char.code > 126) return false }
     return true
   }

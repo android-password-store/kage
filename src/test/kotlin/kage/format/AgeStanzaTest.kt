@@ -119,7 +119,7 @@ class AgeStanzaTest {
     // Read recipient line
     reader.readLine()
 
-    assertFailsWith<ParseException> { AgeStanza.parseBodyLines(reader) }
+    assertFailsWith<InvalidRecipientException> { AgeStanza.parseBodyLines(reader) }
   }
 
   @Test
@@ -139,7 +139,9 @@ class AgeStanzaTest {
   fun testArbitraryStringFailsIfEmpty() {
     val arbitraryString = ""
 
-    assertFailsWith<ParseException> { ParseUtils.isValidArbitraryString(arbitraryString) }
+    assertFailsWith<InvalidArbitraryStringException> {
+      ParseUtils.isValidArbitraryString(arbitraryString)
+    }
   }
 
   @Test

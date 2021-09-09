@@ -1,17 +1,16 @@
 package kage.format
 
-import java.util.*
+import java.util.Base64
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
 class AgeHeaderTest {
 
-    @Test
-    fun testCompleteHeader() {
-        val headerString =
-            """age-encryption.org/v1
+  @Test
+  fun testCompleteHeader() {
+    val headerString =
+      """age-encryption.org/v1
             |-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
@@ -19,49 +18,48 @@ class AgeHeaderTest {
             |--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM
             |""".trimMargin()
 
-        val reader = headerString.reader().buffered()
-        val header = AgeHeader.parse(reader)
-        val actualMac = Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM")
+    val reader = headerString.reader().buffered()
+    val header = AgeHeader.parse(reader)
+    val actualMac = Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM")
 
-        assertEquals(header.recipients.size, 2)
-        assertEquals(header.mac.decodeToString(), actualMac.decodeToString())
-    }
+    assertEquals(header.recipients.size, 2)
+    assertEquals(header.mac.decodeToString(), actualMac.decodeToString())
+  }
 
-    @Test
-    fun testVersionLine() {
-        val versionLine = "age-encryption.org/v1"
+  @Test
+  fun testVersionLine() {
+    val versionLine = "age-encryption.org/v1"
 
-        val reader = versionLine.reader().buffered()
-        AgeHeader.parseVersion(reader)
-    }
+    val reader = versionLine.reader().buffered()
+    AgeHeader.parseVersion(reader)
+  }
 
-    @Test
-    fun testFooter() {
-        val footerLine = "--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM"
+  @Test
+  fun testFooter() {
+    val footerLine = "--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM"
 
-        val reader = footerLine.reader().buffered()
+    val reader = footerLine.reader().buffered()
 
-        val mac = AgeHeader.parseFooter(reader).decodeToString()
-        val actualMac = Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM").decodeToString()
+    val mac = AgeHeader.parseFooter(reader).decodeToString()
+    val actualMac =
+      Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM").decodeToString()
 
-        assertEquals(mac, actualMac)
-    }
+    assertEquals(mac, actualMac)
+  }
 
-    @Test
-    fun testFooterWithoutMac() {
-        val footerLine = "--- "
+  @Test
+  fun testFooterWithoutMac() {
+    val footerLine = "--- "
 
-        val reader = footerLine.reader().buffered()
+    val reader = footerLine.reader().buffered()
 
-        assertFailsWith<ParseException> {
-            AgeHeader.parseFooter(reader).decodeToString()
-        }
-    }
+    assertFailsWith<InvalidFooterException> { AgeHeader.parseFooter(reader).decodeToString() }
+  }
 
-    @Test
-    fun testMultipleRecipients() {
-        val recipients =
-            """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
+  @Test
+  fun testMultipleRecipients() {
+    val recipients =
+      """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
             |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
@@ -81,28 +79,28 @@ class AgeHeaderTest {
             |Bbtnl6veSZhZmG7uXGQUX0hJbrC8mxDkL3zW06tqlWY
             |---""".trimMargin()
 
-        val reader = recipients.reader().buffered()
-        val parsedRecipients = AgeHeader.parseRecipients(reader)
+    val reader = recipients.reader().buffered()
+    val parsedRecipients = AgeHeader.parseRecipients(reader)
 
-        assertEquals(parsedRecipients.size, 5)
-    }
+    assertEquals(parsedRecipients.size, 5)
+  }
 
-    @Test
-    fun testReaderPositionAfterParsingRecipients() {
-        val recipients =
-        """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
+  @Test
+  fun testReaderPositionAfterParsingRecipients() {
+    val recipients =
+      """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
             |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
             |---"""".trimMargin()
 
-        val reader = recipients.reader().buffered()
-        val charArray = CharArray(3)
-        AgeHeader.parseRecipients(reader)
+    val reader = recipients.reader().buffered()
+    val charArray = CharArray(3)
+    AgeHeader.parseRecipients(reader)
 
-        reader.read(charArray)
-        val line = charArray.concatToString()
+    reader.read(charArray)
+    val line = charArray.concatToString()
 
-        assert(line.startsWith("---"))
-    }
+    assert(line.startsWith("---"))
+  }
 }

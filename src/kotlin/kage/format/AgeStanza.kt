@@ -56,13 +56,13 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
       val (prefix, args) = splitArgs(recipientLine)
 
       if (prefix != RECIPIENT_PREFIX)
-        throw ParseException("Recipient line does not start with '->': $recipientLine")
+        throw InvalidRecipientException("Recipient line does not start with '->': $recipientLine")
       if (args.isEmpty())
-        throw ParseException("Recipient line does not contain any type: $recipientLine")
+        throw InvalidRecipientException("Recipient line does not contain any type: $recipientLine")
 
       args.forEach { arg ->
         if (!isValidArbitraryString(arg))
-          throw ParseException("Argument: '$arg' is not a valid arbitrary string")
+          throw InvalidArbitraryStringException("Argument: '$arg' is not a valid arbitrary string")
       }
 
       // First element is the type name
@@ -85,7 +85,8 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
       var stopParsing = false
 
       do {
-        // Add a mark to be able to reset the reader after reading the first 3 characters of the line
+        // Add a mark to be able to reset the reader after reading the first 3 characters of the
+        // line
         reader.mark(3)
         reader.read(charArray)
         val incompleteString = charArray.concatToString()
@@ -93,26 +94,28 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
         // Reset the reader back to the start of the line
         reader.reset()
 
-        // Always check using startsWith instead of contains otherwise "\n->" will be a false positive
+        // Always check using startsWith instead of contains otherwise "\n->" will be a false
+        // positive
         if (incompleteString.startsWith(RECIPIENT_PREFIX)) {
-          throw ParseException(
+          throw IncompleteRecipientException(
             "Encountered a new stanza while parsing the current one : ${reader.readLine()}"
           )
         }
         if (incompleteString.startsWith(FOOTER_PREFIX)) {
-          throw ParseException(
+          throw IncompleteRecipientException(
             "Encountered the footer while parsing the current stanza: ${reader.readLine()}"
           )
         }
 
         val line =
           reader.readLine()
-            ?: throw ParseException(
+            ?: throw InvalidRecipientException(
               "Line is null, did you forget an extra newline after a full length body chunk?"
             )
 
         val bytes = Base64.getDecoder().decode(line)
-        if (bytes.size > BYTES_PER_LINE) throw ParseException("Body line is too long: $line")
+        if (bytes.size > BYTES_PER_LINE)
+          throw InvalidRecipientException("Body line is too long: $line")
 
         // Add the bytes to the byteList
         byteList.addAll(bytes.asList())
