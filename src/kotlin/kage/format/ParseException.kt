@@ -1,7 +1,43 @@
 package kage.format
 
-public class ParseException : Exception {
-  public constructor() : super()
-  public constructor(message: String) : super(message)
-  public constructor(message: String, cause: Throwable) : super(message, cause)
-}
+public sealed class ParseException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : Exception(message, cause)
+
+public class InvalidArbitraryStringException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
+
+public class InvalidVersionException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
+
+public class InvalidRecipientException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
+
+public class IncompleteRecipientException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
+
+public class InvalidFooterException
+@JvmOverloads
+constructor(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
