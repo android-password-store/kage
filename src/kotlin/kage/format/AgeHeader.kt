@@ -42,6 +42,10 @@ public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray)
       parseVersionLine(versionLine)
     }
 
+    /*
+     * Age Spec:
+     * The first line of the header is age-encryption.org/ followed by an arbitrary version string.
+     */
     internal fun parseVersionLine(versionLine: String) {
       if (versionLine != VERSION_LINE)
         throw InvalidVersionException("Version line is not correct: $versionLine")
@@ -76,14 +80,22 @@ public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray)
       return parseFooterLine(footerLine)
     }
 
+    /*
+     * Age Spec:
+     * The header ends with the following line
+     * --- encode(HMAC[HKDF["", "header"](file key)](header))
+     * where header is the whole header up to the --- mark included.
+     */
     internal fun parseFooterLine(footerLine: String): ByteArray {
       val (prefix, args) = splitArgs(footerLine)
 
       if (prefix != FOOTER_PREFIX)
         throw InvalidFooterException("Footer line does not start with '---': $footerLine")
 
+      // Age does not check if the mac is empty but the mac can never be empty, so let's keep the
+      // `isEmpty` check
       if (args.size != 1 || args.first().isEmpty())
-        throw InvalidFooterException("Footer line does not contain HMAC")
+        throw InvalidFooterException("Footer line does not contain MAC")
 
       return Base64.getDecoder().decode(args.first())
         ?: throw InvalidFooterException("Error parsing footer line")

@@ -10,7 +10,7 @@ internal object ParseUtils {
     val parts = line.split(" ")
     // Drop '->' (RECIPIENT_PREFIX) from recipient line and return it along with the remaining
     // arguments
-    return Pair(parts.first(), parts.drop(1).filter(String::isNotEmpty))
+    return Pair(parts.first(), parts.drop(1))
   }
 
   /*
