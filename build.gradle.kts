@@ -1,4 +1,5 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
   kotlin("jvm")
@@ -29,3 +30,9 @@ sourceSets {
 }
 
 dependencies { testImplementation(libs.kotlintest.junit) }
+
+tasks.withType<Test>().configureEach {
+  maxParallelForks = Runtime.getRuntime().availableProcessors() * 2
+  testLogging { events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED) }
+  outputs.upToDateWhen { false }
+}
