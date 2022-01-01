@@ -1,4 +1,3 @@
-
 package kage.format
 
 import java.io.BufferedReader
@@ -14,7 +13,8 @@ public data class AgeKey(val header: AgeHeader, val body: ByteArray) {
     if (header != other.header) return false
     if (!body.contentEquals(other.body)) return false
 
-    return true  }
+    return true
+  }
 
   override fun hashCode(): Int {
     var result = header.hashCode()
