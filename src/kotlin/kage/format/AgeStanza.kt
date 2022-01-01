@@ -3,10 +3,15 @@ package kage.format
 import java.io.BufferedReader
 import java.util.Base64
 import kage.format.AgeKey.Companion.BYTES_PER_LINE
+import kage.format.AgeKey.Companion.COLUMNS_PER_LINE
 import kage.format.AgeKey.Companion.FOOTER_PREFIX
 import kage.format.AgeKey.Companion.RECIPIENT_PREFIX
 import kage.format.ParseUtils.isValidArbitraryString
 import kage.format.ParseUtils.splitArgs
+import kage.utils.encodeBase64
+import kage.utils.writeNewLine
+import kage.utils.writeSpace
+import java.io.BufferedWriter
 
 public data class AgeStanza(val type: String, val args: List<String>, val body: ByteArray) {
 
@@ -43,7 +48,31 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
       return AgeStanza(type, args, body)
     }
 
-    /* Age Spec:
+    @JvmStatic
+    internal fun write(writer: BufferedWriter, ageStanza: AgeStanza) {
+      writer.write(RECIPIENT_PREFIX)
+      writer.writeSpace()
+      writer.write(ageStanza.type)
+      writer.writeSpace()
+      writer.write(ageStanza.args.joinToString(" "))
+      writer.writeNewLine()
+      writeBody(writer, ageStanza.body)
+    }
+
+    @JvmStatic
+    internal fun writeBody(writer: BufferedWriter, body: ByteArray) {
+      val encodedBody = body.encodeBase64()
+      val lines = encodedBody.windowed(size = COLUMNS_PER_LINE, step = COLUMNS_PER_LINE, partialWindows = true)
+      lines.forEach {
+        writer.write(it)
+        writer.writeNewLine()
+      }
+
+      if (encodedBody.length % COLUMNS_PER_LINE == 0) writer.writeNewLine()
+    }
+
+    /*
+     * Age Spec:
      * Each recipient stanza starts with a line beginning with -> and its type name,
      * followed by zero or more SP-separated arguments. The type name and the arguments
      * are arbitrary strings. Unknown recipient types are ignored.
