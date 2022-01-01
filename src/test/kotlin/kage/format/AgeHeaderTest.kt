@@ -93,7 +93,7 @@ class AgeHeaderTest {
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
             |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
-            |---"""".trimMargin()
+            |---""".trimMargin()
 
     val reader = recipients.reader().buffered()
     val charArray = CharArray(3)
@@ -108,7 +108,7 @@ class AgeHeaderTest {
   @Test
   fun testWriteAgeHeaderWithoutMac() {
     val header =
-        """age-encryption.org/v1
+      """age-encryption.org/v1
             |-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
@@ -120,9 +120,7 @@ class AgeHeaderTest {
     val ageHeader = AgeHeader.parse(reader)
 
     val outputStream = ByteArrayOutputStream()
-    outputStream.bufferedWriter().use { writer ->
-      AgeHeader.write(writer, ageHeader)
-    }
+    outputStream.bufferedWriter().use { writer -> AgeHeader.write(writer, ageHeader) }
     val output = outputStream.toByteArray().decodeToString()
 
     assertEquals(header, output)

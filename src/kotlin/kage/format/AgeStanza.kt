@@ -1,6 +1,7 @@
 package kage.format
 
 import java.io.BufferedReader
+import java.io.BufferedWriter
 import java.util.Base64
 import kage.format.AgeKey.Companion.BYTES_PER_LINE
 import kage.format.AgeKey.Companion.COLUMNS_PER_LINE
@@ -11,7 +12,6 @@ import kage.format.ParseUtils.splitArgs
 import kage.utils.encodeBase64
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
-import java.io.BufferedWriter
 
 public data class AgeStanza(val type: String, val args: List<String>, val body: ByteArray) {
 
@@ -62,7 +62,12 @@ public data class AgeStanza(val type: String, val args: List<String>, val body: 
     @JvmStatic
     internal fun writeBody(writer: BufferedWriter, body: ByteArray) {
       val encodedBody = body.encodeBase64()
-      val lines = encodedBody.windowed(size = COLUMNS_PER_LINE, step = COLUMNS_PER_LINE, partialWindows = true)
+      val lines =
+        encodedBody.windowed(
+          size = COLUMNS_PER_LINE,
+          step = COLUMNS_PER_LINE,
+          partialWindows = true
+        )
       lines.forEach {
         writer.write(it)
         writer.writeNewLine()

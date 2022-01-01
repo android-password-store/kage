@@ -1,6 +1,7 @@
 package kage.format
 
 import java.io.BufferedReader
+import java.io.BufferedWriter
 import java.util.Base64
 import kage.format.AgeKey.Companion.FOOTER_PREFIX
 import kage.format.AgeKey.Companion.RECIPIENT_PREFIX
@@ -9,7 +10,6 @@ import kage.format.ParseUtils.splitArgs
 import kage.utils.encodeBase64
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
-import java.io.BufferedWriter
 
 public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray) {
 
@@ -68,7 +68,8 @@ public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray)
      * The first line of the header is age-encryption.org/ followed by an arbitrary version string.
      */
     internal fun parseVersionLine(versionLine: String) {
-      if (versionLine != VERSION_LINE) throw InvalidVersionException("Version line is not correct: $versionLine")
+      if (versionLine != VERSION_LINE)
+        throw InvalidVersionException("Version line is not correct: $versionLine")
     }
 
     internal fun parseRecipients(reader: BufferedReader): List<AgeStanza> {
@@ -79,7 +80,8 @@ public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray)
         // Add a mark to be able to reset the reader after reading the first 3 characters of the
         // line
         reader.mark(3)
-        if (reader.read(characterArray) == -1) throw InvalidRecipientException("End of stream reached while reading recipients")
+        if (reader.read(characterArray) == -1)
+          throw InvalidRecipientException("End of stream reached while reading recipients")
 
         val line = characterArray.concatToString()
         reader.reset()
@@ -108,13 +110,16 @@ public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray)
     internal fun parseFooterLine(footerLine: String): ByteArray {
       val (prefix, args) = splitArgs(footerLine)
 
-      if (prefix != FOOTER_PREFIX) throw InvalidFooterException("Footer line does not start with '---': $footerLine")
+      if (prefix != FOOTER_PREFIX)
+        throw InvalidFooterException("Footer line does not start with '---': $footerLine")
 
       // Age does not check if the mac is empty but the mac can never be empty, so let's keep the
       // `isEmpty` check
-      if (args.size != 1 || args.first().isEmpty()) throw InvalidFooterException("Footer line does not contain MAC")
+      if (args.size != 1 || args.first().isEmpty())
+        throw InvalidFooterException("Footer line does not contain MAC")
 
-      return Base64.getDecoder().decode(args.first()) ?: throw InvalidFooterException("Error parsing footer line")
+      return Base64.getDecoder().decode(args.first())
+        ?: throw InvalidFooterException("Error parsing footer line")
     }
   }
 }

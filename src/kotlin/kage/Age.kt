@@ -1,17 +1,22 @@
 package kage
 
-import kage.crypto.scrypt.ScryptRecipient
-import kage.format.AgeHeader
 import java.io.InputStream
 import java.io.OutputStream
 import java.security.SecureRandom
+import kage.crypto.scrypt.ScryptRecipient
+import kage.format.AgeHeader
 
 public object Age {
   private const val FILE_KEY_SIZE = 16
   private const val STREAM_NONCE_SIZE = 16
 
   @JvmStatic
-  public fun encrypt(recipients: List<Recipient>, inputStream: InputStream, outputStream: OutputStream, generateArmor: Boolean) {
+  public fun encrypt(
+    recipients: List<Recipient>,
+    inputStream: InputStream,
+    outputStream: OutputStream,
+    generateArmor: Boolean
+  ) {
     if (generateArmor) {
       TODO("Not yet implemented")
     }
