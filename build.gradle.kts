@@ -29,7 +29,10 @@ sourceSets {
   named("test") { java.srcDirs("test/kotlin") }
 }
 
-dependencies { testImplementation(libs.kotlintest.junit) }
+dependencies {
+  implementation("at.favre.lib:hkdf:1.1.0")
+  testImplementation(libs.kotlintest.junit)
+}
 
 tasks.withType<Test>().configureEach {
   maxParallelForks = Runtime.getRuntime().availableProcessors() * 2
