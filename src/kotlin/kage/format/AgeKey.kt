@@ -2,7 +2,7 @@ package kage.format
 
 import java.io.BufferedReader
 
-public data class AgeKey(val header: AgeHeader, val body: ByteArray) {
+public class AgeKey(val header: AgeHeader, val body: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
     if (other == null) return false

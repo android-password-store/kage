@@ -17,9 +17,7 @@ public object Age {
     outputStream: OutputStream,
     generateArmor: Boolean
   ) {
-    if (generateArmor) {
-      TODO("Not yet implemented")
-    }
+    TODO("Not yet implemented")
   }
 
   private fun encryptInternal(recipients: List<Recipient>, outputStream: OutputStream) {
