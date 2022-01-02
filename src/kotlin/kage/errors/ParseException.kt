@@ -34,3 +34,9 @@ public class InvalidFooterException(
   message: String? = null,
   cause: Throwable? = null,
 ) : ParseException(message, cause)
+
+/** Raised when the [kage.format.AgeHeader.mac] is empty when writing a [kage.format.AgeHeader]. */
+public class InvalidHMACException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)

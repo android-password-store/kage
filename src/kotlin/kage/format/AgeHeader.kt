@@ -9,6 +9,7 @@ import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.util.Base64
 import kage.errors.InvalidFooterException
+import kage.errors.InvalidHMACException
 import kage.errors.InvalidRecipientException
 import kage.errors.InvalidVersionException
 import kage.format.AgeKey.Companion.FOOTER_PREFIX
@@ -50,7 +51,7 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
     }
 
     internal fun write(writer: BufferedWriter, header: AgeHeader) {
-      if (header.mac.isEmpty()) throw IllegalArgumentException("MAC must not be empty")
+      if (header.mac.isEmpty()) throw InvalidHMACException("MAC must not be empty")
       writeWithoutMac(writer, header)
       writer.writeSpace()
       writer.write(header.mac.encodeBase64())
