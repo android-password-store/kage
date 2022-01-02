@@ -4,6 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
   kotlin("jvm")
   id("com.diffplug.spotless")
+  id("ru.vyarus.animalsniffer")
 }
 
 kotlin { explicitApi() }
@@ -24,12 +25,10 @@ configure<SpotlessExtension> {
   }
 }
 
-sourceSets {
-  named("main") { java.srcDirs("src/kotlin") }
-  named("test") { java.srcDirs("test/kotlin") }
-}
+sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
+  signature("net.sf.androidscents.signature:android-api-level-23:6.0_r3")
   implementation("at.favre.lib:hkdf:1.1.0")
   testImplementation(libs.kotlintest.junit)
 }
