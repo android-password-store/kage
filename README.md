@@ -16,6 +16,23 @@ These can evolve over time, but for now the following are non-goals for our work
 - Offer a user interface of any kind (CLI/GUI): The kage project intends to only be a library for other applications to build on
 - Support plugins: The upstream implementation of plugins relies on binaries in `$PATH`, which is [impractical for mobile](https://github.com/FiloSottile/age/discussions/365#discussioncomment-1711442).
 
+## License
+
+Licensed under either of
+
+ * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
+   http://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally
+submitted for inclusion in the work by you, as defined in the Apache-2.0
+license, shall be dual licensed as above, without any additional terms or
+conditions.
+
 [age encryption protocol]: https://age-encryption.org/v1
 [reference go implementation]: https://github.com/FiloSottile/age
 [rust implementation]: https://github.com/str4d/rage
