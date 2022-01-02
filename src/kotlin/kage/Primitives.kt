@@ -11,12 +11,14 @@ internal object Primitives {
   private const val MAC_ALGORITHM = "HmacSHA256"
   private const val MAC_KEY_LENGTH = 32
   private const val CHACHA_20_POLY_1305_KEY_LENGTH = 32
+  private const val HEADER_INFO = "header"
+  private const val PAYLOAD_INFO = "payload"
 
   fun headerMAC(fileKey: ByteArray, header: AgeHeader): ByteArray {
     // Passing null directly in extractAndExpand causes overload ambiguity since both SecretKey and
     // ByteArray can be null so create a null variable of type ByteArray
     val saltExtract: ByteArray? = null
-    val headerByteArray = "header".encodeToByteArray()
+    val headerByteArray = HEADER_INFO.encodeToByteArray()
     val hkdf = HKDF.fromHmacSha256()
 
     val hmacKey = hkdf.extractAndExpand(saltExtract, fileKey, headerByteArray, MAC_KEY_LENGTH)
@@ -33,7 +35,7 @@ internal object Primitives {
   }
 
   fun streamKey(fileKey: ByteArray, nonce: ByteArray): ByteArray {
-    val payloadByteArray = "payload".encodeToByteArray()
+    val payloadByteArray = PAYLOAD_INFO.encodeToByteArray()
     val hkdf = HKDF.fromHmacSha256()
     return hkdf.extractAndExpand(nonce, fileKey, payloadByteArray, CHACHA_20_POLY_1305_KEY_LENGTH)
   }
