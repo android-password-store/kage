@@ -14,8 +14,7 @@ internal object Primitives {
 
   fun headerMAC(fileKey: ByteArray, header: AgeHeader): ByteArray {
     // Passing null directly in extractAndExpand causes overload ambiguity since both SecretKey and
-    // ByteArray can be null
-    // so create a null variable of type ByteArray
+    // ByteArray can be null so create a null variable of type ByteArray
     val saltExtract: ByteArray? = null
     val headerByteArray = "header".encodeToByteArray()
     val hkdf = HKDF.fromHmacSha256()

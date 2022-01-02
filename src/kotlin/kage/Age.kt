@@ -12,10 +12,10 @@ public object Age {
 
   @JvmStatic
   public fun encrypt(
-      recipients: List<Recipient>,
-      inputStream: InputStream,
-      outputStream: OutputStream,
-      generateArmor: Boolean
+    recipients: List<Recipient>,
+    inputStream: InputStream,
+    outputStream: OutputStream,
+    generateArmor: Boolean
   ) {
     TODO("Not yet implemented")
   }
@@ -44,7 +44,8 @@ public object Age {
     val ageHeaderWithoutMac = AgeHeader(stanzas, ByteArray(0))
     val mac = Primitives.headerMAC(fileKey, ageHeaderWithoutMac)
 
-    val header = ageHeaderWithoutMac.copy(mac = mac)
+    // TODO: Check if we need a deep copy of stanzas here
+    val ageHeader = AgeHeader(stanzas, mac)
 
     val nonce = ByteArray(STREAM_NONCE_SIZE)
     SecureRandom().nextBytes(nonce)
