@@ -12,10 +12,10 @@ public object Age {
 
   @JvmStatic
   public fun encrypt(
-    recipients: List<Recipient>,
-    inputStream: InputStream,
-    outputStream: OutputStream,
-    generateArmor: Boolean
+      recipients: List<Recipient>,
+      inputStream: InputStream,
+      outputStream: OutputStream,
+      generateArmor: Boolean
   ) {
     TODO("Not yet implemented")
   }
@@ -25,11 +25,12 @@ public object Age {
       throw IllegalArgumentException("No recipients specified")
     }
 
-    // Age docs:
+    // From the age docs:
     // As a best effort, prevent an API user from generating a file that the
     // ScryptIdentity will refuse to decrypt. This check can't unfortunately be
     // implemented as part of the Recipient interface, so it lives as a special
     // case in Encrypt.
+    // https://github.com/FiloSottile/age/blob/ab3707c085f2c1fdfd767a2ed718423e3925f4c4/age.go#L114-L122
     recipients.forEach { recipient ->
       if (recipient is ScryptRecipient && recipients.size != 1) {
         throw IllegalArgumentException("Only one scrypt recipient is supported")
