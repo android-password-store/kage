@@ -182,7 +182,7 @@ class AgeStanzaTest {
     val ageStanza = AgeStanza.parse(reader)
 
     val outputStream = ByteArrayOutputStream()
-    outputStream.bufferedWriter().use { writer -> AgeStanza.write(writer, ageStanza) }
+    outputStream.bufferedWriter().use { writer -> AgeStanza.writeBody(writer, ageStanza.body) }
     val output = outputStream.toByteArray().decodeToString()
 
     assertEquals(actualBody, output)
@@ -219,7 +219,7 @@ class AgeStanzaTest {
     val ageStanza = AgeStanza.parse(reader)
 
     val outputStream = ByteArrayOutputStream()
-    outputStream.bufferedWriter().use { writer -> AgeStanza.write(writer, ageStanza) }
+    outputStream.bufferedWriter().use { writer -> AgeStanza.writeBody(writer, ageStanza.body) }
     val output = outputStream.toByteArray().decodeToString()
 
     assertEquals(actualBody, output)
