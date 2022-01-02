@@ -16,7 +16,8 @@ pluginManagement {
     mavenCentral()
   }
   plugins {
-    id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
+    id("org.jetbrains.kotlin.jvm") version kotlinVersion
+    id("org.jetbrains.dokka") version kotlinVersion
     id("com.diffplug.spotless") version "6.1.0"
     id("ru.vyarus.animalsniffer") version "1.5.4" apply false
   }

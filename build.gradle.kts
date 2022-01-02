@@ -8,6 +8,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
   kotlin("jvm")
+  id("org.jetbrains.dokka")
   id("com.diffplug.spotless")
   id("ru.vyarus.animalsniffer")
 }
