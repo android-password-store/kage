@@ -13,11 +13,16 @@ import kage.utils.encodeBase64
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
-public class AgeStanza(
-  private val type: String,
-  private val args: List<String>,
-  private val body: ByteArray
-) {
+public class AgeStanza(type: String, args: List<String>, body: ByteArray) {
+
+  public var type: String = type
+    private set
+
+  public var args: List<String> = args
+    private set
+
+  public var body: ByteArray = body
+    private set
 
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
