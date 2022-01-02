@@ -1,3 +1,10 @@
+/**
+ * Copyright 2021 The kage Authors. All rights reserved.
+ * Use of this source code is governed by either an
+ * Apache 2.0 or MIT license at your discretion, that can
+ * be found in the LICENSE-APACHE or LICENSE-MIT files
+ * respectively.
+ */
 import com.diffplug.gradle.spotless.SpotlessExtension
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -18,10 +25,12 @@ configure<SpotlessExtension> {
     ktfmt().googleStyle()
     target("**/*.kt")
     targetExclude("**/build/")
+    licenseHeaderFile("spotless.license", "package")
   }
   kotlinGradle {
     ktfmt().googleStyle()
     target("**/*.kts")
+    licenseHeaderFile("spotless.license", "package |import|enableFeaturePreview")
   }
 }
 
