@@ -1,13 +1,17 @@
 package kage.format
 
 import java.io.BufferedReader
+import java.io.BufferedWriter
 import java.util.Base64
 import kage.format.AgeKey.Companion.FOOTER_PREFIX
 import kage.format.AgeKey.Companion.RECIPIENT_PREFIX
 import kage.format.AgeKey.Companion.VERSION_LINE
 import kage.format.ParseUtils.splitArgs
+import kage.utils.encodeBase64
+import kage.utils.writeNewLine
+import kage.utils.writeSpace
 
-public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray) {
+public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
@@ -35,6 +39,23 @@ public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray)
       val mac = parseFooter(reader)
 
       return AgeHeader(recipients, mac)
+    }
+
+    internal fun write(writer: BufferedWriter, header: AgeHeader) {
+      if (header.mac.isEmpty()) throw IllegalArgumentException("MAC must not be empty")
+      writeWithoutMac(writer, header)
+      writer.writeSpace()
+      writer.write(header.mac.encodeBase64())
+      writer.writeNewLine()
+    }
+
+    internal fun writeWithoutMac(writer: BufferedWriter, header: AgeHeader) {
+      writer.write(VERSION_LINE)
+      writer.writeNewLine()
+      for (recipient in header.recipients) {
+        AgeStanza.write(writer, recipient)
+      }
+      writer.write(FOOTER_PREFIX)
     }
 
     internal fun parseVersion(reader: BufferedReader) {

@@ -1,5 +1,6 @@
 package kage.format
 
+import java.io.ByteArrayOutputStream
 import java.util.Base64
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -165,5 +166,79 @@ class AgeStanzaTest {
     // false
     val result = ParseUtils.isValidArbitraryString(arbitraryString)
     assertEquals(true, result)
+  }
+
+  @Test
+  fun testWriteSingleLineBody() {
+    val stanza =
+      """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
+            |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
+            |""".trimMargin()
+
+    val actualBody = """0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
+        |""".trimMargin()
+
+    val reader = stanza.reader().buffered()
+    val ageStanza = AgeStanza.parse(reader)
+
+    val outputStream = ByteArrayOutputStream()
+    outputStream.bufferedWriter().use { writer -> AgeStanza.writeBody(writer, ageStanza.body) }
+    val output = outputStream.toByteArray().decodeToString()
+
+    assertEquals(actualBody, output)
+  }
+
+  @Test
+  fun testWriteMultiLineBody() {
+    val stanza =
+      """-> ssh-rsa SkdmSg
+            |SW+xNSybDWTCkWx20FnCcxlfGC889s2hRxT8+giPH2DQMMFV6DyZpveqXtNwI3ts
+            |5rVkW/7hCBSqEPQwabC6O5ls75uNjeSURwHAaIwtQ6riL9arjVpHMl8O7GWSRnx3
+            |NltQt08ZpBAUkBqq5JKAr20t46ZinEIsD1LsDa2EnJrn0t8Truo2beGwZGkwkE2Y
+            |j8mC2GaqR0gUcpGwIk6QZMxOdxNSOO7jhIC32nt1w2Ep1ftk9wV1sFyQo+YYrzOx
+            |yCDdUwQAu9oM3Ez6AWkmFyG6AvKIny8I4xgJcBt1DEYZcD5PIAt51nRJQcs2/ANP
+            |+Y1rKeTsskMHnlRpOnMlXqoeN6A3xS+EWxFTyg1GREQeaVztuhaL6DVBB22sLskw
+            |XBHq/XlkLWkqoLrQtNOPvLoDO80TKUORVsP1y7OyUPHqUumxj9Mn/QtsZjNCPyKN
+            |ds7P2OLD/Jxq1o1ckzG3uzv8Vb6sqYUPmRvlXyD7/s/FURA1GetBiQEdRM34xbrB
+            |
+            |""".trimMargin()
+
+    val actualBody =
+      """SW+xNSybDWTCkWx20FnCcxlfGC889s2hRxT8+giPH2DQMMFV6DyZpveqXtNwI3ts
+            |5rVkW/7hCBSqEPQwabC6O5ls75uNjeSURwHAaIwtQ6riL9arjVpHMl8O7GWSRnx3
+            |NltQt08ZpBAUkBqq5JKAr20t46ZinEIsD1LsDa2EnJrn0t8Truo2beGwZGkwkE2Y
+            |j8mC2GaqR0gUcpGwIk6QZMxOdxNSOO7jhIC32nt1w2Ep1ftk9wV1sFyQo+YYrzOx
+            |yCDdUwQAu9oM3Ez6AWkmFyG6AvKIny8I4xgJcBt1DEYZcD5PIAt51nRJQcs2/ANP
+            |+Y1rKeTsskMHnlRpOnMlXqoeN6A3xS+EWxFTyg1GREQeaVztuhaL6DVBB22sLskw
+            |XBHq/XlkLWkqoLrQtNOPvLoDO80TKUORVsP1y7OyUPHqUumxj9Mn/QtsZjNCPyKN
+            |ds7P2OLD/Jxq1o1ckzG3uzv8Vb6sqYUPmRvlXyD7/s/FURA1GetBiQEdRM34xbrB
+            |
+            |""".trimMargin()
+
+    val reader = stanza.reader().buffered()
+    val ageStanza = AgeStanza.parse(reader)
+
+    val outputStream = ByteArrayOutputStream()
+    outputStream.bufferedWriter().use { writer -> AgeStanza.writeBody(writer, ageStanza.body) }
+    val output = outputStream.toByteArray().decodeToString()
+
+    assertEquals(actualBody, output)
+  }
+
+  @Test
+  fun testWriteAgeStanza() {
+    val stanza =
+      """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
+            |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
+            |""".trimMargin()
+
+    val reader = stanza.reader().buffered()
+    val ageStanza = AgeStanza.parse(reader)
+
+    val outputStream = ByteArrayOutputStream()
+    outputStream.bufferedWriter().use { writer -> AgeStanza.write(writer, ageStanza) }
+    val output = outputStream.toByteArray().decodeToString()
+
+    assertEquals(stanza, output)
   }
 }
