@@ -13,7 +13,7 @@ import kage.utils.encodeBase64
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
-public class AgeStanza(val type: String, val args: List<String>, val body: ByteArray) {
+public class AgeStanza(private val type: String, private val args: List<String>, private val body: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
     if (other == null) return false

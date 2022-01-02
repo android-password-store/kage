@@ -11,7 +11,7 @@ import kage.utils.encodeBase64
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
-public data class AgeHeader(val recipients: List<AgeStanza>, val mac: ByteArray) {
+public class AgeHeader(private val recipients: List<AgeStanza>, private val mac: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
