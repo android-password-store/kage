@@ -1,5 +1,13 @@
 [versions]
-kotlin = "1.5.21"
+kotlin = "1.6.10"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version = "6.1.0" }
+animalsniffer = { id = "ru.vyarus.animalsniffer", version = "1.5.4" }
 
 [libraries]
+animalsniffer-signature-android = "net.sf.androidscents.signature:android-api-level-23:6.0_r3"
+hkdf = "at.favre.lib:hkdf:1.1.0"
 kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
