@@ -3,7 +3,6 @@
  * either an Apache 2.0 or MIT license at your discretion, that can be found in the LICENSE-APACHE
  * or LICENSE-MIT files respectively.
  */
-import com.diffplug.gradle.spotless.SpotlessExtension
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
@@ -19,7 +18,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
   kotlinOptions { moduleName = "kage" }
 }
 
-configure<SpotlessExtension> {
+spotless {
   kotlin {
     ktfmt().googleStyle()
     target("**/*.kt")
