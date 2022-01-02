@@ -8,6 +8,9 @@ package kage.format
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.util.Base64
+import kage.errors.InvalidFooterException
+import kage.errors.InvalidRecipientException
+import kage.errors.InvalidVersionException
 import kage.format.AgeKey.Companion.FOOTER_PREFIX
 import kage.format.AgeKey.Companion.RECIPIENT_PREFIX
 import kage.format.AgeKey.Companion.VERSION_LINE

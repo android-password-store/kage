@@ -7,6 +7,9 @@ package kage.format
 
 import java.io.ByteArrayOutputStream
 import java.util.Base64
+import kage.errors.InvalidArbitraryStringException
+import kage.errors.InvalidRecipientException
+import kage.errors.ParseException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

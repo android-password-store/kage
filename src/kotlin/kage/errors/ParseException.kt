@@ -3,39 +3,34 @@
  * either an Apache 2.0 or MIT license at your discretion, that can be found in the LICENSE-APACHE
  * or LICENSE-MIT files respectively.
  */
-package kage.format
+package kage.errors
 
-public sealed class ParseException
-@JvmOverloads
-constructor(
+/** Wrapper type for errors triggered while parsing an [kage.format.AgeStanza] */
+public sealed class ParseException(
   message: String? = null,
   cause: Throwable? = null,
 ) : Exception(message, cause)
 
-public class InvalidArbitraryStringException
-@JvmOverloads
-constructor(
+/** Raised when a non-ASCII string is encountered when parsing an [kage.format.AgeHeader]. */
+public class InvalidArbitraryStringException(
   message: String? = null,
   cause: Throwable? = null,
 ) : ParseException(message, cause)
 
-public class InvalidVersionException
-@JvmOverloads
-constructor(
+/** Raised when the parsed version is not an expected one. */
+public class InvalidVersionException(
   message: String? = null,
   cause: Throwable? = null,
 ) : ParseException(message, cause)
 
-public class InvalidRecipientException
-@JvmOverloads
-constructor(
+/** Raised when a failure occurs while parsing [kage.format.AgeStanza] for [kage.Recipient]s. */
+public class InvalidRecipientException(
   message: String? = null,
   cause: Throwable? = null,
 ) : ParseException(message, cause)
 
-public class InvalidFooterException
-@JvmOverloads
-constructor(
+/** Raised when the footer for a [kage.format.AgeHeader] is incorrect. */
+public class InvalidFooterException(
   message: String? = null,
   cause: Throwable? = null,
 ) : ParseException(message, cause)

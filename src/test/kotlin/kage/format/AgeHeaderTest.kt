@@ -7,6 +7,7 @@ package kage.format
 
 import java.io.ByteArrayOutputStream
 import java.util.Base64
+import kage.errors.InvalidFooterException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
