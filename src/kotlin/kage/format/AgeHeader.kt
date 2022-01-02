@@ -11,13 +11,7 @@ import kage.utils.encodeBase64
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
-public class AgeHeader(recipients: List<AgeStanza>, mac: ByteArray) {
-
-  public var recipients: List<AgeStanza> = recipients
-    private set
-
-  public var mac: ByteArray = mac
-    private set
+public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
