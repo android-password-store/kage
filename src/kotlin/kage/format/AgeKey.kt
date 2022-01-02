@@ -31,9 +31,7 @@ public class AgeKey(val header: AgeHeader, val body: ByteArray) {
 
     internal fun parse(reader: BufferedReader): AgeKey {
       val header = AgeHeader.parse(reader)
-      val body = ByteArray(3)
-
-      return AgeKey(header, body)
+      TODO("We need to parse the body")
     }
   }
 }
