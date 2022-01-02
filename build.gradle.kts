@@ -25,10 +25,7 @@ configure<SpotlessExtension> {
   }
 }
 
-sourceSets {
-  named("main") { java.srcDirs("src/kotlin") }
-  named("test") { java.srcDirs("test/kotlin") }
-}
+sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
   signature("net.sf.androidscents.signature:android-api-level-23:6.0_r3")
