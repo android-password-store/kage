@@ -1,9 +1,7 @@
 /**
- * Copyright 2021 The kage Authors. All rights reserved.
- * Use of this source code is governed by either an
- * Apache 2.0 or MIT license at your discretion, that can
- * be found in the LICENSE-APACHE or LICENSE-MIT files
- * respectively.
+ * Copyright 2021 The kage Authors. All rights reserved. Use of this source code is governed by
+ * either an Apache 2.0 or MIT license at your discretion, that can be found in the LICENSE-APACHE
+ * or LICENSE-MIT files respectively.
  */
 package kage
 
@@ -11,6 +9,8 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.security.SecureRandom
 import kage.crypto.scrypt.ScryptRecipient
+import kage.errors.InvalidScryptRecipientException
+import kage.errors.NoRecipientsException
 import kage.format.AgeHeader
 
 public object Age {
@@ -29,7 +29,7 @@ public object Age {
 
   private fun encryptInternal(recipients: List<Recipient>, outputStream: OutputStream) {
     if (recipients.isEmpty()) {
-      throw IllegalArgumentException("No recipients specified")
+      throw NoRecipientsException("No recipients specified")
     }
 
     // From the age docs:
@@ -40,7 +40,7 @@ public object Age {
     // https://github.com/FiloSottile/age/blob/ab3707c085f2c1fdfd767a2ed718423e3925f4c4/age.go#L114-L122
     recipients.forEach { recipient ->
       if (recipient is ScryptRecipient && recipients.size != 1) {
-        throw IllegalArgumentException("Only one scrypt recipient is supported")
+        throw InvalidScryptRecipientException("Only one scrypt recipient is supported")
       }
     }
 
