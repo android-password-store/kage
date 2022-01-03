@@ -5,11 +5,14 @@
  */
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
+// Workaround for false-positive IDE errors
+// From https://youtrack.jetbrains.com/issue/KTIJ-19369#focus=Comments-27-5181027.0-0
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-  kotlin("jvm")
-  id("org.jetbrains.dokka")
-  id("com.diffplug.spotless")
-  id("ru.vyarus.animalsniffer")
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.dokka)
+  alias(libs.plugins.spotless)
+  alias(libs.plugins.animalsniffer)
 }
 
 kotlin { explicitApi() }
@@ -37,8 +40,8 @@ tasks.check { finalizedBy(tasks.dokkaHtml) }
 sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
-  signature("net.sf.androidscents.signature:android-api-level-23:6.0_r3")
-  implementation("at.favre.lib:hkdf:1.1.0")
+  signature(libs.animalsniffer.signature.android)
+  implementation(libs.hkdf)
   testImplementation(libs.kotlintest.junit)
 }
 
