@@ -10,10 +10,10 @@ import java.io.BufferedWriter
 import java.util.Base64
 import kage.errors.InvalidArbitraryStringException
 import kage.errors.InvalidRecipientException
-import kage.format.AgeKey.Companion.BYTES_PER_LINE
-import kage.format.AgeKey.Companion.COLUMNS_PER_LINE
-import kage.format.AgeKey.Companion.FOOTER_PREFIX
-import kage.format.AgeKey.Companion.RECIPIENT_PREFIX
+import kage.format.AgeFile.Companion.BYTES_PER_LINE
+import kage.format.AgeFile.Companion.COLUMNS_PER_LINE
+import kage.format.AgeFile.Companion.FOOTER_PREFIX
+import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.ParseUtils.isValidArbitraryString
 import kage.format.ParseUtils.splitArgs
 import kage.utils.encodeBase64

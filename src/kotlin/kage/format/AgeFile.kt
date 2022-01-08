@@ -7,11 +7,11 @@ package kage.format
 
 import java.io.BufferedReader
 
-public class AgeKey(public val header: AgeHeader, public val body: ByteArray) {
+public class AgeFile(public val header: AgeHeader, public val body: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
-    if (other !is AgeKey) return false
+    if (other !is AgeFile) return false
 
     if (this === other) return true
 
@@ -34,7 +34,7 @@ public class AgeKey(public val header: AgeHeader, public val body: ByteArray) {
     internal const val COLUMNS_PER_LINE = 64
     internal const val BYTES_PER_LINE = COLUMNS_PER_LINE / 4 * 3
 
-    internal fun parse(reader: BufferedReader): AgeKey {
+    internal fun parse(reader: BufferedReader): AgeFile {
       val header = AgeHeader.parse(reader)
       TODO("We need to parse the body")
     }

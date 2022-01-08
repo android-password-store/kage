@@ -12,9 +12,9 @@ import kage.errors.InvalidFooterException
 import kage.errors.InvalidHMACException
 import kage.errors.InvalidRecipientException
 import kage.errors.InvalidVersionException
-import kage.format.AgeKey.Companion.FOOTER_PREFIX
-import kage.format.AgeKey.Companion.RECIPIENT_PREFIX
-import kage.format.AgeKey.Companion.VERSION_LINE
+import kage.format.AgeFile.Companion.FOOTER_PREFIX
+import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
+import kage.format.AgeFile.Companion.VERSION_LINE
 import kage.format.ParseUtils.splitArgs
 import kage.utils.encodeBase64
 import kage.utils.writeNewLine
