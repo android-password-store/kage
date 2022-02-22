@@ -40,3 +40,9 @@ public class InvalidHMACException(
   message: String? = null,
   cause: Throwable? = null,
 ) : ParseException(message, cause)
+
+/** Raised when the [kage.format.AgeKey.privateKey] is empty when parsing a [kage.format.AgeKey]. */
+public class InvalidAgeKeyException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : ParseException(message, cause)
