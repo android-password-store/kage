@@ -13,6 +13,8 @@ plugins {
   alias(libs.plugins.dokka)
   alias(libs.plugins.spotless)
   alias(libs.plugins.animalsniffer)
+  alias(libs.plugins.versions)
+  alias(libs.plugins.vcu)
 }
 
 kotlin { explicitApi() }
