@@ -3,7 +3,9 @@
  * either an Apache 2.0 or MIT license at your discretion, that can be found in the LICENSE-APACHE
  * or LICENSE-MIT files respectively.
  */
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Workaround for false-positive IDE errors
 // From https://youtrack.jetbrains.com/issue/KTIJ-19369#focus=Comments-27-5181027.0-0
@@ -13,13 +15,26 @@ plugins {
   alias(libs.plugins.dokka)
   alias(libs.plugins.spotless)
   alias(libs.plugins.animalsniffer)
+  alias(libs.plugins.versions)
+  alias(libs.plugins.vcu)
+}
+
+fun isNonStable(version: String): Boolean {
+  val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
+  val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+  val isStable = stableKeyword || regex.matches(version)
+  return isStable.not()
+}
+
+tasks.withType<KotlinCompile> { kotlinOptions { moduleName = "kage" } }
+
+tasks.withType<DependencyUpdatesTask> {
+  rejectVersionIf { isNonStable(candidate.version) && !isNonStable(currentVersion) }
+  checkForGradleUpdate = false
+  checkBuildEnvironmentConstraints = true
 }
 
 kotlin { explicitApi() }
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-  kotlinOptions { moduleName = "kage" }
-}
 
 spotless {
   kotlin {
