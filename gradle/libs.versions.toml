@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.6.20"
+kotlin = "1.6.21"
 
 [libraries]
 animalsniffer-signature-android = "net.sf.androidscents.signature:android-api-level-23:6.0_r3"
