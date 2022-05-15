@@ -11,7 +11,19 @@ rootProject.name = "kage"
 
 pluginManagement {
   repositories {
-    gradlePluginPortal()
+    exclusiveContent {
+      forRepository(::gradlePluginPortal)
+      filter {
+        listOf(
+            "ru.vyarus.animalsniffer",
+            "org.jetbrains.kotlin.jvm",
+            "com.diffplug.spotless",
+            "com.github.ben-manes.versions"
+          )
+          .forEach { plugin -> includeModule(plugin, "${plugin}.gradle.plugin") }
+        includeModule("com.github.ben-manes", "gradle-versions-plugin")
+      }
+    }
     mavenCentral()
   }
 }
