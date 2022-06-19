@@ -8,7 +8,7 @@ kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.
 
 [plugins]
 animalsniffer = "ru.vyarus.animalsniffer:1.5.4"
-dokka = "org.jetbrains.dokka:1.6.21"
+dokka = "org.jetbrains.dokka:1.7.0"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 spotless = "com.diffplug.spotless:6.7.2"
 vcu = "nl.littlerobots.version-catalog-update:0.5.1"
