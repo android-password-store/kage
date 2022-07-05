@@ -9,13 +9,13 @@ import at.favre.lib.crypto.HKDF
 import java.io.ByteArrayOutputStream
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import kage.crypto.chacha20.ChaCha20Poly1305.CHACHA_20_POLY_1305_KEY_LENGTH
 import kage.format.AgeHeader
 
 internal object Primitives {
 
   private const val MAC_ALGORITHM = "HmacSHA256"
   private const val MAC_KEY_LENGTH = 32
-  private const val CHACHA_20_POLY_1305_KEY_LENGTH = 32
   private const val HEADER_INFO = "header"
   private const val PAYLOAD_INFO = "payload"
 

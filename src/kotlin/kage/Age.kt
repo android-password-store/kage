@@ -8,6 +8,7 @@ package kage
 import java.io.InputStream
 import java.io.OutputStream
 import java.security.SecureRandom
+import kage.crypto.chacha20.ChaCha20Poly1305OutputStream
 import kage.crypto.scrypt.ScryptRecipient
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoRecipientsException
@@ -24,10 +25,14 @@ public object Age {
     outputStream: OutputStream,
     generateArmor: Boolean
   ) {
-    TODO("Not yet implemented")
+    // TODO: Generate armor
+
+    encryptInternal(recipients, outputStream).use { output ->
+      inputStream.use { input -> input.copyTo(output) }
+    }
   }
 
-  private fun encryptInternal(recipients: List<Recipient>, outputStream: OutputStream) {
+  private fun encryptInternal(recipients: List<Recipient>, dst: OutputStream): OutputStream {
     if (recipients.isEmpty()) {
       throw NoRecipientsException("No recipients specified")
     }
@@ -57,6 +62,15 @@ public object Age {
     val nonce = ByteArray(STREAM_NONCE_SIZE)
     SecureRandom().nextBytes(nonce)
 
-    TODO("Add Stream reader and writer")
+    val writer = dst.bufferedWriter()
+    AgeHeader.write(writer, ageHeader)
+    writer
+      .flush() // Need to flush the wrapping stream before writing again to the underlying stream
+
+    dst.write(nonce)
+
+    val streamKey = Primitives.streamKey(fileKey, nonce)
+
+    return ChaCha20Poly1305OutputStream(streamKey, dst)
   }
 }
