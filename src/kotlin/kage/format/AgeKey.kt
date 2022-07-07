@@ -55,6 +55,9 @@ public class AgeKey(
 
       if (privateKey.isEmpty())
         throw InvalidAgeKeyException("Cannot find private key in age key file")
+
+      // TODO: The private key needs to be decoded from Bech32
+      // TODO: The public key needs to be decoded from Bech32
       return AgeKey(created, publicKey.encodeToByteArray(), privateKey.encodeToByteArray())
     }
 

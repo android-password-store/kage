@@ -7,9 +7,8 @@ package kage.crypto.scrypt
 
 import java.security.SecureRandom
 import kage.Recipient
-import kage.crypto.chacha20.ChaCha20Poly1305
-import kage.crypto.chacha20.ChaCha20Poly1305.CHACHA_20_POLY_1305_KEY_LENGTH
-import kage.crypto.chacha20.ChaCha20Poly1305.CHACHA_20_POLY_1305_NONCE_LENGTH
+import kage.crypto.stream.ChaCha20Poly1305
+import kage.crypto.stream.ChaCha20Poly1305.KEY_LENGTH
 import kage.format.AgeStanza
 import kage.utils.encodeBase64
 import org.bouncycastle.crypto.generators.SCrypt
@@ -25,16 +24,11 @@ public class ScryptRecipient(
 
     val logN = this.workFactor
 
-    val fullSalt = SCRYPT_SALT_HEADER.toByteArray().plus(salt)
+    val fullSalt = SCRYPT_SALT_LABEL.toByteArray().plus(salt)
 
-    val scryptKey =
-      SCrypt.generate(password, fullSalt, 1 shl logN, 8, 1, CHACHA_20_POLY_1305_KEY_LENGTH)
+    val scryptKey = SCrypt.generate(password, fullSalt, 1 shl logN, 8, 1, KEY_LENGTH)
 
-    // From the spec: https://github.com/C2SP/C2SP/blob/main/age.md
-    // "ChaCha20-Poly1305 nonce is fixed as 12 0x00 bytes [...]"
-    val nonce = ByteArray(CHACHA_20_POLY_1305_NONCE_LENGTH)
-
-    val wrappedKey = ChaCha20Poly1305.encrypt(scryptKey, nonce, fileKey)
+    val wrappedKey = ChaCha20Poly1305.aeadEncrypt(scryptKey, fileKey)
 
     val stanza =
       AgeStanza(SCRYPT_STANZA_TYPE, listOf(salt.encodeBase64(), logN.toString()), wrappedKey)
@@ -44,8 +38,8 @@ public class ScryptRecipient(
 
   internal companion object {
     const val SCRYPT_SALT_SIZE = 16
-    private const val SCRYPT_SALT_HEADER = "age-encryption.org/v1/scrypt"
-    private const val DEFAULT_WORK_FACTOR = 18
-    private const val SCRYPT_STANZA_TYPE = "scrypt"
+    const val SCRYPT_STANZA_TYPE = "scrypt"
+    const val SCRYPT_SALT_LABEL = "age-encryption.org/v1/scrypt"
+    const val DEFAULT_WORK_FACTOR = 18
   }
 }

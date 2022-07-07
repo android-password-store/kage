@@ -25,7 +25,7 @@ class AgeHeaderTest {
             |--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM
             |""".trimMargin()
 
-    val reader = headerString.reader().buffered()
+    val reader = headerString.byteInputStream().buffered()
     val header = AgeHeader.parse(reader)
     val actualMac = Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM")
 
@@ -37,7 +37,7 @@ class AgeHeaderTest {
   fun testVersionLine() {
     val versionLine = "age-encryption.org/v1"
 
-    val reader = versionLine.reader().buffered()
+    val reader = versionLine.byteInputStream().buffered()
     AgeHeader.parseVersion(reader)
   }
 
@@ -45,7 +45,7 @@ class AgeHeaderTest {
   fun testFooter() {
     val footerLine = "--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM"
 
-    val reader = footerLine.reader().buffered()
+    val reader = footerLine.byteInputStream().buffered()
 
     val mac = AgeHeader.parseFooter(reader).decodeToString()
     val actualMac =
@@ -58,7 +58,7 @@ class AgeHeaderTest {
   fun testFooterWithoutMac() {
     val footerLine = "--- "
 
-    val reader = footerLine.reader().buffered()
+    val reader = footerLine.byteInputStream().buffered()
 
     assertFailsWith<InvalidFooterException> { AgeHeader.parseFooter(reader).decodeToString() }
   }
@@ -86,7 +86,7 @@ class AgeHeaderTest {
             |Bbtnl6veSZhZmG7uXGQUX0hJbrC8mxDkL3zW06tqlWY
             |---""".trimMargin()
 
-    val reader = recipients.reader().buffered()
+    val reader = recipients.byteInputStream().buffered()
     val parsedRecipients = AgeHeader.parseRecipients(reader)
 
     assertEquals(parsedRecipients.size, 5)
@@ -101,12 +101,12 @@ class AgeHeaderTest {
             |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
             |---""".trimMargin()
 
-    val reader = recipients.reader().buffered()
-    val charArray = CharArray(3)
+    val reader = recipients.byteInputStream().buffered()
+    val charArray = ByteArray(3)
     AgeHeader.parseRecipients(reader)
 
     reader.read(charArray)
-    val line = charArray.concatToString()
+    val line = charArray.decodeToString()
 
     assert(line.startsWith("---"))
   }
@@ -122,7 +122,7 @@ class AgeHeaderTest {
             |--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM
             |""".trimMargin()
 
-    val reader = header.reader().buffered()
+    val reader = header.byteInputStream().buffered()
     val ageHeader = AgeHeader.parse(reader)
 
     val outputStream = ByteArrayOutputStream()

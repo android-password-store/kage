@@ -26,3 +26,47 @@ public class InvalidScryptRecipientException(
   message: String? = null,
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
+
+/** Raised when an error occurs when unwrapping an scrypt stanza from an [kage.Identity]. */
+public class ScryptIdentityException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
+/** Raised when an error occurs when unwrapping a X25519 stanza from an [kage.Identity]. */
+public class X25519IdentityException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
+/** Raised when an incompatible stanza is provided to [kage.Identity.unwrap] */
+public class InvalidIdentityException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
+/** Raised when there are no [kage.Identity]s when decrypting a ciphertext */
+public class NoIdentitiesException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
+public class IncorrectCipherTextSizeException(
+  cause: Throwable? = null,
+) : CryptoException("Incorrect cipher text size", cause)
+
+/**
+ * Raised when an identity is not suitable to decrypt a specific recipient block.
+ *
+ * This is not a fatal exception, kage code should catch this exception and try a different identiy,
+ * or fail if other identity does not exist
+ */
+public class IncorrectIdentityException(
+  cause: Throwable? = null,
+) : CryptoException("incorrect identity for recipient block", cause)
+
+/** Throw when an error occurs while streaming encrypted or decrypted data */
+public class StreamException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)

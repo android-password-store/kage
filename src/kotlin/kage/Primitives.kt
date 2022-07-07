@@ -9,7 +9,7 @@ import at.favre.lib.crypto.HKDF
 import java.io.ByteArrayOutputStream
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import kage.crypto.chacha20.ChaCha20Poly1305.CHACHA_20_POLY_1305_KEY_LENGTH
+import kage.crypto.stream.ChaCha20Poly1305.KEY_LENGTH
 import kage.format.AgeHeader
 
 internal object Primitives {
@@ -42,6 +42,6 @@ internal object Primitives {
   fun streamKey(fileKey: ByteArray, nonce: ByteArray): ByteArray {
     val payloadByteArray = PAYLOAD_INFO.encodeToByteArray()
     val hkdf = HKDF.fromHmacSha256()
-    return hkdf.extractAndExpand(nonce, fileKey, payloadByteArray, CHACHA_20_POLY_1305_KEY_LENGTH)
+    return hkdf.extractAndExpand(nonce, fileKey, payloadByteArray, KEY_LENGTH)
   }
 }

@@ -5,34 +5,42 @@
  */
 package kage
 
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.security.MessageDigest
 import java.security.SecureRandom
-import kage.crypto.chacha20.ChaCha20Poly1305OutputStream
 import kage.crypto.scrypt.ScryptRecipient
-import kage.errors.InvalidScryptRecipientException
-import kage.errors.NoRecipientsException
+import kage.crypto.stream.DecryptInputStream
+import kage.crypto.stream.EncryptOutputStream
+import kage.errors.*
+import kage.format.AgeFile
 import kage.format.AgeHeader
 
 public object Age {
-  private const val FILE_KEY_SIZE = 16
+  internal const val FILE_KEY_SIZE: Int = 16
   private const val STREAM_NONCE_SIZE = 16
 
   @JvmStatic
-  public fun encrypt(
+  public fun encryptStream(
     recipients: List<Recipient>,
     inputStream: InputStream,
     outputStream: OutputStream,
-    generateArmor: Boolean
+    generateArmor: Boolean = false
   ) {
-    // TODO: Generate armor
+    if (generateArmor) TODO("not implemented")
 
-    encryptInternal(recipients, outputStream).use { output ->
-      inputStream.use { input -> input.copyTo(output) }
-    }
+    val (_, stream) = encryptInternal(recipients, outputStream)
+
+    stream.use { output -> inputStream.use { input -> input.copyTo(output) } }
   }
 
-  private fun encryptInternal(recipients: List<Recipient>, dst: OutputStream): OutputStream {
+  private fun encryptInternal(
+    recipients: List<Recipient>,
+    dst: OutputStream,
+    writeHeaders: Boolean = true
+  ): Pair<AgeHeader, OutputStream> {
     if (recipients.isEmpty()) {
       throw NoRecipientsException("No recipients specified")
     }
@@ -49,28 +57,95 @@ public object Age {
       }
     }
 
-    val fileKey = ByteArray(FILE_KEY_SIZE)
-    SecureRandom().nextBytes(fileKey)
+    val fileKey = generateFileKey()
 
     val stanzas = recipients.flatMap { recipient -> recipient.wrap(fileKey) }
-    val ageHeaderWithoutMac = AgeHeader(stanzas, ByteArray(0))
-    val mac = Primitives.headerMAC(fileKey, ageHeaderWithoutMac)
 
     // TODO: Check if we need a deep copy of stanzas here
-    val ageHeader = AgeHeader(stanzas, mac)
+    val ageHeader = AgeHeader.withMac(stanzas, fileKey)
 
     val nonce = ByteArray(STREAM_NONCE_SIZE)
     SecureRandom().nextBytes(nonce)
 
-    val writer = dst.bufferedWriter()
-    AgeHeader.write(writer, ageHeader)
-    writer
-      .flush() // Need to flush the wrapping stream before writing again to the underlying stream
+    if (writeHeaders) {
+      val writer = dst.bufferedWriter()
+      AgeHeader.write(writer, ageHeader)
+      // Need to flush the wrapping stream before writing again to the underlying stream
+      writer.flush()
+    }
 
     dst.write(nonce)
 
     val streamKey = Primitives.streamKey(fileKey, nonce)
 
-    return ChaCha20Poly1305OutputStream(streamKey, dst)
+    return Pair(ageHeader, EncryptOutputStream(streamKey, dst))
   }
+
+  private fun generateFileKey(): ByteArray {
+    val fileKey = ByteArray(FILE_KEY_SIZE)
+    SecureRandom().nextBytes(fileKey)
+    return fileKey
+  }
+
+  public fun encrypt(recipients: List<Recipient>, plainText: InputStream): AgeFile {
+    val baos = ByteArrayOutputStream()
+
+    val (header, stream) = encryptInternal(recipients, baos, writeHeaders = false)
+
+    stream.use { output -> plainText.use { input -> input.copyTo(output) } }
+
+    return AgeFile(header, baos.toByteArray())
+  }
+
+  private fun decryptInternal(identities: List<Identity>, ageFile: AgeFile): InputStream {
+    if (identities.isEmpty()) throw NoIdentitiesException("no identities specified")
+
+    val lastError = IncorrectIdentityException()
+
+    for (identity in identities) {
+      val fileKey =
+        try {
+          identity.unwrap(ageFile.header.recipients)
+        } catch (err: IncorrectIdentityException) {
+          lastError.addSuppressed(err)
+          continue
+        }
+
+      val calculatedMac = Primitives.headerMAC(fileKey, ageFile.header)
+
+      if (!MessageDigest.isEqual(ageFile.header.mac, calculatedMac))
+        throw StreamException("bad header MAC")
+
+      val nonce = ByteArray(STREAM_NONCE_SIZE)
+      ageFile.body.copyInto(nonce, 0, 0, STREAM_NONCE_SIZE)
+
+      val streamKey = Primitives.streamKey(fileKey, nonce)
+
+      val bis = ByteArrayInputStream(ageFile.body)
+      bis.skip(STREAM_NONCE_SIZE.toLong())
+
+      return DecryptInputStream(streamKey, bis)
+    }
+
+    throw lastError
+  }
+
+  public fun decryptStream(
+    identities: List<Identity>,
+    srcStream: InputStream,
+    dstStream: OutputStream
+  ) {
+
+    val ageFile = AgeFile.parse(srcStream)
+
+    val input = decryptInternal(identities, ageFile)
+
+    input.use { src -> dstStream.use { dst -> src.copyTo(dst) } }
+  }
+
+  public fun decrypt(identities: List<Identity>, ageFile: AgeFile): InputStream =
+    decryptInternal(identities, ageFile)
+
+  public fun decrypt(identity: Identity, ageFile: AgeFile): InputStream =
+    decryptInternal(listOf(identity), ageFile)
 }

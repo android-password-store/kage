@@ -5,9 +5,10 @@
  */
 package kage.format
 
-import java.io.BufferedReader
+import java.io.BufferedInputStream
 import java.io.BufferedWriter
-import java.util.Base64
+import java.util.*
+import kage.Primitives
 import kage.errors.InvalidFooterException
 import kage.errors.InvalidHMACException
 import kage.errors.InvalidRecipientException
@@ -17,6 +18,7 @@ import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.AgeFile.Companion.VERSION_LINE
 import kage.format.ParseUtils.splitArgs
 import kage.utils.encodeBase64
+import kage.utils.readLine
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
@@ -42,7 +44,7 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
 
   internal companion object {
 
-    internal fun parse(reader: BufferedReader): AgeHeader {
+    internal fun parse(reader: BufferedInputStream): AgeHeader {
       parseVersion(reader)
       val recipients = parseRecipients(reader)
       val mac = parseFooter(reader)
@@ -67,7 +69,7 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
       writer.write(FOOTER_PREFIX)
     }
 
-    internal fun parseVersion(reader: BufferedReader) {
+    internal fun parseVersion(reader: BufferedInputStream) {
       val versionLine = reader.readLine()
       parseVersionLine(versionLine)
     }
@@ -76,28 +78,28 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
      * Age Spec:
      * The first line of the header is age-encryption.org/ followed by an arbitrary version string.
      */
-    internal fun parseVersionLine(versionLine: String) {
+    private fun parseVersionLine(versionLine: String?) {
       if (versionLine != VERSION_LINE)
         throw InvalidVersionException("Version line is not correct: $versionLine")
     }
 
-    internal fun parseRecipients(reader: BufferedReader): List<AgeStanza> {
+    internal fun parseRecipients(reader: BufferedInputStream): List<AgeStanza> {
       val recipientList = mutableListOf<AgeStanza>()
-      val characterArray = CharArray(3)
+      val buf = ByteArray(3)
 
       while (true) {
         // Add a mark to be able to reset the reader after reading the first 3 characters of the
         // line
         reader.mark(3)
-        if (reader.read(characterArray) == -1)
+        if (reader.read(buf) == -1)
           throw InvalidRecipientException("End of stream reached while reading recipients")
 
-        val line = characterArray.concatToString()
+        val prefix = buf.decodeToString()
         reader.reset()
 
-        if (line.startsWith(RECIPIENT_PREFIX)) {
+        if (prefix.startsWith(RECIPIENT_PREFIX)) {
           recipientList.add(AgeStanza.parse(reader))
-        } else if (line.startsWith(FOOTER_PREFIX)) {
+        } else if (prefix.startsWith(FOOTER_PREFIX)) {
           return recipientList
         } else {
           throw InvalidRecipientException("Unexpected line found: ${reader.readLine()}")
@@ -105,8 +107,8 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
       }
     }
 
-    internal fun parseFooter(reader: BufferedReader): ByteArray {
-      val footerLine = reader.readLine()
+    internal fun parseFooter(reader: BufferedInputStream): ByteArray {
+      val footerLine = reader.readLine() ?: throw InvalidFooterException("Footer line is empty")
       return parseFooterLine(footerLine)
     }
 
@@ -129,6 +131,13 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
 
       return Base64.getDecoder().decode(args.first())
         ?: throw InvalidFooterException("Error parsing footer line")
+    }
+
+    internal fun withMac(stanzas: List<AgeStanza>, fileKey: ByteArray): AgeHeader {
+      val ageHeaderWithoutMac = AgeHeader(stanzas, ByteArray(0))
+      val mac = Primitives.headerMAC(fileKey, ageHeaderWithoutMac)
+
+      return AgeHeader(stanzas, mac)
     }
   }
 }

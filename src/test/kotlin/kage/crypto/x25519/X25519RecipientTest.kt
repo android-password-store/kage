@@ -6,20 +6,27 @@
 package kage.kage.crypto.x25519
 
 import java.security.SecureRandom
+import java.util.*
+import kage.Age
+import kage.crypto.x25519.X25519
+import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
 import kage.utils.decodeBase64
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import org.junit.Test
 
 class X25519RecipientTest {
   @Test
-  fun testWrap() {
-    val publicKey = ByteArray(32)
-    SecureRandom().nextBytes(publicKey)
+  fun testWrapUnwrap() {
+    val privateKey = ByteArray(32)
+    SecureRandom().nextBytes(privateKey)
+    val publicKey = X25519.scalarMult(privateKey, X25519.BASEPOINT)
 
     val recipient = X25519Recipient(publicKey)
 
-    val fileKey = ByteArray(32)
+    val fileKey = ByteArray(Age.FILE_KEY_SIZE)
+    Random().nextBytes(fileKey)
 
     val stanza = recipient.wrap(fileKey).first()
 
@@ -28,6 +35,10 @@ class X25519RecipientTest {
     assertEquals(X25519Recipient.EPHEMERAL_SECRET_LEN, sharedSecret.size)
     assertEquals(X25519Recipient.X25519_STANZA_TYPE, stanza.type)
 
-    // TODO: Test this with `unwrap` when implemented
+    val identity = X25519Identity(privateKey, publicKey)
+
+    val unwrapped = identity.unwrap(listOf(stanza))
+
+    assertContentEquals(fileKey, unwrapped)
   }
 }
