@@ -5,8 +5,10 @@
  */
 package kage.utils
 
+import java.io.BufferedInputStream
+import java.io.ByteArrayOutputStream
 import java.io.Writer
-import java.util.Base64
+import java.util.*
 
 internal fun ByteArray.encodeBase64(): String {
   return Base64.getEncoder().withoutPadding().encodeToString(this)
@@ -23,4 +25,17 @@ internal fun Writer.writeNewLine() {
 
 internal fun Writer.writeSpace() {
   write(" ")
+}
+
+internal fun BufferedInputStream.readLine(): String? {
+  val baos = ByteArrayOutputStream()
+
+  while (true) {
+    val r = this.read()
+
+    if (r.toChar() == '\n') return baos.toByteArray().decodeToString()
+
+    if (r != -1) baos.write(r)
+    else if (baos.size() > 0) return baos.toByteArray().decodeToString() else return null
+  }
 }

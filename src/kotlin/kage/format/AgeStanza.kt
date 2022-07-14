@@ -5,9 +5,9 @@
  */
 package kage.format
 
-import java.io.BufferedReader
+import java.io.BufferedInputStream
 import java.io.BufferedWriter
-import java.util.Base64
+import java.util.*
 import kage.errors.InvalidArbitraryStringException
 import kage.errors.InvalidRecipientException
 import kage.format.AgeFile.Companion.BYTES_PER_LINE
@@ -16,7 +16,9 @@ import kage.format.AgeFile.Companion.FOOTER_PREFIX
 import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.ParseUtils.isValidArbitraryString
 import kage.format.ParseUtils.splitArgs
+import kage.utils.*
 import kage.utils.encodeBase64
+import kage.utils.readLine
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
@@ -48,9 +50,12 @@ public class AgeStanza(
 
   internal companion object {
     @JvmStatic
-    internal fun parse(reader: BufferedReader): AgeStanza {
+    internal fun parse(reader: BufferedInputStream): AgeStanza {
       // The first line should be a recipient line with at least one argument
-      val recipientLine = reader.readLine()
+      val recipientLine =
+        reader.readLine()
+          ?: throw InvalidRecipientException("Line is null, could not parse recipient")
+
       val (type, args) = parseRecipientLine(recipientLine)
 
       // Pass the reader object to parse the body of the recipient
@@ -123,10 +128,10 @@ public class AgeStanza(
      * exactly 64 columns.
      */
     @JvmStatic
-    internal fun parseBodyLines(reader: BufferedReader): ByteArray {
+    internal fun parseBodyLines(reader: BufferedInputStream): ByteArray {
       // Create a mutable byteList which will hold all the bytes while we're parsing the body
       val byteList = mutableListOf<Byte>()
-      val charArray = CharArray(3)
+      val charArray = ByteArray(3)
       var stopParsing = false
 
       do {
@@ -134,7 +139,7 @@ public class AgeStanza(
         // line
         reader.mark(3)
         reader.read(charArray)
-        val incompleteString = charArray.concatToString()
+        val incompleteString = charArray.decodeToString()
 
         // Reset the reader back to the start of the line
         reader.reset()

@@ -5,6 +5,7 @@
  */
 package kage
 
+import kage.errors.IncorrectIdentityException
 import kage.format.AgeStanza
 
 /*
@@ -19,6 +20,22 @@ import kage.format.AgeStanza
  *
  * https://github.com/FiloSottile/age/blob/ab3707c085f2c1fdfd767a2ed718423e3925f4c4/age.go#L59-L72
  */
+
 public interface Identity {
   public fun unwrap(stanzas: List<AgeStanza>): ByteArray
+}
+
+internal fun multiUnwrap(unwrapFn: (AgeStanza) -> ByteArray, stanzas: List<AgeStanza>): ByteArray {
+  val lastError = IncorrectIdentityException()
+
+  stanzas.forEach { stanza ->
+    try {
+      return unwrapFn(stanza)
+    } catch (err: IncorrectIdentityException) {
+      // will try next stanza
+      lastError.addSuppressed(err)
+    }
+  }
+
+  throw lastError
 }

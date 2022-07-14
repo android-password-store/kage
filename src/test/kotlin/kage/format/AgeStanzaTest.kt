@@ -10,6 +10,7 @@ import java.util.Base64
 import kage.errors.InvalidArbitraryStringException
 import kage.errors.InvalidRecipientException
 import kage.errors.ParseException
+import kage.utils.readLine
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -66,7 +67,7 @@ class AgeStanzaTest {
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |""".trimMargin()
 
-    val reader = stanza.reader().buffered()
+    val reader = stanza.byteInputStream().buffered()
 
     // Read recipient line
     reader.readLine()
@@ -102,7 +103,7 @@ class AgeStanzaTest {
             |ds7P2OLD/Jxq1o1ckzG3uzv8Vb6sqYUPmRvlXyD7/s/FURA1GetBiQEdRM34xbrB
             |""".trimMargin()
 
-    val reader = stanza.reader().buffered()
+    val reader = stanza.byteInputStream().buffered()
 
     // Read recipient line
     reader.readLine()
@@ -123,7 +124,7 @@ class AgeStanzaTest {
             |5rVkW/7hCBSqEPQwabC6O5ls75uNjeSURwHAaIwtQ6riL9arjVpHMl8O7GWSRnx3
             |""".trimMargin()
 
-    val reader = stanza.reader().buffered()
+    val reader = stanza.byteInputStream().buffered()
 
     // Read recipient line
     reader.readLine()
@@ -186,7 +187,7 @@ class AgeStanzaTest {
     val actualBody = """0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
         |""".trimMargin()
 
-    val reader = stanza.reader().buffered()
+    val reader = stanza.byteInputStream().buffered()
     val ageStanza = AgeStanza.parse(reader)
 
     val outputStream = ByteArrayOutputStream()
@@ -223,7 +224,7 @@ class AgeStanzaTest {
             |
             |""".trimMargin()
 
-    val reader = stanza.reader().buffered()
+    val reader = stanza.byteInputStream().buffered()
     val ageStanza = AgeStanza.parse(reader)
 
     val outputStream = ByteArrayOutputStream()
@@ -240,7 +241,7 @@ class AgeStanzaTest {
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |""".trimMargin()
 
-    val reader = stanza.reader().buffered()
+    val reader = stanza.byteInputStream().buffered()
     val ageStanza = AgeStanza.parse(reader)
 
     val outputStream = ByteArrayOutputStream()

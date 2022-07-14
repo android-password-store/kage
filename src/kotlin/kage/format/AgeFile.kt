@@ -5,7 +5,8 @@
  */
 package kage.format
 
-import java.io.BufferedReader
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
 public class AgeFile(public val header: AgeHeader, public val body: ByteArray) {
 
@@ -34,9 +35,19 @@ public class AgeFile(public val header: AgeHeader, public val body: ByteArray) {
     internal const val COLUMNS_PER_LINE = 64
     internal const val BYTES_PER_LINE = COLUMNS_PER_LINE / 4 * 3
 
-    internal fun parse(reader: BufferedReader): AgeFile {
-      val header = AgeHeader.parse(reader)
-      TODO("We need to parse the body")
+    internal fun parse(input: InputStream): AgeFile {
+      val body = ByteArrayOutputStream()
+
+      val header =
+        body.use { b ->
+          input.buffered().use { i ->
+            val hdr = AgeHeader.parse(i)
+            i.copyTo(b)
+            hdr
+          }
+        }
+
+      return AgeFile(header, body.toByteArray())
     }
   }
 }

@@ -5,26 +5,25 @@
  */
 package kage.crypto.scrypt
 
-import kage.utils.decodeBase64
-import kotlin.test.assertEquals
+import java.security.SecureRandom
+import kage.Age
+import kotlin.test.assertContentEquals
 import org.junit.Test
 
 class ScryptRecipientTest {
   @Test
-  fun testWrap() {
-    val recipient = ScryptRecipient("mypass".toByteArray(), 18)
+  fun testWrapUnwrap() {
+    val recipient = ScryptRecipient("mypass".toByteArray(), workFactor = 1)
 
-    val fileKey = ByteArray(32)
+    val fileKey = ByteArray(Age.FILE_KEY_SIZE)
+    SecureRandom().nextBytes(fileKey)
 
     val stanza = recipient.wrap(fileKey).first()
 
-    val salt = stanza.args.first().decodeBase64()
-    val workFactor = stanza.args[1].toInt()
+    val identity = ScryptIdentity("mypass".toByteArray())
 
-    assertEquals(ScryptRecipient.SCRYPT_SALT_SIZE, salt.size)
-    assertEquals(18, workFactor)
-    assertEquals("scrypt", stanza.type)
+    val unwrappedKey = identity.unwrap(listOf(stanza))
 
-    // TODO: Test this with `unwrap` when implemented
+    assertContentEquals(unwrappedKey, fileKey)
   }
 }

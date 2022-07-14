@@ -44,6 +44,8 @@ public object X25519 {
       0
     )
 
+  public const val POINT_SIZE_: Int = X25519.POINT_SIZE
+
   public fun scalarMult(input: ByteArray, r: ByteArray): ByteArray {
     val out = ByteArray(input.size)
 

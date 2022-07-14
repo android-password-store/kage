@@ -8,8 +8,7 @@ package kage.crypto.x25519
 import at.favre.lib.crypto.HKDF
 import java.security.SecureRandom
 import kage.Recipient
-import kage.crypto.chacha20.ChaCha20Poly1305
-import kage.crypto.chacha20.ChaCha20Poly1305.CHACHA_20_POLY_1305_NONCE_LENGTH
+import kage.crypto.stream.ChaCha20Poly1305
 import kage.format.AgeStanza
 import kage.utils.encodeBase64
 
@@ -30,8 +29,7 @@ public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
     val wrapingKey =
       hkdf.extractAndExpand(salt, sharedSecret, X25519_INFO.toByteArray(), MAC_KEY_LENGTH)
 
-    val nonce = ByteArray(CHACHA_20_POLY_1305_NONCE_LENGTH)
-    val wrappedKey = ChaCha20Poly1305.encrypt(wrapingKey, nonce, fileKey)
+    val wrappedKey = ChaCha20Poly1305.aeadEncrypt(wrapingKey, fileKey)
 
     val stanza = AgeStanza(X25519_STANZA_TYPE, listOf(ephemeralShare.encodeBase64()), wrappedKey)
 
@@ -41,6 +39,7 @@ public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
   internal companion object {
     const val X25519_STANZA_TYPE = "X25519"
     const val X25519_INFO = "age-encryption.org/v1/X25519"
+    const val KEY_LENGTH = 32 // bytes
     const val MAC_KEY_LENGTH = 32 // bytes
     const val EPHEMERAL_SECRET_LEN = 32 // bytes
   }
