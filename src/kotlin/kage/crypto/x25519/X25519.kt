@@ -8,48 +8,19 @@ package kage.crypto.x25519
 import org.bouncycastle.math.ec.rfc7748.X25519
 
 public object X25519 {
-  public val BASEPOINT: ByteArray =
-    byteArrayOf(
-      9,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    )
-
-  public const val POINT_SIZE_: Int = X25519.POINT_SIZE
 
   public fun scalarMult(input: ByteArray, r: ByteArray): ByteArray {
     val out = ByteArray(input.size)
 
     X25519.scalarMult(input, 0, r, 0, out, 0)
+
+    return out
+  }
+
+  public fun scalarMultBase(input: ByteArray): ByteArray {
+    val out = ByteArray(input.size)
+
+    X25519.scalarMultBase(input, 0, out, 0)
 
     return out
   }

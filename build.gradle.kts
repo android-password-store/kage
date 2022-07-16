@@ -58,6 +58,7 @@ dependencies {
   signature(libs.animalsniffer.signature.android)
   implementation(libs.hkdf)
   implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+  implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
   testImplementation(libs.kotlintest.junit)
 }
 
