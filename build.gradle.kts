@@ -56,9 +56,9 @@ sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
   signature(libs.animalsniffer.signature.android)
+  implementation(libs.bouncycastle.bcprov)
   implementation(libs.hkdf)
-  implementation("org.bouncycastle:bcprov-jdk15on:1.70")
-  implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
+  implementation(libs.kotlinResult)
   testImplementation(libs.kotlintest.junit)
 }
 

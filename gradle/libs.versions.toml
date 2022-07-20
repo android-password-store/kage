@@ -5,6 +5,8 @@ kotlin = "1.7.10"
 animalsniffer-signature-android = "net.sf.androidscents.signature:android-api-level-23:6.0_r3"
 hkdf = "at.favre.lib:hkdf:1.1.0"
 kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.71"
+kotlinResult = "com.michael-bull.kotlin-result:kotlin-result:1.1.16"
 
 [plugins]
 animalsniffer = "ru.vyarus.animalsniffer:1.5.4"
