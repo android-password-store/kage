@@ -6,6 +6,8 @@
 package kage.crypto.x25519
 
 import at.favre.lib.crypto.HKDF
+import com.github.michaelbull.result.getOrThrow
+import com.github.michaelbull.result.mapError
 import kage.Age
 import kage.Identity
 import kage.crypto.stream.ChaCha20Poly1305
@@ -14,7 +16,9 @@ import kage.crypto.x25519.X25519Recipient.Companion.X25519_INFO
 import kage.errors.IncorrectCipherTextSizeException
 import kage.errors.IncorrectIdentityException
 import kage.errors.InvalidIdentityException
+import kage.format.AgeKeyFile
 import kage.format.AgeStanza
+import kage.format.Bech32
 import kage.multiUnwrap
 import kage.utils.decodeBase64
 import org.bouncycastle.math.ec.rfc7748.X25519.POINT_SIZE
@@ -52,5 +56,28 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
 
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray {
     return multiUnwrap(::unwrapSingle, stanzas)
+  }
+
+  public fun encodeToString(): String =
+    Bech32.encode(AgeKeyFile.AGE_SECRET_KEY_PREFIX, secretKey).getOrThrow()
+
+  public companion object {
+
+    public fun decode(string: String): X25519Identity {
+      val (hrp, key) =
+        Bech32.decode(string)
+          .mapError { InvalidIdentityException("Invalid public key", it) }
+          .getOrThrow()
+
+      if (key.size != POINT_SIZE)
+        throw InvalidIdentityException("Invalid X25519 private key size: (${key.size})")
+
+      if (hrp != AgeKeyFile.AGE_SECRET_KEY_PREFIX)
+        throw InvalidIdentityException("Invalid human readable part for age secret key ($hrp)")
+
+      val publicKey = X25519.scalarMultBase(key)
+
+      return X25519Identity(key, publicKey)
+    }
   }
 }

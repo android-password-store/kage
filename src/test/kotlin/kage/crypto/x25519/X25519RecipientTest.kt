@@ -21,7 +21,7 @@ class X25519RecipientTest {
   fun testWrapUnwrap() {
     val privateKey = ByteArray(32)
     SecureRandom().nextBytes(privateKey)
-    val publicKey = X25519.scalarMult(privateKey, X25519.BASEPOINT)
+    val publicKey = X25519.scalarMultBase(privateKey)
 
     val recipient = X25519Recipient(publicKey)
 

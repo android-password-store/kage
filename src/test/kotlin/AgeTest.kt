@@ -8,7 +8,7 @@ package kage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.security.SecureRandom
-import java.util.Random
+import java.util.*
 import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.EncryptOutputStream.Companion.CHUNK_SIZE
@@ -21,7 +21,6 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import org.bouncycastle.util.encoders.Base64
-import org.bouncycastle.util.encoders.Hex
 import org.junit.Test
 
 // TODO: Write some integration tests using another implementation of `age`
@@ -29,7 +28,7 @@ class AgeTest {
   private fun genX25519Identity(): Pair<X25519Recipient, X25519Identity> {
     val privateKey = ByteArray(X25519Recipient.KEY_LENGTH)
     SecureRandom().nextBytes(privateKey)
-    val publicKey = X25519.scalarMult(privateKey, X25519.BASEPOINT)
+    val publicKey = X25519.scalarMultBase(privateKey)
 
     return Pair(X25519Recipient(publicKey), X25519Identity(privateKey, publicKey))
   }
@@ -198,21 +197,14 @@ class AgeTest {
     """.trimIndent()
       )
 
-    // This is public key age1z2fw2ks7jp7ak3tjven6kxd53m7lxgmn9j7nrt0gfmewcr4sav9sp2n34j
-    // but we don't parse bech32 yet
-    val agePublicKey =
-      Hex.decode("1292e55a1e907ddb45726667ab19b48efdf323732cbd31ade84ef2ec0eb0eb0b")
-    // This is private key
-    // AGE-SECRET-KEY-1M4FTVTZNTJKMXLW2Q6P3L5K2EZ3SFN856KNJFYNVY6UC6LPR0XYSKZV9EP
-    // but we don't parse bech32 yet
     val agePrivateKey =
-      Hex.decode("dd52b62c535cadb37dca06831fd2cac8a304ccf4d5a724926c26b98d7c237989")
-
-    val identity = X25519Identity(agePrivateKey, agePublicKey)
+      X25519Identity.decode(
+        "AGE-SECRET-KEY-1M4FTVTZNTJKMXLW2Q6P3L5K2EZ3SFN856KNJFYNVY6UC6LPR0XYSKZV9EP"
+      )
 
     val ageFile = AgeFile.parse(ByteArrayInputStream(ageGoEncrypted))
 
-    val decryptedStream = Age.decrypt(identity, ageFile)
+    val decryptedStream = Age.decrypt(agePrivateKey, ageFile)
 
     val decrypted = decryptedStream.readAllBytes().decodeToString()
 
@@ -244,19 +236,15 @@ class AgeTest {
 
   @Test
   fun testEncryptToAgeGoX25519() {
-    // This is public key age1z2fw2ks7jp7ak3tjven6kxd53m7lxgmn9j7nrt0gfmewcr4sav9sp2n34j
-    // but we don't parse bech32 yet
     val agePublicKey =
-      Hex.decode("1292e55a1e907ddb45726667ab19b48efdf323732cbd31ade84ef2ec0eb0eb0b")
-
-    val recipient = X25519Recipient(agePublicKey)
+      X25519Recipient.decode("age1z2fw2ks7jp7ak3tjven6kxd53m7lxgmn9j7nrt0gfmewcr4sav9sp2n34j")
 
     val ciphertextStream = ByteArrayOutputStream()
 
     val payload = "this was encrypted by kage"
 
     Age.encryptStream(
-      listOf(recipient),
+      listOf(agePublicKey),
       ByteArrayInputStream(payload.toByteArray()),
       ciphertextStream
     )

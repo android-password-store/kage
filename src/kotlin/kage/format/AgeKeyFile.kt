@@ -7,29 +7,31 @@ package kage.format
 
 import java.io.BufferedReader
 import java.io.BufferedWriter
+import kage.crypto.x25519.X25519Identity
+import kage.crypto.x25519.X25519Recipient
 import kage.errors.InvalidAgeKeyException
 import kage.utils.writeNewLine
 
-public class AgeKey(
+public class AgeKeyFile(
   public val created: String,
-  public val publicKey: ByteArray,
-  public val privateKey: ByteArray
+  public val publicKey: X25519Recipient?,
+  public val privateKey: X25519Identity
 ) {
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
-    if (other !is AgeKey) return false
+    if (other !is AgeKeyFile) return false
 
     if (this === other) return true
 
-    if (!privateKey.contentEquals(other.privateKey)) return false
-    if (!publicKey.contentEquals(other.publicKey)) return false
+    if (!privateKey.equals(other.privateKey)) return false
+    if (publicKey?.equals(other.publicKey) != true) return false
 
     return true
   }
 
   override fun hashCode(): Int {
-    var result = privateKey.contentHashCode()
-    result = 31 * result + publicKey.contentHashCode()
+    var result = privateKey.hashCode()
+    result = 31 * result + publicKey.hashCode()
     return result
   }
 
@@ -37,38 +39,39 @@ public class AgeKey(
     internal const val AGE_SECRET_KEY_PREFIX = "AGE-SECRET-KEY-"
     internal const val AGE_PUBLIC_KEY_PREFIX = "age"
 
-    fun parse(reader: BufferedReader): AgeKey {
+    fun parse(reader: BufferedReader): AgeKeyFile {
       val lines = reader.readLines()
       var created = ""
-      var publicKey = ""
-      var privateKey = ""
+      var publicKeyStr = ""
+      var privateKeyStr = ""
 
       lines.forEach { line ->
         if (line.startsWith("# created: ")) {
           created = parseCreatedLine(line)
         } else if (line.startsWith("# public key: ")) {
-          publicKey = parsePublicKeyLine(line)
+          publicKeyStr = parsePublicKeyLine(line)
         } else if (line.startsWith(AGE_SECRET_KEY_PREFIX)) {
-          privateKey = line
+          privateKeyStr = line
         }
       }
 
-      if (privateKey.isEmpty())
+      if (privateKeyStr.isEmpty())
         throw InvalidAgeKeyException("Cannot find private key in age key file")
 
-      // TODO: The private key needs to be decoded from Bech32
-      // TODO: The public key needs to be decoded from Bech32
-      return AgeKey(created, publicKey.encodeToByteArray(), privateKey.encodeToByteArray())
+      val privateKey = X25519Identity.decode(privateKeyStr)
+
+      val publicKey = if (publicKeyStr.isEmpty()) null else X25519Recipient.decode(publicKeyStr)
+
+      return AgeKeyFile(created, publicKey, privateKey)
     }
 
-    internal fun write(writer: BufferedWriter, ageKey: AgeKey) {
-      if (ageKey.privateKey.isEmpty())
-        throw InvalidAgeKeyException("Cannot find private key in age key file")
-      writer.write("# created: ${ageKey.created}")
+    internal fun write(writer: BufferedWriter, ageKeyFile: AgeKeyFile) {
+      writer.write("# created: ${ageKeyFile.created}")
       writer.writeNewLine()
-      writer.write("# public key: ${ageKey.publicKey.decodeToString()}")
+      if (ageKeyFile.publicKey != null)
+        writer.write("# public key: ${ageKeyFile.publicKey.encodeToString()}")
       writer.writeNewLine()
-      writer.write(ageKey.privateKey.decodeToString())
+      writer.write(ageKeyFile.privateKey.encodeToString())
       writer.writeNewLine()
     }
 

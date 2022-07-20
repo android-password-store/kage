@@ -58,8 +58,8 @@ public class IncorrectCipherTextSizeException(
 /**
  * Raised when an identity is not suitable to decrypt a specific recipient block.
  *
- * This is not a fatal exception, kage code should catch this exception and try a different identiy,
- * or fail if other identity does not exist
+ * This is not a fatal exception, kage code should catch this exception and try a different
+ * identity, or fail if other identity does not exist
  */
 public class IncorrectIdentityException(
   cause: Throwable? = null,
