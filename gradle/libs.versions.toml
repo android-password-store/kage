@@ -9,7 +9,7 @@ bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.71"
 kotlinResult = "com.michael-bull.kotlin-result:kotlin-result:1.1.16"
 
 [plugins]
-animalsniffer = "ru.vyarus.animalsniffer:1.5.4"
+animalsniffer = "ru.vyarus.animalsniffer:1.6.0"
 dokka = "org.jetbrains.dokka:1.7.10"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 spotless = "com.diffplug.spotless:6.9.1"
