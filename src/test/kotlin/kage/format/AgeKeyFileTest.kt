@@ -22,7 +22,8 @@ class AgeKeyFileTest {
       # created: 2006-01-02T15:04:05Z07:00
       # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
       AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """.trimIndent()
+    """
+        .trimIndent()
 
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
@@ -43,7 +44,8 @@ class AgeKeyFileTest {
     val keyString =
       """
       AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """.trimIndent()
+    """
+        .trimIndent()
 
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
@@ -61,7 +63,8 @@ class AgeKeyFileTest {
       # created: 2006-01-02T15:04:05Z07:00
       # public key: not a valid public key
       AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """.trimIndent()
+    """
+        .trimIndent()
 
     val reader = keyString.reader().buffered()
 
@@ -76,7 +79,8 @@ class AgeKeyFileTest {
       # something funny
       # not really
       AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """.trimIndent()
+    """
+        .trimIndent()
 
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
@@ -94,7 +98,8 @@ class AgeKeyFileTest {
       """
       # created: 2006-01-02T15:04:05Z07:00
       1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """.trimIndent()
+    """
+        .trimIndent()
 
     val reader = keyString.reader().buffered()
 
@@ -108,7 +113,8 @@ class AgeKeyFileTest {
       AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
       # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
       # created: 2006-01-02T15:04:05Z07:00
-    """.trimIndent()
+    """
+        .trimIndent()
 
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
@@ -132,7 +138,8 @@ class AgeKeyFileTest {
         # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
         AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
         
-        """.trimIndent()
+        """
+        .trimIndent()
 
     val publicKey =
       X25519Recipient.decode("age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5")

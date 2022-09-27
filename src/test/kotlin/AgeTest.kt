@@ -194,7 +194,8 @@ class AgeTest {
       S0dQR3RRbURubzJ5L0k5WERFCms5ZnlnMVg3WXVUeXdOU2NlYnExeWV0aXJLanpuMjBUZWk0VlFv
       WUZSR28KLS0tICtlcGZtVE13TmdVMjZrdVZLVUlTYXlWQXpDV200a0ZwNnN2eWk1Wk1VdmsKGhQA
       6bs5tBCG4FteXxjzEzxWhw4opD1bsn9vUqSXTqQN0lt9vgoXYPT8kgBAfQFKhWngGwIrYVzHslpq
-    """.trimIndent()
+    """
+          .trimIndent()
       )
 
     val agePrivateKey =
@@ -220,7 +221,8 @@ class AgeTest {
       CnI3Nm1kekNyTWphdTU2MFBlOVRJeU41ZklVNkFqOVdXQStWNzFxaDJ2Z00KLS0tIFdJaU9UNUVz
       NjViOE1CbEU5ZHVTOHZLWlJLNjQvZE5KSzRQbkRzTWtxaGsKPyFHbFyyZBLyV8FdaFVi/qIBFclK
       3Z1g750U9RBWS/vY33fIBOjRrnzj5scCgrI1OI0U5Etx91NUXSpALiDXCLtMpKQ1
-    """.trimIndent()
+    """
+          .trimIndent()
       )
 
     val identity = ScryptIdentity("somepass".toByteArray())
