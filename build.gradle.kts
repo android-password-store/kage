@@ -37,14 +37,15 @@ tasks.withType<DependencyUpdatesTask> {
 kotlin { explicitApi() }
 
 spotless {
+  val KTFMT_VERSION = "0.41"
   kotlin {
-    ktfmt().googleStyle()
+    ktfmt(KTFMT_VERSION).googleStyle()
     target("**/*.kt")
     targetExclude("**/build/")
     licenseHeaderFile("spotless.license", "package")
   }
   kotlinGradle {
-    ktfmt().googleStyle()
+    ktfmt(KTFMT_VERSION).googleStyle()
     target("**/*.kts")
     licenseHeaderFile("spotless.license", "package |import|enableFeaturePreview")
   }

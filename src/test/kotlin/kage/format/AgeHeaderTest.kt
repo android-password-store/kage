@@ -23,7 +23,8 @@ class AgeHeaderTest {
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
             |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
             |--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val reader = headerString.byteInputStream().buffered()
     val header = AgeHeader.parse(reader)
@@ -84,7 +85,8 @@ class AgeHeaderTest {
             |
             |-> ssh-ed25519 Xyg06A rH24zuz7XHFc1lRyQmMrekpLrcKrJupohEh/YjvQCxs
             |Bbtnl6veSZhZmG7uXGQUX0hJbrC8mxDkL3zW06tqlWY
-            |---""".trimMargin()
+            |---"""
+        .trimMargin()
 
     val reader = recipients.byteInputStream().buffered()
     val parsedRecipients = AgeHeader.parseRecipients(reader)
@@ -99,7 +101,8 @@ class AgeHeaderTest {
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
             |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
-            |---""".trimMargin()
+            |---"""
+        .trimMargin()
 
     val reader = recipients.byteInputStream().buffered()
     val charArray = ByteArray(3)
@@ -120,7 +123,8 @@ class AgeHeaderTest {
             |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
             |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
             |--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val reader = header.byteInputStream().buffered()
     val ageHeader = AgeHeader.parse(reader)

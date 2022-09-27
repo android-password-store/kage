@@ -65,7 +65,8 @@ class AgeStanzaTest {
     val stanza =
       """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val reader = stanza.byteInputStream().buffered()
 
@@ -90,7 +91,8 @@ class AgeStanzaTest {
             |XBHq/XlkLWkqoLrQtNOPvLoDO80TKUORVsP1y7OyUPHqUumxj9Mn/QtsZjNCPyKN
             |ds7P2OLD/Jxq1o1ckzG3uzv8Vb6sqYUPmRvlXyD7/s/FURA1GetBiQEdRM34xbrB
             |
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val base64Body =
       """SW+xNSybDWTCkWx20FnCcxlfGC889s2hRxT8+giPH2DQMMFV6DyZpveqXtNwI3ts
@@ -101,7 +103,8 @@ class AgeStanzaTest {
             |+Y1rKeTsskMHnlRpOnMlXqoeN6A3xS+EWxFTyg1GREQeaVztuhaL6DVBB22sLskw
             |XBHq/XlkLWkqoLrQtNOPvLoDO80TKUORVsP1y7OyUPHqUumxj9Mn/QtsZjNCPyKN
             |ds7P2OLD/Jxq1o1ckzG3uzv8Vb6sqYUPmRvlXyD7/s/FURA1GetBiQEdRM34xbrB
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val reader = stanza.byteInputStream().buffered()
 
@@ -122,7 +125,8 @@ class AgeStanzaTest {
     val stanza =
       """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |5rVkW/7hCBSqEPQwabC6O5ls75uNjeSURwHAaIwtQ6riL9arjVpHMl8O7GWSRnx3
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val reader = stanza.byteInputStream().buffered()
 
@@ -182,10 +186,13 @@ class AgeStanzaTest {
     val stanza =
       """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
-    val actualBody = """0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
-        |""".trimMargin()
+    val actualBody =
+      """0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
+        |"""
+        .trimMargin()
 
     val reader = stanza.byteInputStream().buffered()
     val ageStanza = AgeStanza.parse(reader)
@@ -210,7 +217,8 @@ class AgeStanzaTest {
             |XBHq/XlkLWkqoLrQtNOPvLoDO80TKUORVsP1y7OyUPHqUumxj9Mn/QtsZjNCPyKN
             |ds7P2OLD/Jxq1o1ckzG3uzv8Vb6sqYUPmRvlXyD7/s/FURA1GetBiQEdRM34xbrB
             |
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val actualBody =
       """SW+xNSybDWTCkWx20FnCcxlfGC889s2hRxT8+giPH2DQMMFV6DyZpveqXtNwI3ts
@@ -222,7 +230,8 @@ class AgeStanzaTest {
             |XBHq/XlkLWkqoLrQtNOPvLoDO80TKUORVsP1y7OyUPHqUumxj9Mn/QtsZjNCPyKN
             |ds7P2OLD/Jxq1o1ckzG3uzv8Vb6sqYUPmRvlXyD7/s/FURA1GetBiQEdRM34xbrB
             |
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val reader = stanza.byteInputStream().buffered()
     val ageStanza = AgeStanza.parse(reader)
@@ -239,7 +248,8 @@ class AgeStanzaTest {
     val stanza =
       """-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
             |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
-            |""".trimMargin()
+            |"""
+        .trimMargin()
 
     val reader = stanza.byteInputStream().buffered()
     val ageStanza = AgeStanza.parse(reader)
