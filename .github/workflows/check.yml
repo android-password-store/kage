@@ -31,6 +31,6 @@ jobs:
         cache: 'gradle'
 
     - name: Run unit tests
-      uses: gradle/gradle-build-action@v2.3.1
+      uses: gradle/gradle-build-action@v2.3.2
       with:
         arguments: check
