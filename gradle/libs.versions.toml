@@ -10,7 +10,7 @@ kotlinResult = "com.michael-bull.kotlin-result:kotlin-result:1.1.16"
 
 [plugins]
 animalsniffer = "ru.vyarus.animalsniffer:1.6.0"
-dokka = "org.jetbrains.dokka:1.7.10"
+dokka = "org.jetbrains.dokka:1.7.20"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 spotless = "com.diffplug.spotless:6.11.0"
 vcu = "nl.littlerobots.version-catalog-update:0.6.1"
