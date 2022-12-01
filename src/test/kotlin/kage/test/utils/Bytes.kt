@@ -5,7 +5,8 @@
  */
 package kage.kage.test.utils
 
-import kotlin.test.*
+import com.google.common.truth.Truth.assertThat
+import org.junit.jupiter.api.Test
 
 /**
  * Splits the [ByteArray] around the first instance of [byte], returning the bytes before and after
@@ -30,18 +31,18 @@ class BytesTest {
       """
         .trimIndent()
     val (line, rest, found) = check(testString, '\n')
-    assertTrue(found)
-    assertEquals("Line 1", line.decodeToString())
-    assertEquals("Line 2", rest?.decodeToString())
+    assertThat(found).isTrue()
+    assertThat(line.decodeToString()).isEqualTo("Line 1")
+    assertThat(rest?.decodeToString()).isEqualTo("Line 2")
   }
 
   @Test
   fun splitNotFound() {
     val testString = "Line 1"
     val (line, rest, found) = check(testString, '|')
-    assertFalse(found)
-    assertEquals(testString, line.decodeToString())
-    assertNull(rest)
+    assertThat(found).isFalse()
+    assertThat(line.decodeToString()).isEqualTo(testString)
+    assertThat(rest).isNull()
   }
 
   private fun check(

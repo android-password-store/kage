@@ -5,10 +5,10 @@
  */
 package kage.crypto.scrypt
 
+import com.google.common.truth.Truth.assertThat
 import java.security.SecureRandom
 import kage.Age
-import kotlin.test.assertContentEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ScryptRecipientTest {
   @Test
@@ -24,6 +24,6 @@ class ScryptRecipientTest {
 
     val unwrappedKey = identity.unwrap(listOf(stanza))
 
-    assertContentEquals(unwrappedKey, fileKey)
+    assertThat(fileKey).asList().containsExactlyElementsIn(unwrappedKey.asList())
   }
 }

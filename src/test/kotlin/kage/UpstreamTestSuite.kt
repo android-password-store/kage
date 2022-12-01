@@ -8,8 +8,8 @@ package kage
 import java.nio.file.Files
 import java.nio.file.Paths
 import kage.kage.test.utils.TestSuite
-import kotlin.test.Test
-import kotlin.test.fail
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 
 class UpstreamTestSuite {
   private val testFixtureRoot = Paths.get("src", "test", "resources", "CCTV", "age", "testdata")
@@ -18,11 +18,7 @@ class UpstreamTestSuite {
   fun test() {
     Files.newDirectoryStream(testFixtureRoot).forEach { path ->
       val contents = path.toFile().readBytes()
-      try {
-        TestSuite.parse(contents)
-      } catch (e: Exception) {
-        fail("failed to parse ${path.fileName}", e)
-      }
+      assertDoesNotThrow("failed to parse ${path.fileName}") { TestSuite.parse(contents) }
     }
   }
 }

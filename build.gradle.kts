@@ -51,20 +51,23 @@ spotless {
   }
 }
 
-tasks.check { finalizedBy(tasks.dokkaHtml) }
-
 sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
   signature(libs.animalsniffer.signature.android)
   implementation(libs.bouncycastle.bcprov)
   implementation(libs.hkdf)
-  implementation(libs.kotlinResult)
-  testImplementation(libs.kotlintest.junit)
+  implementation(libs.kotlinresult)
+  testImplementation(libs.junit.jupiter)
+  testImplementation(libs.truth) { exclude(group = "junit", module = "junit") }
+  testRuntimeOnly(libs.junit.legacy) {
+    // See https://github.com/google/truth/issues/333
+    because("Truth needs it")
+  }
 }
 
 tasks.withType<Test>().configureEach {
   maxParallelForks = Runtime.getRuntime().availableProcessors() * 2
   testLogging { events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED) }
-  outputs.upToDateWhen { false }
+  useJUnitPlatform()
 }

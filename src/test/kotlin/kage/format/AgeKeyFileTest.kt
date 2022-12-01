@@ -5,13 +5,13 @@
  */
 package kage.format
 
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
 import kage.errors.InvalidAgeKeyException
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class AgeKeyFileTest {
 
@@ -28,15 +28,13 @@ class AgeKeyFileTest {
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
 
-    assertEquals("2006-01-02T15:04:05Z07:00", key.created)
-    assertEquals(
-      "age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5",
-      key.publicKey?.encodeToString()
-    )
-    assertEquals(
-      "AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS",
-      key.privateKey.encodeToString()
-    )
+    assertThat(key.created).isEqualTo("2006-01-02T15:04:05Z07:00")
+    assertThat(key.publicKey?.encodeToString())
+      .isEqualTo("age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5")
+    assertThat(key.privateKey.encodeToString())
+      .isEqualTo(
+        "AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS",
+      )
   }
 
   @Test
@@ -50,10 +48,8 @@ class AgeKeyFileTest {
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
 
-    assertEquals(
-      "AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS",
-      key.privateKey.encodeToString()
-    )
+    assertThat(key.privateKey.encodeToString())
+      .isEqualTo("AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS")
   }
 
   @Test
@@ -68,7 +64,7 @@ class AgeKeyFileTest {
 
     val reader = keyString.reader().buffered()
 
-    assertFailsWith<InvalidAgeKeyException> { AgeKeyFile.parse(reader) }
+    assertThrows<InvalidAgeKeyException> { AgeKeyFile.parse(reader) }
   }
 
   @Test
@@ -85,11 +81,9 @@ class AgeKeyFileTest {
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
 
-    assertEquals("2006-01-02T15:04:05Z07:00", key.created)
-    assertEquals(
-      "AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS",
-      key.privateKey.encodeToString()
-    )
+    assertThat(key.created).isEqualTo("2006-01-02T15:04:05Z07:00")
+    assertThat(key.privateKey.encodeToString())
+      .isEqualTo("AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS")
   }
 
   @Test
@@ -103,7 +97,7 @@ class AgeKeyFileTest {
 
     val reader = keyString.reader().buffered()
 
-    assertFailsWith<InvalidAgeKeyException> { AgeKeyFile.parse(reader) }
+    assertThrows<InvalidAgeKeyException> { AgeKeyFile.parse(reader) }
   }
 
   @Test
@@ -119,15 +113,11 @@ class AgeKeyFileTest {
     val reader = keyString.reader().buffered()
     val key = AgeKeyFile.parse(reader)
 
-    assertEquals("2006-01-02T15:04:05Z07:00", key.created)
-    assertEquals(
-      "age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5",
-      key.publicKey?.encodeToString()
-    )
-    assertEquals(
-      "AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS",
-      key.privateKey.encodeToString()
-    )
+    assertThat(key.created).isEqualTo("2006-01-02T15:04:05Z07:00")
+    assertThat(key.publicKey?.encodeToString())
+      .isEqualTo("age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5")
+    assertThat(key.privateKey.encodeToString())
+      .isEqualTo("AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS")
   }
 
   @Test
@@ -156,6 +146,6 @@ class AgeKeyFileTest {
     AgeKeyFile.write(writer, ageKeyFile)
     writer.flush()
 
-    assertEquals(keyString, out.toString())
+    assertThat(out.toString()).isEqualTo(keyString)
   }
 }
