@@ -5,18 +5,18 @@
  */
 package kage
 
-import java.io.File
 import java.nio.file.Files
+import java.nio.file.Paths
 import kage.kage.test.utils.TestSuite
 import kotlin.test.Test
 import kotlin.test.fail
 
 class UpstreamTestSuite {
-  private val testFixtureRoot = File("src/test/resources/CCTV/age/testdata")
+  private val testFixtureRoot = Paths.get("src", "test", "resources", "CCTV", "age", "testdata")
 
   @Test
   fun test() {
-    Files.newDirectoryStream(testFixtureRoot.toPath()).forEach { path ->
+    Files.newDirectoryStream(testFixtureRoot).forEach { path ->
       val contents = path.toFile().readBytes()
       try {
         TestSuite.parse(contents)
