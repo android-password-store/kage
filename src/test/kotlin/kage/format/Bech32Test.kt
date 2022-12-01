@@ -7,12 +7,11 @@ package kage.kage.format
 
 import com.github.michaelbull.result.getOrThrow
 import com.github.michaelbull.result.unwrapError
+import com.google.common.truth.Truth.assertThat
 import kage.errors.Bech32Exception
 import kage.format.Bech32
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import org.bouncycastle.util.encoders.Hex
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class Bech32Test {
 
@@ -26,7 +25,7 @@ class Bech32Test {
 
     val encoded = Bech32.encode("age", dh).getOrThrow()
 
-    assertEquals(s, encoded)
+    assertThat(encoded).isEqualTo(s)
   }
 
   @Test
@@ -35,11 +34,9 @@ class Bech32Test {
 
     val (hrp, data) = Bech32.decode(s).getOrThrow()
 
-    assertEquals("age", hrp)
-    assertEquals(
-      "1292e55a1e907ddb45726667ab19b48efdf323732cbd31ade84ef2ec0eb0eb0b",
-      Hex.toHexString(data)
-    )
+    assertThat(hrp).isEqualTo("age")
+    assertThat(Hex.toHexString(data))
+      .isEqualTo("1292e55a1e907ddb45726667ab19b48efdf323732cbd31ade84ef2ec0eb0eb0b")
   }
 
   // Test used by age.go
@@ -100,7 +97,7 @@ class Bech32Test {
 
       if (!test.valid) {
         val err = Bech32.decode(str)
-        assertIs<Bech32Exception>(err.unwrapError())
+        assertThat(err.unwrapError()).isInstanceOf(Bech32Exception::class.java)
 
         continue
       }
@@ -111,7 +108,7 @@ class Bech32Test {
       // Check that it encodes to the same string.
       val encoded = Bech32.encode(hrp, decoded).getOrThrow()
 
-      assertEquals(str, encoded)
+      assertThat(encoded).isEqualTo(str)
 
       // Flip a bit in the string and make sure it is caught.
       val pos = str.lastIndexOf("1")
@@ -122,7 +119,7 @@ class Bech32Test {
 
       val res = Bech32.decode(flipped)
 
-      assertIs<Bech32Exception>(res.unwrapError())
+      assertThat(res.unwrapError()).isInstanceOf(Bech32Exception::class.java)
     }
   }
 }

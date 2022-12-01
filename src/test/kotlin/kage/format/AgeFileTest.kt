@@ -5,13 +5,12 @@
  */
 package kage.kage.format
 
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kage.crypto.scrypt.ScryptRecipient
 import kage.format.AgeFile
-import kotlin.test.Test
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
 import org.bouncycastle.util.encoders.Base64
+import org.junit.jupiter.api.Test
 
 class AgeFileTest {
 
@@ -28,10 +27,10 @@ class AgeFileTest {
 
     val recipient = ageFile.header.recipients.first()
 
-    assertEquals(ScryptRecipient.SCRYPT_STANZA_TYPE, recipient.type)
-    assertEquals(ScryptRecipient.DEFAULT_WORK_FACTOR, recipient.args.last().toInt())
-
-    assertEquals(testFile.takeLast(ageFile.body.size).size, ageFile.body.size)
-    assertContentEquals(testFile.takeLast(ageFile.body.size).toByteArray(), ageFile.body)
+    assertThat(recipient.type).isEqualTo(ScryptRecipient.SCRYPT_STANZA_TYPE)
+    assertThat(recipient.args).contains(ScryptRecipient.DEFAULT_WORK_FACTOR.toString())
+    assertThat(ageFile.body)
+      .asList()
+      .containsExactlyElementsIn(testFile.takeLast(ageFile.body.size))
   }
 }

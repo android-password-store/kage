@@ -5,12 +5,12 @@
  */
 package kage.format
 
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.util.Base64
 import kage.errors.InvalidFooterException
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class AgeHeaderTest {
 
@@ -30,8 +30,8 @@ class AgeHeaderTest {
     val header = AgeHeader.parse(reader)
     val actualMac = Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM")
 
-    assertEquals(header.recipients.size, 2)
-    assertEquals(header.mac.decodeToString(), actualMac.decodeToString())
+    assertThat(header.recipients).hasSize(2)
+    assertThat(header.mac).asList().containsExactlyElementsIn(actualMac.asList())
   }
 
   @Test
@@ -48,11 +48,10 @@ class AgeHeaderTest {
 
     val reader = footerLine.byteInputStream().buffered()
 
-    val mac = AgeHeader.parseFooter(reader).decodeToString()
-    val actualMac =
-      Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM").decodeToString()
+    val mac = AgeHeader.parseFooter(reader)
+    val actualMac = Base64.getDecoder().decode("gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM")
 
-    assertEquals(mac, actualMac)
+    assertThat(mac).asList().containsExactlyElementsIn(actualMac.asList())
   }
 
   @Test
@@ -61,7 +60,7 @@ class AgeHeaderTest {
 
     val reader = footerLine.byteInputStream().buffered()
 
-    assertFailsWith<InvalidFooterException> { AgeHeader.parseFooter(reader).decodeToString() }
+    assertThrows<InvalidFooterException> { AgeHeader.parseFooter(reader).decodeToString() }
   }
 
   @Test
@@ -91,7 +90,7 @@ class AgeHeaderTest {
     val reader = recipients.byteInputStream().buffered()
     val parsedRecipients = AgeHeader.parseRecipients(reader)
 
-    assertEquals(parsedRecipients.size, 5)
+    assertThat(parsedRecipients).hasSize(5)
   }
 
   @Test
@@ -111,7 +110,7 @@ class AgeHeaderTest {
     reader.read(charArray)
     val line = charArray.decodeToString()
 
-    assert(line.startsWith("---"))
+    assertThat(line).startsWith("---")
   }
 
   @Test
@@ -133,6 +132,6 @@ class AgeHeaderTest {
     outputStream.bufferedWriter().use { writer -> AgeHeader.write(writer, ageHeader) }
     val output = outputStream.toByteArray().decodeToString()
 
-    assertEquals(header, output)
+    assertThat(output).isEqualTo(header)
   }
 }

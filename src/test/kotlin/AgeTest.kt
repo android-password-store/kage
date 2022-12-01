@@ -5,10 +5,11 @@
  */
 package kage
 
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.security.SecureRandom
-import java.util.*
+import java.util.Random
 import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.EncryptOutputStream.Companion.CHUNK_SIZE
@@ -17,13 +18,10 @@ import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
 import kage.errors.InvalidScryptRecipientException
 import kage.format.AgeFile
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import org.bouncycastle.util.encoders.Base64
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
-// TODO: Write some integration tests using another implementation of `age`
 class AgeTest {
   private fun genX25519Identity(): Pair<X25519Recipient, X25519Identity> {
     val privateKey = ByteArray(X25519Recipient.KEY_LENGTH)
@@ -49,7 +47,7 @@ class AgeTest {
 
     Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
 
-    assertEquals("this is my file", decryptedOutput.toByteArray().decodeToString())
+    assertThat(decryptedOutput.toByteArray().decodeToString()).isEqualTo("this is my file")
   }
 
   @Test
@@ -68,7 +66,7 @@ class AgeTest {
 
     Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
 
-    assertEquals("this is my file", decryptedOutput.toByteArray().decodeToString())
+    assertThat(decryptedOutput.toByteArray().decodeToString()).isEqualTo("this is my file")
   }
 
   @Test
@@ -89,7 +87,7 @@ class AgeTest {
 
     Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
 
-    assertContentEquals(i, decryptedOutput.toByteArray())
+    assertThat(decryptedOutput.toByteArray()).asList().containsExactlyElementsIn(i.asList())
   }
 
   @Test
@@ -110,7 +108,7 @@ class AgeTest {
 
     Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
 
-    assertContentEquals(i, decryptedOutput.toByteArray())
+    assertThat(decryptedOutput.toByteArray()).asList().containsExactlyElementsIn(i.asList())
   }
 
   @Test
@@ -122,7 +120,7 @@ class AgeTest {
 
     val out = Age.decrypt(identity, ageFile)
 
-    assertEquals(out.readAllBytes().decodeToString(), "this is my file")
+    assertThat(out.readAllBytes().decodeToString()).isEqualTo("this is my file")
   }
 
   @Test
@@ -134,7 +132,7 @@ class AgeTest {
 
     val out = Age.decrypt(identity, ageFile)
 
-    assertContentEquals(ByteArray(0), out.readAllBytes())
+    assertThat(out.readAllBytes()).hasLength(0)
   }
 
   @Test
@@ -149,10 +147,10 @@ class AgeTest {
     val ageFile = Age.encrypt(listOf(otherRecipient, recipient), bais)
 
     val out = Age.decrypt(identity, ageFile)
-    assertContentEquals(payload, out.readAllBytes())
+    assertThat(out.readAllBytes()).asList().containsExactlyElementsIn(payload.asList())
 
     val otherOut = Age.decrypt(otherIdentity, ageFile)
-    assertContentEquals(payload, otherOut.readAllBytes())
+    assertThat(otherOut.readAllBytes()).asList().containsExactlyElementsIn(payload.asList())
   }
 
   @Test
@@ -167,7 +165,7 @@ class AgeTest {
     val ageFile = Age.encrypt(listOf(recipient), bais)
 
     val out = Age.decrypt(listOf(otherIdentity, identity), ageFile)
-    assertContentEquals(payload, out.readAllBytes())
+    assertThat(out.readAllBytes()).asList().containsExactlyElementsIn(payload.asList())
   }
 
   @Test
@@ -180,7 +178,7 @@ class AgeTest {
 
     val bais = ByteArrayInputStream(payload)
 
-    assertFailsWith<InvalidScryptRecipientException> {
+    assertThrows<InvalidScryptRecipientException> {
       Age.encrypt(listOf(recipient, scryptRecipient), bais)
     }
   }
@@ -209,7 +207,7 @@ class AgeTest {
 
     val decrypted = decryptedStream.readAllBytes().decodeToString()
 
-    assertEquals("this was encrypted by age.go", decrypted)
+    assertThat(decrypted).isEqualTo("this was encrypted by age.go")
   }
 
   @Test
@@ -233,7 +231,7 @@ class AgeTest {
 
     val decrypted = decryptedStream.readAllBytes().decodeToString()
 
-    assertEquals("[scrypt] this was encrypted by age.go", decrypted)
+    assertThat(decrypted).isEqualTo("[scrypt] this was encrypted by age.go")
   }
 
   @Test

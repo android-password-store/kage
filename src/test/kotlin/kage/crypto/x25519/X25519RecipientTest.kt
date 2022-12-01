@@ -5,16 +5,15 @@
  */
 package kage.kage.crypto.x25519
 
+import com.google.common.truth.Truth.assertThat
 import java.security.SecureRandom
-import java.util.*
+import java.util.Random
 import kage.Age
 import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
 import kage.utils.decodeBase64
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class X25519RecipientTest {
   @Test
@@ -32,13 +31,13 @@ class X25519RecipientTest {
 
     val sharedSecret = stanza.args.first().decodeBase64()
 
-    assertEquals(X25519Recipient.EPHEMERAL_SECRET_LEN, sharedSecret.size)
-    assertEquals(X25519Recipient.X25519_STANZA_TYPE, stanza.type)
+    assertThat(sharedSecret).hasLength(X25519Recipient.EPHEMERAL_SECRET_LEN)
+    assertThat(stanza.type).isEqualTo(X25519Recipient.X25519_STANZA_TYPE)
 
     val identity = X25519Identity(privateKey, publicKey)
 
     val unwrapped = identity.unwrap(listOf(stanza))
 
-    assertContentEquals(fileKey, unwrapped)
+    assertThat(fileKey).asList().containsExactlyElementsIn(unwrapped.asList())
   }
 }

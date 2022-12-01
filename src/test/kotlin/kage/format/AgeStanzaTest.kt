@@ -5,15 +5,15 @@
  */
 package kage.format
 
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.util.Base64
 import kage.errors.InvalidArbitraryStringException
 import kage.errors.InvalidRecipientException
 import kage.errors.ParseException
 import kage.utils.readLine
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class AgeStanzaTest {
   @Test
@@ -21,8 +21,8 @@ class AgeStanzaTest {
     val recipientLine = "-> X25519"
 
     val (type, args) = AgeStanza.parseRecipientLine(recipientLine)
-    assertEquals(type, "X25519")
-    assertEquals(args.size, 0)
+    assertThat(type).isEqualTo("X25519")
+    assertThat(args).isEmpty()
   }
 
   @Test
@@ -30,9 +30,8 @@ class AgeStanzaTest {
     val recipientLine = "-> X25519 ARG1"
 
     val (type, args) = AgeStanza.parseRecipientLine(recipientLine)
-    assertEquals(type, "X25519")
-    assertEquals(args.size, 1)
-    assertEquals(args[0], "ARG1")
+    assertThat(type).isEqualTo("X25519")
+    assertThat(args).containsExactly("ARG1")
   }
 
   @Test
@@ -40,24 +39,22 @@ class AgeStanzaTest {
     val recipientLine = "-> X25519 ARG1 ARG2"
 
     val (type, args) = AgeStanza.parseRecipientLine(recipientLine)
-    assertEquals(type, "X25519")
-    assertEquals(args.size, 2)
-    assertEquals(args[0], "ARG1")
-    assertEquals(args[1], "ARG2")
+    assertThat(type).isEqualTo("X25519")
+    assertThat(args).containsExactly("ARG1", "ARG2")
   }
 
   @Test
   fun testRecipientLineFailsWithExtraSpace() {
     val recipientLine = "-> X25519 "
 
-    assertFailsWith<ParseException> { AgeStanza.parseRecipientLine(recipientLine) }
+    assertThrows<ParseException> { AgeStanza.parseRecipientLine(recipientLine) }
   }
 
   @Test
   fun testRecipientLineFailsWithoutType() {
     val recipientLine = "-> "
 
-    assertFailsWith<ParseException> { AgeStanza.parseRecipientLine(recipientLine) }
+    assertThrows<ParseException> { AgeStanza.parseRecipientLine(recipientLine) }
   }
 
   @Test
@@ -75,7 +72,7 @@ class AgeStanzaTest {
 
     val body = AgeStanza.parseBodyLines(reader)
     val bytes = Base64.getEncoder().withoutPadding().encode(body)
-    assertEquals(bytes.decodeToString(), "0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE")
+    assertThat(bytes.decodeToString()).isEqualTo("0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE")
   }
 
   @Test
@@ -116,7 +113,7 @@ class AgeStanzaTest {
     // The bytes when encoded do not preserve the '\n' character so for the test we are comparing it
     // without the '\n' characters
     // The writer test should cover wrapping the lines at 64 columns.
-    assertEquals(bytes.decodeToString(), base64Body.split("\n").joinToString(""))
+    assertThat(bytes.decodeToString()).isEqualTo(base64Body.split("\n").joinToString(""))
   }
 
   @Test
@@ -133,7 +130,7 @@ class AgeStanzaTest {
     // Read recipient line
     reader.readLine()
 
-    assertFailsWith<InvalidRecipientException> { AgeStanza.parseBodyLines(reader) }
+    assertThrows<InvalidRecipientException> { AgeStanza.parseBodyLines(reader) }
   }
 
   @Test
@@ -141,19 +138,15 @@ class AgeStanzaTest {
     val recipientLine = "-> X25519 ARG1 ARG2"
 
     val (prefix, args) = ParseUtils.splitArgs(recipientLine)
-
-    assertEquals(prefix, "->")
-    assertEquals(args.size, 3)
-    assertEquals(args[0], "X25519")
-    assertEquals(args[1], "ARG1")
-    assertEquals(args[2], "ARG2")
+    assertThat(prefix).isEqualTo("->")
+    assertThat(args).containsExactly("X25519", "ARG1", "ARG2")
   }
 
   @Test
   fun testArbitraryStringFailsIfEmpty() {
     val arbitraryString = ""
 
-    assertFailsWith<InvalidArbitraryStringException> {
+    assertThrows<InvalidArbitraryStringException> {
       ParseUtils.isValidArbitraryString(arbitraryString)
     }
   }
@@ -165,10 +158,10 @@ class AgeStanzaTest {
 
     // Here we're checking both limits individually to make sure both are correct
     val code32Result = ParseUtils.isValidArbitraryString(charCode32String)
-    assertEquals(false, code32Result)
+    assertThat(code32Result).isFalse()
 
     val code127Result = ParseUtils.isValidArbitraryString(charCode127String)
-    assertEquals(false, code127Result)
+    assertThat(code127Result).isFalse()
   }
 
   @Test
@@ -178,7 +171,7 @@ class AgeStanzaTest {
     // Here we don't need to check limits individually since any error will change the result to
     // false
     val result = ParseUtils.isValidArbitraryString(arbitraryString)
-    assertEquals(true, result)
+    assertThat(result).isTrue()
   }
 
   @Test
@@ -201,7 +194,7 @@ class AgeStanzaTest {
     outputStream.bufferedWriter().use { writer -> AgeStanza.writeBody(writer, ageStanza.body) }
     val output = outputStream.toByteArray().decodeToString()
 
-    assertEquals(actualBody, output)
+    assertThat(output).isEqualTo(actualBody)
   }
 
   @Test
@@ -240,7 +233,7 @@ class AgeStanzaTest {
     outputStream.bufferedWriter().use { writer -> AgeStanza.writeBody(writer, ageStanza.body) }
     val output = outputStream.toByteArray().decodeToString()
 
-    assertEquals(actualBody, output)
+    assertThat(output).isEqualTo(actualBody)
   }
 
   @Test
@@ -258,6 +251,6 @@ class AgeStanzaTest {
     outputStream.bufferedWriter().use { writer -> AgeStanza.write(writer, ageStanza) }
     val output = outputStream.toByteArray().decodeToString()
 
-    assertEquals(stanza, output)
+    assertThat(output).isEqualTo(stanza)
   }
 }
