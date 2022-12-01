@@ -59,7 +59,11 @@ dependencies {
   implementation(libs.hkdf)
   implementation(libs.kotlinresult)
   testImplementation(libs.junit.jupiter)
-  testImplementation(libs.truth)
+  testImplementation(libs.truth) { exclude(group = "junit", module = "junit") }
+  testRuntimeOnly(libs.junit.legacy) {
+    // See https://github.com/google/truth/issues/333
+    because("Truth needs it")
+  }
 }
 
 tasks.withType<Test>().configureEach {
