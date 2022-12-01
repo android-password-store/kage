@@ -1,2 +1,3 @@
 *.bat           text      eol=crlf
 *               text=auto eol=lf
+src/test/resources/CCTV/** linguist-vendored
