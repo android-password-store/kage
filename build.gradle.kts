@@ -51,8 +51,6 @@ spotless {
   }
 }
 
-tasks.check { finalizedBy(tasks.dokkaHtml) }
-
 sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
