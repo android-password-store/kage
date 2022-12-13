@@ -17,7 +17,7 @@ private constructor(
   val payloadHash: PayloadHash?,
   val identities: List<Identity>,
   val armored: Boolean,
-  val result: ByteArray,
+  val testContent: ByteArray,
 ) {
   companion object {
     fun parse(contents: ByteArray): TestSuite {

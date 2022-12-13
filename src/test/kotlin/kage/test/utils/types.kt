@@ -28,7 +28,7 @@ enum class Expect {
   }
 }
 
-class PayloadHash private constructor(val bytes: ByteArray) {
+class PayloadHash(val bytes: ByteArray) {
   companion object {
     fun from(value: String): PayloadHash {
       check(value.length % 2 == 0) { "Must have an even length" }
