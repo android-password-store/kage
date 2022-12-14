@@ -11,13 +11,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 // From https://youtrack.jetbrains.com/issue/KTIJ-19369#focus=Comments-27-5181027.0-0
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-  alias(libs.plugins.kotlin.jvm)
-  alias(libs.plugins.dokka)
-  alias(libs.plugins.spotless)
   alias(libs.plugins.animalsniffer)
+  alias(libs.plugins.dokka)
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kover)
+  alias(libs.plugins.mavenPublish)
+  alias(libs.plugins.spotless)
   alias(libs.plugins.versions)
   alias(libs.plugins.vcu)
-  alias(libs.plugins.mavenPublish)
   id("signing")
 }
 
