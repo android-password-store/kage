@@ -4,6 +4,30 @@
 
 kage is a work-in-progress implementation of the [age encryption protocol] for Kotlin/JVM and Android. The [reference Go implementation] and the third-party [Rust implementation] are being used as reference for the development of the library.
 
+## Download
+
+The library does not have a stable release yet but you can obtain snapshots from [Sonatype's snapshots repository].
+
+```kotlin
+// settings.gradle.kts
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    exclusiveContent {
+      forRepository { maven("https://oss.sonatype.org/content/repositories/snapshots") }
+      filter { includeModule("com.github.android-password-store", "kage") }
+    }
+  }
+}
+```
+
+```kotlin
+// build.gradle.kts
+dependencies {
+  implementation("com.github.android-password-store:kage:0.0.1-SNAPSHOT")
+}
+```
+
 ## Goals
 
 - Provide a library that can generate and parse age keys, as well as encrypt or decrypt bytes using said keys.
@@ -38,3 +62,4 @@ conditions.
 [age encryption protocol]: https://age-encryption.org/v1
 [reference go implementation]: https://github.com/FiloSottile/age
 [rust implementation]: https://github.com/str4d/rage
+[sonatype's snapshots repository]: https://oss.sonatype.org/content/repositories/snapshots
