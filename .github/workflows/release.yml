@@ -1,0 +1,29 @@
+name: Publish snapshots
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+
+    - name: Set up JDK
+      uses: actions/setup-java@c3ac5dd0ed8db40fedb61c32fbe677e6b355e94c # v3.8.0
+      with:
+        distribution: temurin
+        java-version: 18
+
+    - name: Upload binaries
+      uses: gradle/gradle-build-action@3fbe033aaae657f011f88f29be9e65ed26bd29ef # v2.3.3
+      with:
+        arguments: --no-configuration-cache publishAllPublicationsToMavenCentralRepository
+        gradle-home-cache-cleanup: true
+      env:
+        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.NEXUS_PUBLISH_USERNAME }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.NEXUS_PUBLISH_PASSWORD }}
+        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.NEXUS_PUBLISH_GPG_KEY }}
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.NEXUS_PUBLISH_GPG_KEY_PASSWORD }}

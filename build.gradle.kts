@@ -17,7 +17,13 @@ plugins {
   alias(libs.plugins.animalsniffer)
   alias(libs.plugins.versions)
   alias(libs.plugins.vcu)
+  alias(libs.plugins.mavenPublish)
+  id("signing")
 }
+
+group = requireNotNull(project.findProperty("GROUP"))
+
+version = requireNotNull(project.findProperty("VERSION_NAME"))
 
 fun isNonStable(version: String): Boolean {
   val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
