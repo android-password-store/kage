@@ -39,6 +39,15 @@ public class X25519IdentityException(
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
 
+/**
+ * Raised when an error occurs while calculating the X25519 shared secret. If the X25519 share is a
+ * low order point, the shared secret is the disallowed all-zero value.
+ */
+public class X25519LowOrderPointException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
 /** Raised when an incompatible stanza is provided to [kage.Identity.unwrap] */
 public class InvalidIdentityException(
   message: String? = null,
