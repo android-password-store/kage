@@ -253,4 +253,24 @@ class AgeStanzaTest {
 
     assertThat(output).isEqualTo(stanza)
   }
+
+  @Test
+  fun testWriteAgeStanzaDoesNotAddExtraSpaceWhenNoArgsArePresent() {
+    val stanza =
+      """-> X25519
+            |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
+            |"""
+        .trimMargin()
+
+    val reader = stanza.byteInputStream().buffered()
+    val ageStanza = AgeStanza.parse(reader)
+
+    val outputStream = ByteArrayOutputStream()
+    outputStream.bufferedWriter().use { writer -> AgeStanza.write(writer, ageStanza) }
+    val output = outputStream.toByteArray().decodeToString()
+    val endsWithSpace = output.lines().first().endsWith(" ")
+
+    assertThat(endsWithSpace).isFalse()
+    assertThat(output).isEqualTo(stanza)
+  }
 }
