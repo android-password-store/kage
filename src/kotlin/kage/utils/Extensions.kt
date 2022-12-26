@@ -9,13 +9,22 @@ import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.Writer
 import java.util.Base64
+import kage.errors.InvalidBase64StringException
 
 internal fun ByteArray.encodeBase64(): String {
   return Base64.getEncoder().withoutPadding().encodeToString(this)
 }
 
 internal fun String.decodeBase64(): ByteArray {
+  if (!this.isCanonicalBase64()) throw InvalidBase64StringException()
+
   return Base64.getDecoder().decode(this)
+}
+
+internal fun String.isCanonicalBase64(): Boolean {
+  val decodedByteArray = Base64.getDecoder().decode(this)
+  val encodedString = Base64.getEncoder().withoutPadding().encodeToString(decodedByteArray)
+  return this == encodedString
 }
 
 // Writer.newLine() uses System.lineSeparator(), we want to only use \n
