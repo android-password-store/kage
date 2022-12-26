@@ -1,7 +1,4 @@
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -19,12 +16,12 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v3.1.0
+      uses: actions/checkout@v3.2.0
       with:
         fetch-depth: 0
 
     - name: Set up JDK
-      uses: actions/setup-java@v3.7.0
+      uses: actions/setup-java@v3.8.0
       with:
         distribution: 'zulu'
         java-version: '17'
@@ -40,3 +37,33 @@ jobs:
       with:
         name: Test report
         path: build/reports
+
+  check-coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3.2.0
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3.8.0
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Run unit tests
+      uses: gradle/gradle-build-action@v2.3.3
+      with:
+        arguments: koverXmlReport
+
+    - name: Add coverage report to PR
+      id: kover
+      uses: mi-kas/kover-report@v1
+      with:
+        path: ${{ github.workspace }}/build/reports/kover/xml/report.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: Code Coverage
+        update-comment: true
+        min-coverage-overall: 80
+        min-coverage-changed-files: 80

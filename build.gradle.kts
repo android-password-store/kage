@@ -11,13 +11,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 // From https://youtrack.jetbrains.com/issue/KTIJ-19369#focus=Comments-27-5181027.0-0
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-  alias(libs.plugins.kotlin.jvm)
-  alias(libs.plugins.dokka)
-  alias(libs.plugins.spotless)
   alias(libs.plugins.animalsniffer)
+  alias(libs.plugins.dokka)
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kover)
+  alias(libs.plugins.mavenPublish)
+  alias(libs.plugins.spotless)
   alias(libs.plugins.versions)
   alias(libs.plugins.vcu)
+  id("signing")
 }
+
+group = requireNotNull(project.findProperty("GROUP"))
+
+version = requireNotNull(project.findProperty("VERSION_NAME"))
 
 fun isNonStable(version: String): Boolean {
   val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
@@ -37,7 +44,7 @@ tasks.withType<DependencyUpdatesTask> {
 kotlin { explicitApi() }
 
 spotless {
-  val KTFMT_VERSION = "0.41"
+  val KTFMT_VERSION = "0.42"
   kotlin {
     ktfmt(KTFMT_VERSION).googleStyle()
     target("**/*.kt")
