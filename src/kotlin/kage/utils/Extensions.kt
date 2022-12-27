@@ -8,7 +8,7 @@ package kage.utils
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.Writer
-import java.util.*
+import java.util.Base64
 
 internal fun ByteArray.encodeBase64(): String {
   return Base64.getEncoder().withoutPadding().encodeToString(this)

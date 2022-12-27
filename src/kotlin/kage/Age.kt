@@ -14,7 +14,11 @@ import java.security.SecureRandom
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
-import kage.errors.*
+import kage.errors.IncorrectIdentityException
+import kage.errors.InvalidScryptRecipientException
+import kage.errors.NoIdentitiesException
+import kage.errors.NoRecipientsException
+import kage.errors.StreamException
 import kage.format.AgeFile
 import kage.format.AgeHeader
 
