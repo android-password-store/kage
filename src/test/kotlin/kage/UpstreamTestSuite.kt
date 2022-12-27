@@ -67,6 +67,9 @@ class UpstreamTestSuite {
             val payloadHash = PayloadHash(md.digest(baos.toByteArray()))
             assertThat(payloadHash.bytes).isEqualTo(expectedHash.bytes)
           }
+          if (expect != Success) {
+            fail("expected $expect, got success")
+          }
         }
       }
   }
