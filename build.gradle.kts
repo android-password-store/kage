@@ -33,15 +33,25 @@ fun isNonStable(version: String): Boolean {
   return isStable.not()
 }
 
-tasks.withType<KotlinCompile> { kotlinOptions { moduleName = "kage" } }
+kotlin { explicitApi() }
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType<KotlinCompile> {
+  kotlinOptions {
+    moduleName = "kage"
+    jvmTarget = JavaVersion.VERSION_11.toString()
+  }
+}
 
 tasks.withType<DependencyUpdatesTask> {
   rejectVersionIf { isNonStable(candidate.version) && !isNonStable(currentVersion) }
   checkForGradleUpdate = false
   checkBuildEnvironmentConstraints = true
 }
-
-kotlin { explicitApi() }
 
 spotless {
   val KTFMT_VERSION = "0.42"
