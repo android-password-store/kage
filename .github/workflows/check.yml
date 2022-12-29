@@ -1,9 +1,13 @@
+name: Run tests
 on:
   pull_request:
     branches:
       - main
 
-name: Run tests
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     strategy:
