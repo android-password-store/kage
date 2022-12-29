@@ -27,13 +27,13 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v3.9.0
       with:
-        distribution: 'zulu'
-        java-version: '17'
+        distribution: temurin
+        java-version: 18
 
     - name: Run unit tests
       uses: gradle/gradle-build-action@v2.3.3
       with:
-        arguments: check
+        arguments: --no-configuration-cache check
 
     - name: (Fail-only) Upload test report
       if: "${{ failure() }}"
@@ -53,13 +53,13 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v3.9.0
       with:
-        distribution: 'zulu'
-        java-version: '17'
+        distribution: temurin
+        java-version: 18
 
     - name: Run unit tests
       uses: gradle/gradle-build-action@v2.3.3
       with:
-        arguments: koverXmlReport
+        arguments: --no-configuration-cache koverXmlReport
 
     - name: Add coverage report to PR
       id: kover
