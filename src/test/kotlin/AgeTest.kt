@@ -17,6 +17,7 @@ import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
 import kage.errors.InvalidScryptRecipientException
+import kage.errors.NoIdentitiesException
 import kage.format.AgeFile
 import org.bouncycastle.util.encoders.Base64
 import org.junit.jupiter.api.Test
@@ -253,5 +254,15 @@ class AgeTest {
 
     // TODO: Test this using an integration test calling age.go
     println(ciphertext)
+  }
+
+  @Test
+  fun noIdentities() {
+    val (recipient, _) = genX25519Identity()
+
+    val inputStream = ByteArrayInputStream("this is my file".toByteArray())
+    val ageFile = Age.encrypt(listOf(recipient), inputStream)
+
+    assertThrows<NoIdentitiesException> { Age.decrypt(emptyList(), ageFile) }
   }
 }

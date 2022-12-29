@@ -12,8 +12,10 @@ import kage.Age
 import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
+import kage.errors.X25519LowOrderPointException
 import kage.utils.decodeBase64
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class X25519RecipientTest {
   @Test
@@ -39,5 +41,21 @@ class X25519RecipientTest {
     val unwrapped = identity.unwrap(listOf(stanza))
 
     assertThat(fileKey).asList().containsExactlyElementsIn(unwrapped.asList())
+  }
+
+  @Test
+  fun lowOrderX25519() {
+    val privateKey = ByteArray(32)
+    SecureRandom().nextBytes(privateKey)
+    val sharedSecret = "X5yVvKNQjCSx0LFVnIPvWwREXMRYHI6G2CJO3dCfEdc".decodeBase64()
+    assertThrows<X25519LowOrderPointException> { X25519.scalarMult(privateKey, sharedSecret) }
+  }
+
+  @Test
+  fun identityX25519() {
+    val privateKey = ByteArray(32)
+    SecureRandom().nextBytes(privateKey)
+    val sharedSecret = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".decodeBase64()
+    assertThrows<X25519LowOrderPointException> { X25519.scalarMult(privateKey, sharedSecret) }
   }
 }

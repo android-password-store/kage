@@ -7,7 +7,6 @@ package kage.format
 
 import java.io.BufferedInputStream
 import java.io.BufferedWriter
-import java.util.*
 import kage.Primitives
 import kage.errors.InvalidFooterException
 import kage.errors.InvalidHMACException
@@ -17,6 +16,7 @@ import kage.format.AgeFile.Companion.FOOTER_PREFIX
 import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.AgeFile.Companion.VERSION_LINE
 import kage.format.ParseUtils.splitArgs
+import kage.utils.decodeBase64
 import kage.utils.encodeBase64
 import kage.utils.readLine
 import kage.utils.writeNewLine
@@ -129,8 +129,7 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
       if (args.size != 1 || args.first().isEmpty())
         throw InvalidFooterException("Footer line does not contain MAC")
 
-      return Base64.getDecoder().decode(args.first())
-        ?: throw InvalidFooterException("Error parsing footer line")
+      return args.first().decodeBase64()
     }
 
     internal fun withMac(stanzas: List<AgeStanza>, fileKey: ByteArray): AgeHeader {

@@ -68,7 +68,9 @@ public class AgeStanza(
       writer.write(RECIPIENT_PREFIX)
       writer.writeSpace()
       writer.write(ageStanza.type)
-      writer.writeSpace()
+      if (ageStanza.args.isNotEmpty()) {
+        writer.writeSpace()
+      }
       writer.write(ageStanza.args.joinToString(" "))
       writer.writeNewLine()
       writeBody(writer, ageStanza.body)
