@@ -5,7 +5,10 @@
  */
 package kage.format
 
-import com.github.michaelbull.result.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import kage.errors.Bech32Exception
 
 /**
@@ -124,14 +127,14 @@ internal object Bech32 {
       return Err(Bech32Exception("mixed case HRP: $hrp"))
     }
     val lower = hrp.lowercase() == hrp
-    val hrp = hrp.lowercase()
+    val lHrp = hrp.lowercase()
     val ret = StringBuilder()
-    ret.append(hrp)
+    ret.append(lHrp)
     ret.append("1")
     for (p in values) {
       ret.append(charset[p.toByteInt()])
     }
-    for (p in createChecksum(hrp, values)) {
+    for (p in createChecksum(lHrp, values)) {
       ret.append(charset[p.toByteInt()])
     }
     if (lower) {

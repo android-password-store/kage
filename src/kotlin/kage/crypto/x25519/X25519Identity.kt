@@ -42,11 +42,11 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
 
     val hkdf = HKDF.fromHmacSha256()
 
-    val wrapingKey =
+    val wrappingKey =
       hkdf.extractAndExpand(salt, sharedSecret, X25519_INFO.toByteArray(), MAC_KEY_LENGTH)
 
     try {
-      return ChaCha20Poly1305.aeadDecrypt(wrapingKey, stanza.body, Age.FILE_KEY_SIZE)
+      return ChaCha20Poly1305.aeadDecrypt(wrappingKey, stanza.body, Age.FILE_KEY_SIZE)
     } catch (err: IncorrectCipherTextSizeException) {
       throw err
     } catch (err: Exception) {

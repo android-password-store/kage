@@ -7,7 +7,7 @@ package kage.format
 
 import java.io.BufferedInputStream
 import java.io.BufferedWriter
-import java.util.*
+import java.util.Base64
 import kage.errors.InvalidArbitraryStringException
 import kage.errors.InvalidRecipientException
 import kage.format.AgeFile.Companion.BYTES_PER_LINE
@@ -16,7 +16,6 @@ import kage.format.AgeFile.Companion.FOOTER_PREFIX
 import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.ParseUtils.isValidArbitraryString
 import kage.format.ParseUtils.splitArgs
-import kage.utils.*
 import kage.utils.encodeBase64
 import kage.utils.readLine
 import kage.utils.writeNewLine

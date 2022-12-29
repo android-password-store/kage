@@ -14,7 +14,11 @@ import java.security.SecureRandom
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
-import kage.errors.*
+import kage.errors.IncorrectIdentityException
+import kage.errors.InvalidScryptRecipientException
+import kage.errors.NoIdentitiesException
+import kage.errors.NoRecipientsException
+import kage.errors.StreamException
 import kage.format.AgeFile
 import kage.format.AgeHeader
 
@@ -35,6 +39,38 @@ public object Age {
 
     stream.use { output -> inputStream.use { input -> input.copyTo(output) } }
   }
+
+  @JvmStatic
+  public fun encrypt(recipients: List<Recipient>, plainText: InputStream): AgeFile {
+    val out = ByteArrayOutputStream()
+
+    val (header, stream) = encryptInternal(recipients, out, writeHeaders = false)
+
+    stream.use { output -> plainText.use { input -> input.copyTo(output) } }
+
+    return AgeFile(header, out.toByteArray())
+  }
+
+  @JvmStatic
+  public fun decryptStream(
+    identities: List<Identity>,
+    srcStream: InputStream,
+    dstStream: OutputStream
+  ) {
+    val ageFile = AgeFile.parse(srcStream)
+
+    val input = decryptInternal(identities, ageFile)
+
+    input.use { src -> dstStream.use { dst -> src.copyTo(dst) } }
+  }
+
+  @JvmStatic
+  public fun decrypt(identities: List<Identity>, ageFile: AgeFile): InputStream =
+    decryptInternal(identities, ageFile)
+
+  @JvmStatic
+  public fun decrypt(identity: Identity, ageFile: AgeFile): InputStream =
+    decryptInternal(listOf(identity), ageFile)
 
   private fun encryptInternal(
     recipients: List<Recipient>,
@@ -87,16 +123,6 @@ public object Age {
     return fileKey
   }
 
-  public fun encrypt(recipients: List<Recipient>, plainText: InputStream): AgeFile {
-    val baos = ByteArrayOutputStream()
-
-    val (header, stream) = encryptInternal(recipients, baos, writeHeaders = false)
-
-    stream.use { output -> plainText.use { input -> input.copyTo(output) } }
-
-    return AgeFile(header, baos.toByteArray())
-  }
-
   private fun decryptInternal(identities: List<Identity>, ageFile: AgeFile): InputStream {
     if (identities.isEmpty()) throw NoIdentitiesException("no identities specified")
 
@@ -129,23 +155,4 @@ public object Age {
 
     throw lastError
   }
-
-  public fun decryptStream(
-    identities: List<Identity>,
-    srcStream: InputStream,
-    dstStream: OutputStream
-  ) {
-
-    val ageFile = AgeFile.parse(srcStream)
-
-    val input = decryptInternal(identities, ageFile)
-
-    input.use { src -> dstStream.use { dst -> src.copyTo(dst) } }
-  }
-
-  public fun decrypt(identities: List<Identity>, ageFile: AgeFile): InputStream =
-    decryptInternal(identities, ageFile)
-
-  public fun decrypt(identity: Identity, ageFile: AgeFile): InputStream =
-    decryptInternal(listOf(identity), ageFile)
 }

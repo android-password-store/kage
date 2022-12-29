@@ -31,10 +31,10 @@ public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
 
     val hkdf = HKDF.fromHmacSha256()
 
-    val wrapingKey =
+    val wrappingKey =
       hkdf.extractAndExpand(salt, sharedSecret, X25519_INFO.toByteArray(), MAC_KEY_LENGTH)
 
-    val wrappedKey = ChaCha20Poly1305.aeadEncrypt(wrapingKey, fileKey)
+    val wrappedKey = ChaCha20Poly1305.aeadEncrypt(wrappingKey, fileKey)
 
     val stanza = AgeStanza(X25519_STANZA_TYPE, listOf(ephemeralShare.encodeBase64()), wrappedKey)
 
