@@ -40,7 +40,7 @@ java {
   targetCompatibility = JavaVersion.VERSION_11
 }
 
-tasks.withType<KotlinCompile> {
+tasks.withType<KotlinCompile>().configureEach {
   kotlinOptions {
     moduleName = "kage"
     jvmTarget = JavaVersion.VERSION_11.toString()
