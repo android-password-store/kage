@@ -74,7 +74,7 @@ public class IncorrectIdentityException(
   cause: Throwable? = null,
 ) : CryptoException("incorrect identity for recipient block", cause)
 
-/** Throw when an error occurs while streaming encrypted or decrypted data */
+/** Thrown when an error occurs while streaming encrypted or decrypted data */
 public class StreamException(
   message: String? = null,
   cause: Throwable? = null,
@@ -97,3 +97,7 @@ public class InvalidHMACHeaderException(
   message: String? = null,
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
+
+/** Thrown when an error occurs while encoding/decoding armor data */
+public class ArmorCodingException(message: String? = null, cause: Throwable? = null) :
+  CryptoException(message, cause)

@@ -16,15 +16,15 @@ internal fun ByteArray.encodeBase64(): String {
 }
 
 internal fun String.decodeBase64(): ByteArray {
-  if (!this.isCanonicalBase64()) throw InvalidBase64StringException()
-
-  return Base64.getDecoder().decode(this)
+  val (isCanonical, decoded) = this.isCanonicalBase64()
+  if (!isCanonical) throw InvalidBase64StringException()
+  return decoded
 }
 
-internal fun String.isCanonicalBase64(): Boolean {
+internal fun String.isCanonicalBase64(): Pair<Boolean, ByteArray> {
   val decodedByteArray = Base64.getDecoder().decode(this)
   val encodedString = Base64.getEncoder().withoutPadding().encodeToString(decodedByteArray)
-  return this == encodedString
+  return Pair(this == encodedString, decodedByteArray)
 }
 
 // Writer.newLine() uses System.lineSeparator(), we want to only use \n
