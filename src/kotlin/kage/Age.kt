@@ -5,6 +5,7 @@
  */
 package kage
 
+import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -12,6 +13,8 @@ import java.io.OutputStream
 import java.security.MessageDigest
 import java.security.SecureRandom
 import kage.crypto.scrypt.ScryptRecipient
+import kage.crypto.stream.ArmorInputStream
+import kage.crypto.stream.ArmorOutputStream
 import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
 import kage.errors.IncorrectHMACException
@@ -35,9 +38,9 @@ public object Age {
     outputStream: OutputStream,
     generateArmor: Boolean = false
   ) {
-    if (generateArmor) TODO("not implemented")
+    val dstStream = if (generateArmor) ArmorOutputStream(outputStream) else outputStream
 
-    val (_, stream) = encryptInternal(recipients, outputStream)
+    val (_, stream) = encryptInternal(recipients, dstStream)
 
     stream.use { output -> inputStream.use { input -> input.copyTo(output) } }
   }
@@ -59,7 +62,22 @@ public object Age {
     srcStream: InputStream,
     dstStream: OutputStream
   ) {
-    val ageFile = AgeFile.parse(srcStream)
+
+    val markSupportedStream =
+      if (srcStream.markSupported()) srcStream else BufferedInputStream(srcStream)
+
+    markSupportedStream.mark(ArmorInputStream.HEADER.length)
+
+    val headerStr = markSupportedStream.readNBytes(ArmorInputStream.HEADER.length).decodeToString()
+
+    markSupportedStream.reset()
+
+    val decodedStream =
+      if (headerStr == ArmorInputStream.HEADER) {
+        ArmorInputStream(markSupportedStream)
+      } else markSupportedStream
+
+    val ageFile = AgeFile.parse(decodedStream)
 
     val input = decryptInternal(identities, ageFile)
 
