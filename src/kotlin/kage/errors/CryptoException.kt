@@ -79,3 +79,10 @@ public class StreamException(
   message: String? = null,
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
+
+/** Raised when the Base64 string is not canonical according to RFC 4648 section 3.5 */
+public class InvalidBase64StringException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
