@@ -62,9 +62,12 @@ public class ScryptIdentity(
 
     val fullSalt = ScryptRecipient.SCRYPT_SALT_LABEL.toByteArray().plus(salt)
 
-    val wrappingKey = SCrypt.generate(password, fullSalt, 1 shl workFactor, 8, 1, KEY_LENGTH)
-
-    return ChaCha20Poly1305.aeadDecrypt(wrappingKey, stanza.body, Age.FILE_KEY_SIZE)
+    try {
+      val wrappingKey = SCrypt.generate(password, fullSalt, 1 shl workFactor, 8, 1, KEY_LENGTH)
+      return ChaCha20Poly1305.aeadDecrypt(wrappingKey, stanza.body, Age.FILE_KEY_SIZE)
+    } catch (err: Exception) {
+      throw ScryptIdentityException(null, err)
+    }
   }
 
   internal companion object {

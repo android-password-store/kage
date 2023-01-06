@@ -89,14 +89,19 @@ internal class DecryptInputStream(private val key: ByteArray, private val input:
       unreadOffset = 0
     } catch (err: Exception) {
       if (last) // If we already tried to decode as last chunk, just throw the error
-       throw err
+       throw StreamException("error occurred while decrypting stream", err)
 
       // Try to decode as a final chunk
       last = true
       setLastChunkFlag(this.nonce)
 
-      unreadSize = ChaCha20Poly1305.decrypt(key, nonce, buf, 0, bufSize, unread, 0)
-      unreadOffset = 0
+      try {
+        unreadSize = ChaCha20Poly1305.decrypt(key, nonce, buf, 0, bufSize, unread, 0)
+        unreadOffset = 0
+      } catch (err: Exception) {
+        throw StreamException("error occurred while decrypting stream", err)
+      }
+
     }
 
     incNonce(this.nonce)

@@ -15,6 +15,7 @@ import java.security.MessageDigest
 import kage.errors.IncorrectIdentityException
 import kage.errors.InvalidHMACException
 import kage.kage.test.utils.TestSuite
+import kage.kage.utils.mapToUpstreamExpect
 import kage.test.utils.Expect.ArmorFailure
 import kage.test.utils.Expect.HMACFailure
 import kage.test.utils.Expect.HeaderFailure
@@ -47,34 +48,49 @@ class UpstreamTestSuite {
           }
 
           val error = result.getError()
-          if (error != null && error is InvalidHMACException) {
-            if (expect != HMACFailure) {
-              fail("expected $expect, got HMAC error")
+          if (error == null) {
+            if (expect != Success) fail("expected $expect, got success")
+            suite.payloadHash?.let { expectedHash ->
+              val md = MessageDigest.getInstance("SHA-256")
+              val payloadHash = PayloadHash(md.digest(baos.toByteArray()))
+              assertThat(payloadHash.bytes).isEqualTo(expectedHash.bytes)
             }
-          } else if (error != null && hasCause<IncorrectIdentityException>(error)) {
-            if (expect == NoMatch) {
-              return@dynamicTest
-            }
-          } else if (error != null) {
-            if (expect == HeaderFailure) {
-              return@dynamicTest
-            }
-          } else if (expect != Success && expect != PayloadFailure && expect != ArmorFailure) {
-            fail("expected $expect, got success")
+          } else {
+            error.printStackTrace()
+            val actual = mapToUpstreamExpect(error)
+            assertThat(actual).isEqualTo(expect)
+//            if (expect == actual) return@dynamicTest
+//            else fail("expected $expect, got $actual")
+//            when(expect) {
+//              Success -> fail("expected success, got actual")
+//              HMACFailure -> if (actual == HMACFailure) return@dynamicTest else fail()
+//              HeaderFailure -> TODO()
+//              ArmorFailure -> TODO()
+//              PayloadFailure -> TODO()
+//              NoMatch -> TODO()
+//            }
           }
-          suite.payloadHash?.let { expectedHash ->
-            val md = MessageDigest.getInstance("SHA-256")
-            val payloadHash = PayloadHash(md.digest(baos.toByteArray()))
-            assertThat(payloadHash.bytes).isEqualTo(expectedHash.bytes)
-          }
-          if (expect != Success) {
-            fail("expected $expect, got success")
-          }
+
+//          if (error != null && error is InvalidHMACException) {
+//            if (expect != HMACFailure) {
+//              fail("expected $expect, got HMAC error")
+//            }
+//          } else if (error != null && hasCause<IncorrectIdentityException>(error)) {
+//            if (expect == NoMatch) {
+//              return@dynamicTest
+//            }
+//          } else if (error != null) {
+//            if (expect == HeaderFailure) {
+//              return@dynamicTest
+//            }
+//          } else if (expect != Success && expect != PayloadFailure && expect != ArmorFailure) {
+//            fail("expected $expect, got success")
+//          }
+//
+//          if (expect != Success) {
+//            fail("expected $expect, got success")
+//          }
         }
       }
-  }
-
-  private inline fun <reified T : Exception> hasCause(error: Throwable): Boolean {
-    return generateSequence(error) { error.cause }.firstOrNull { e -> e is T } != null
   }
 }

@@ -16,6 +16,7 @@ import kage.crypto.x25519.X25519Recipient.Companion.X25519_INFO
 import kage.errors.IncorrectCipherTextSizeException
 import kage.errors.IncorrectIdentityException
 import kage.errors.InvalidIdentityException
+import kage.errors.X25519IdentityException
 import kage.format.AgeKeyFile
 import kage.format.AgeStanza
 import kage.format.Bech32
@@ -29,28 +30,30 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
   private fun unwrapSingle(stanza: AgeStanza): ByteArray {
     if (stanza.type != X25519Recipient.X25519_STANZA_TYPE) throw IncorrectIdentityException()
 
-    if (stanza.args.size != 1) throw InvalidIdentityException("invalid x25519 recipient block")
-
-    val stanzaPublicKey = stanza.args[0].decodeBase64()
-
-    if (stanzaPublicKey.size != POINT_SIZE)
-      throw InvalidIdentityException("invalid x25519 recipient block")
-
-    val sharedSecret = X25519.scalarMult(secretKey, stanzaPublicKey)
-
-    val salt = stanzaPublicKey.plus(this.publicKey)
-
-    val hkdf = HKDF.fromHmacSha256()
-
-    val wrappingKey =
-      hkdf.extractAndExpand(salt, sharedSecret, X25519_INFO.toByteArray(), MAC_KEY_LENGTH)
-
     try {
-      return ChaCha20Poly1305.aeadDecrypt(wrappingKey, stanza.body, Age.FILE_KEY_SIZE)
-    } catch (err: IncorrectCipherTextSizeException) {
-      throw err
+      if (stanza.args.size != 1) throw X25519IdentityException("invalid x25519 recipient block")
+
+      val stanzaPublicKey = stanza.args[0].decodeBase64()
+
+      if (stanzaPublicKey.size != POINT_SIZE)
+        throw X25519IdentityException("invalid x25519 recipient block")
+
+      val sharedSecret = X25519.scalarMult(secretKey, stanzaPublicKey)
+
+      val salt = stanzaPublicKey.plus(this.publicKey)
+
+      val hkdf = HKDF.fromHmacSha256()
+
+      val wrapingKey =
+        hkdf.extractAndExpand(salt, sharedSecret, X25519_INFO.toByteArray(), MAC_KEY_LENGTH)
+
+      return ChaCha20Poly1305.aeadDecrypt(wrapingKey, stanza.body, Age.FILE_KEY_SIZE)
     } catch (err: Exception) {
-      throw IncorrectIdentityException(err)
+      if (err is X25519IdentityException) {
+        throw err
+      } else {
+        throw X25519IdentityException("Error occurred while unwrapping stanza", err)
+      }
     }
   }
 
@@ -66,14 +69,14 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
     public fun decode(string: String): X25519Identity {
       val (hrp, key) =
         Bech32.decode(string)
-          .mapError { InvalidIdentityException("Invalid public key", it) }
+          .mapError { X25519IdentityException("Invalid public key", it) }
           .getOrThrow()
 
       if (key.size != POINT_SIZE)
-        throw InvalidIdentityException("Invalid X25519 private key size: (${key.size})")
+        throw X25519IdentityException("Invalid X25519 private key size: (${key.size})")
 
       if (hrp != AgeKeyFile.AGE_SECRET_KEY_PREFIX)
-        throw InvalidIdentityException("Invalid human readable part for age secret key ($hrp)")
+        throw X25519IdentityException("Invalid human readable part for age secret key ($hrp)")
 
       val publicKey = X25519.scalarMultBase(key)
 
