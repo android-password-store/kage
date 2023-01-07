@@ -5,7 +5,6 @@
  */
 package kage
 
-import kage.errors.IncorrectIdentityException
 import kage.format.AgeStanza
 
 /**

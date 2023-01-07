@@ -13,9 +13,7 @@ import kage.Identity
 import kage.crypto.stream.ChaCha20Poly1305
 import kage.crypto.x25519.X25519Recipient.Companion.MAC_KEY_LENGTH
 import kage.crypto.x25519.X25519Recipient.Companion.X25519_INFO
-import kage.errors.IncorrectCipherTextSizeException
 import kage.errors.IncorrectIdentityException
-import kage.errors.InvalidIdentityException
 import kage.errors.X25519IdentityException
 import kage.format.AgeKeyFile
 import kage.format.AgeStanza

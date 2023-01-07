@@ -101,7 +101,6 @@ internal class DecryptInputStream(private val key: ByteArray, private val input:
       } catch (err: Exception) {
         throw StreamException("error occurred while decrypting stream", err)
       }
-
     }
 
     incNonce(this.nonce)

@@ -12,15 +12,8 @@ import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.MessageDigest
-import kage.errors.IncorrectIdentityException
-import kage.errors.InvalidHMACException
 import kage.kage.test.utils.TestSuite
 import kage.kage.utils.mapToUpstreamExpect
-import kage.test.utils.Expect.ArmorFailure
-import kage.test.utils.Expect.HMACFailure
-import kage.test.utils.Expect.HeaderFailure
-import kage.test.utils.Expect.NoMatch
-import kage.test.utils.Expect.PayloadFailure
 import kage.test.utils.Expect.Success
 import kage.test.utils.PayloadHash
 import kotlin.io.path.name
@@ -59,37 +52,7 @@ class UpstreamTestSuite {
             error.printStackTrace()
             val actual = mapToUpstreamExpect(error)
             assertThat(actual).isEqualTo(expect)
-//            if (expect == actual) return@dynamicTest
-//            else fail("expected $expect, got $actual")
-//            when(expect) {
-//              Success -> fail("expected success, got actual")
-//              HMACFailure -> if (actual == HMACFailure) return@dynamicTest else fail()
-//              HeaderFailure -> TODO()
-//              ArmorFailure -> TODO()
-//              PayloadFailure -> TODO()
-//              NoMatch -> TODO()
-//            }
           }
-
-//          if (error != null && error is InvalidHMACException) {
-//            if (expect != HMACFailure) {
-//              fail("expected $expect, got HMAC error")
-//            }
-//          } else if (error != null && hasCause<IncorrectIdentityException>(error)) {
-//            if (expect == NoMatch) {
-//              return@dynamicTest
-//            }
-//          } else if (error != null) {
-//            if (expect == HeaderFailure) {
-//              return@dynamicTest
-//            }
-//          } else if (expect != Success && expect != PayloadFailure && expect != ArmorFailure) {
-//            fail("expected $expect, got success")
-//          }
-//
-//          if (expect != Success) {
-//            fail("expected $expect, got success")
-//          }
         }
       }
   }

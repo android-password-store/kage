@@ -27,7 +27,6 @@ public class InvalidScryptRecipientException(
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
 
-
 /** Raised when an incompatible stanza is provided to [kage.Identity.unwrap] */
 public sealed class InvalidIdentityException(
   message: String? = null,
@@ -87,10 +86,8 @@ public class InvalidBase64StringException(
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
 
-
 /** Raised when the mac is incorrect */
 public class IncorrectHMACException(
   message: String? = null,
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
-
