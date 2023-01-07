@@ -18,6 +18,7 @@ import kage.errors.IncorrectHMACException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
 import kage.errors.NoRecipientsException
+import kage.errors.ScryptIdentityException
 import kage.format.AgeFile
 import kage.format.AgeHeader
 
@@ -126,6 +127,11 @@ public object Age {
     if (identities.isEmpty()) throw NoIdentitiesException("no identities specified")
 
     val exceptions = mutableListOf<Exception>()
+
+    ageFile.header.recipients.forEach { stanza ->
+      if (stanza.type == ScryptRecipient.SCRYPT_STANZA_TYPE && ageFile.header.recipients.size != 1)
+        throw ScryptIdentityException("an scrypt identity must be the only one")
+    }
 
     for (identity in identities) {
       val fileKey =

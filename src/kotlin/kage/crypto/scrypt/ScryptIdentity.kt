@@ -26,11 +26,6 @@ public class ScryptIdentity(
   }
 
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray {
-    stanzas.forEach { stanza ->
-      if (stanza.type == ScryptRecipient.SCRYPT_STANZA_TYPE && stanzas.size != 1)
-        throw ScryptIdentityException("an scrypt identity must be the only one")
-    }
-
     return multiUnwrap(::unwrapSingle, stanzas)
   }
 
