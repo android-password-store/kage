@@ -45,7 +45,7 @@ fun mapToUpstreamExpect(error: Throwable): Expect {
   if (error is CryptoException) return HeaderFailure
 
   // TODO: Handle cases where we are throwing anything other than CryptoException or ParseException
-  // throw IllegalStateException("Only exceptions thrown by kage can be mapped to expect value")
+  //  throw IllegalStateException("Only exceptions thrown by kage can be mapped to expect value")
   return HeaderFailure
 
 //  return when (this) {
