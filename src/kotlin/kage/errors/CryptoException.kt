@@ -91,3 +91,9 @@ public class IncorrectHMACException(
   message: String? = null,
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
+
+/** Raised when the mac is invalid (truncated or the wrong size) **/
+public class InvalidHMACHeaderException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)

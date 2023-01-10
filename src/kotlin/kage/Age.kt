@@ -15,6 +15,7 @@ import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
 import kage.errors.IncorrectHMACException
+import kage.errors.InvalidHMACHeaderException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
 import kage.errors.NoRecipientsException
@@ -25,6 +26,7 @@ import kage.format.AgeHeader
 public object Age {
   internal const val FILE_KEY_SIZE: Int = 16
   private const val STREAM_NONCE_SIZE = 16
+  private const val HMAC_SIZE = 32
 
   @JvmStatic
   public fun encryptStream(
@@ -141,6 +143,10 @@ public object Age {
           exceptions.add(err)
           continue
         }
+
+
+      if (ageFile.header.mac.size != HMAC_SIZE)
+        throw InvalidHMACHeaderException("invalid header mac")
 
       val calculatedMac = Primitives.headerMAC(fileKey, ageFile.header)
 

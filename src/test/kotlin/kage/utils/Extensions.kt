@@ -8,10 +8,12 @@ package kage.kage.utils
 import kage.errors.CryptoException
 import kage.errors.IncorrectHMACException
 import kage.errors.IncorrectIdentityException
+import kage.errors.InvalidHMACHeaderException
 import kage.errors.InvalidIdentityException
 import kage.errors.ParseException
 import kage.errors.StreamException
 import kage.test.utils.Expect
+import kage.test.utils.Expect.HMACFailure
 import kage.test.utils.Expect.HeaderFailure
 import kage.test.utils.Expect.NoMatch
 import kage.test.utils.Expect.PayloadFailure
@@ -30,6 +32,8 @@ fun mapToUpstreamExpect(error: Throwable): Expect {
   if (error is InvalidIdentityException && hasCause<InvalidCipherTextException>(error))
     return NoMatch
   if (error is IncorrectHMACException || hasCause<IncorrectHMACException>(error))
+    return HMACFailure
+  if (error is InvalidHMACHeaderException)
     return HeaderFailure
   if (error is IncorrectIdentityException) return NoMatch
   if (error is StreamException) return PayloadFailure
