@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": true,
+  "dependencyDashboard": false,
+  "regexManagers": [
+    {
+      "fileMatch": [
+        ".kts$"
+      ],
+      "matchStrings": [
+        "KTFMT_VERSION = \"(?<currentValue>.*)\"",
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "com.facebook:ktfmt",
+    },
+  ],
+}
