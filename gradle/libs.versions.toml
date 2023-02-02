@@ -18,6 +18,6 @@ dokka = "org.jetbrains.dokka:1.7.20"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = "org.jetbrains.kotlinx.kover:0.6.1"
 mavenPublish = "com.vanniktech.maven.publish:0.24.0"
-spotless = "com.diffplug.spotless:6.12.1"
+spotless = "com.diffplug.spotless:6.14.0"
 vcu = "nl.littlerobots.version-catalog-update:0.7.0"
 versions = "com.github.ben-manes.versions:0.45.0"
