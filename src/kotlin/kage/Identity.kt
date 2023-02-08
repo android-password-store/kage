@@ -15,7 +15,7 @@ import kage.format.AgeStanza
  * Unwrap must return an error wrapping IncorrectIdentityError if none of the recipient stanzas
  * match the identity, any other error will be considered fatal.
  *
- * [Age docs](https://github.com/FiloSottile/age/blob/ab3707c085f2c1fdfd767a2ed718423e3925f4c4/age.go#L59-L72)
+ * [Age docs](https://github.com/FiloSottile/age/blob/ab3707c085f2c1/age.go#L59-L72)
  */
 public interface Identity {
   public fun unwrap(stanzas: List<AgeStanza>): ByteArray
