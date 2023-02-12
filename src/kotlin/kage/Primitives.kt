@@ -5,7 +5,7 @@
  */
 package kage
 
-import at.favre.lib.crypto.HKDF
+import at.favre.lib.hkdf.HKDF
 import java.io.ByteArrayOutputStream
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
