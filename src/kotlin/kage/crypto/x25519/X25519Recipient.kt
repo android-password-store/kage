@@ -5,7 +5,7 @@
  */
 package kage.crypto.x25519
 
-import at.favre.lib.crypto.HKDF
+import at.favre.lib.hkdf.HKDF
 import com.github.michaelbull.result.getOrThrow
 import com.github.michaelbull.result.mapError
 import java.security.SecureRandom
