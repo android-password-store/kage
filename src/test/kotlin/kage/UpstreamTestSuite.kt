@@ -26,34 +26,31 @@ class UpstreamTestSuite {
 
   @TestFactory
   fun generateTests(): List<DynamicTest> {
-    return Files.newDirectoryStream(testFixtureRoot)
-      // TODO: enable armor tests
-      .filter { path -> !path.name.contains("armor") }
-      .map { path ->
-        val contents = path.toFile().readBytes()
-        DynamicTest.dynamicTest(path.name) {
-          val suite = TestSuite.parse(contents)
-          val expect = suite.expect
+    return Files.newDirectoryStream(testFixtureRoot).map { path ->
+      val contents = path.toFile().readBytes()
+      DynamicTest.dynamicTest(path.name) {
+        val suite = TestSuite.parse(contents)
+        val expect = suite.expect
 
-          val baos = ByteArrayOutputStream()
-          val result = runCatching {
-            Age.decryptStream(suite.identities, suite.testContent.inputStream(), baos)
-          }
+        val baos = ByteArrayOutputStream()
+        val result = runCatching {
+          Age.decryptStream(suite.identities, suite.testContent.inputStream(), baos)
+        }
 
-          val error = result.getError()
-          if (error == null) {
-            if (expect != Success) fail("expected $expect, got success")
-            suite.payloadHash?.let { expectedHash ->
-              val md = MessageDigest.getInstance("SHA-256")
-              val payloadHash = PayloadHash(md.digest(baos.toByteArray()))
-              assertThat(payloadHash.bytes).isEqualTo(expectedHash.bytes)
-            }
-          } else {
-            error.printStackTrace()
-            val actual = mapToUpstreamExpect(error)
-            assertThat(actual).isEqualTo(expect)
+        val error = result.getError()
+        if (error == null) {
+          if (expect != Success) fail("expected $expect, got success")
+          suite.payloadHash?.let { expectedHash ->
+            val md = MessageDigest.getInstance("SHA-256")
+            val payloadHash = PayloadHash(md.digest(baos.toByteArray()))
+            assertThat(payloadHash.bytes).isEqualTo(expectedHash.bytes)
           }
+        } else {
+          error.printStackTrace()
+          val actual = mapToUpstreamExpect(error)
+          assertThat(actual).isEqualTo(expect)
         }
       }
+    }
   }
 }
