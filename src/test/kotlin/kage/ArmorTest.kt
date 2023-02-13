@@ -65,7 +65,7 @@ class ArmorTest {
         Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
       }
 
-    assertThat(error.message).isEqualTo("trailing data after armored file")
+    assertThat(error).hasMessageThat().isEqualTo("trailing data after armored file")
   }
 
   @Test
@@ -91,7 +91,7 @@ class ArmorTest {
         Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
       }
 
-    assertThat(error.message).isEqualTo("too much trailing whitespace")
+    assertThat(error).hasMessageThat().isEqualTo("too much trailing whitespace")
   }
 
   @Test
@@ -142,7 +142,7 @@ class ArmorTest {
         Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
       }
 
-    assertThat(error.message).isEqualTo("column limit exceeded")
+    assertThat(error).hasMessageThat().isEqualTo("column limit exceeded")
   }
 
   @Test
@@ -167,7 +167,7 @@ class ArmorTest {
         Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
       }
 
-    assertThat(error.message).isEqualTo("invalid closing line")
+    assertThat(error).hasMessageThat().isEqualTo("invalid closing line")
   }
 
   @Test
