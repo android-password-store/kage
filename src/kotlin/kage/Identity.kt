@@ -5,7 +5,6 @@
  */
 package kage
 
-import kage.errors.IncorrectIdentityException
 import kage.format.AgeStanza
 
 /**
@@ -22,16 +21,16 @@ public interface Identity {
 }
 
 internal fun multiUnwrap(unwrapFn: (AgeStanza) -> ByteArray, stanzas: List<AgeStanza>): ByteArray {
-  val lastError = IncorrectIdentityException()
+  val exceptions = mutableListOf<Exception>()
 
   stanzas.forEach { stanza ->
     try {
       return unwrapFn(stanza)
-    } catch (err: IncorrectIdentityException) {
+    } catch (err: Exception) {
       // will try next stanza
-      lastError.addSuppressed(err)
+      exceptions.add(err)
     }
   }
 
-  throw lastError
+  throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
 }

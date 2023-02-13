@@ -5,9 +5,11 @@
  */
 package kage.format
 
+import com.github.michaelbull.result.getOrThrow
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.runCatching
 import java.io.BufferedInputStream
 import java.io.BufferedWriter
-import java.util.Base64
 import kage.errors.InvalidArbitraryStringException
 import kage.errors.InvalidRecipientException
 import kage.format.AgeFile.Companion.BYTES_PER_LINE
@@ -16,6 +18,7 @@ import kage.format.AgeFile.Companion.FOOTER_PREFIX
 import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.ParseUtils.isValidArbitraryString
 import kage.format.ParseUtils.splitArgs
+import kage.utils.decodeBase64
 import kage.utils.encodeBase64
 import kage.utils.readLine
 import kage.utils.writeNewLine
@@ -164,7 +167,10 @@ public class AgeStanza(
               "Line is null, did you forget an extra newline after a full length body chunk?"
             )
 
-        val bytes = Base64.getDecoder().decode(line)
+        val bytes =
+          runCatching { line.decodeBase64() }
+            .mapError { e -> InvalidRecipientException("error occurred while decoding", e) }
+            .getOrThrow()
         if (bytes.size > BYTES_PER_LINE)
           throw InvalidRecipientException("Body line is too long: $line")
 

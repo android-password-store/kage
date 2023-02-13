@@ -14,17 +14,19 @@ import java.security.SecureRandom
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
-import kage.errors.IncorrectIdentityException
+import kage.errors.IncorrectHMACException
+import kage.errors.InvalidHMACHeaderException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
 import kage.errors.NoRecipientsException
-import kage.errors.StreamException
+import kage.errors.ScryptIdentityException
 import kage.format.AgeFile
 import kage.format.AgeHeader
 
 public object Age {
   internal const val FILE_KEY_SIZE: Int = 16
   private const val STREAM_NONCE_SIZE = 16
+  private const val HMAC_SIZE = 32
 
   @JvmStatic
   public fun encryptStream(
@@ -126,21 +128,29 @@ public object Age {
   private fun decryptInternal(identities: List<Identity>, ageFile: AgeFile): InputStream {
     if (identities.isEmpty()) throw NoIdentitiesException("no identities specified")
 
-    val lastError = IncorrectIdentityException()
+    val exceptions = mutableListOf<Exception>()
+
+    ageFile.header.recipients.forEach { stanza ->
+      if (stanza.type == ScryptRecipient.SCRYPT_STANZA_TYPE && ageFile.header.recipients.size != 1)
+        throw ScryptIdentityException("an scrypt identity must be the only one")
+    }
 
     for (identity in identities) {
       val fileKey =
         try {
           identity.unwrap(ageFile.header.recipients)
-        } catch (err: IncorrectIdentityException) {
-          lastError.addSuppressed(err)
+        } catch (err: Exception) {
+          exceptions.add(err)
           continue
         }
+
+      if (ageFile.header.mac.size != HMAC_SIZE)
+        throw InvalidHMACHeaderException("invalid header mac")
 
       val calculatedMac = Primitives.headerMAC(fileKey, ageFile.header)
 
       if (!MessageDigest.isEqual(ageFile.header.mac, calculatedMac))
-        throw StreamException("bad header MAC")
+        throw IncorrectHMACException("bad header MAC")
 
       val nonce = ByteArray(STREAM_NONCE_SIZE)
       ageFile.body.copyInto(nonce, 0, 0, STREAM_NONCE_SIZE)
@@ -153,6 +163,6 @@ public object Age {
       return DecryptInputStream(streamKey, bis)
     }
 
-    throw lastError
+    throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
   }
 }

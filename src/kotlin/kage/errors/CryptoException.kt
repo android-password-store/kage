@@ -27,17 +27,23 @@ public class InvalidScryptRecipientException(
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
 
+/** Raised when an incompatible stanza is provided to [kage.Identity.unwrap] */
+public sealed class InvalidIdentityException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
 /** Raised when an error occurs when unwrapping an scrypt stanza from an [kage.Identity]. */
 public class ScryptIdentityException(
   message: String? = null,
   cause: Throwable? = null,
-) : CryptoException(message, cause)
+) : InvalidIdentityException(message, cause)
 
 /** Raised when an error occurs when unwrapping a X25519 stanza from an [kage.Identity]. */
 public class X25519IdentityException(
   message: String? = null,
   cause: Throwable? = null,
-) : CryptoException(message, cause)
+) : InvalidIdentityException(message, cause)
 
 /**
  * Raised when an error occurs while calculating the X25519 shared secret. If the X25519 share is a
@@ -46,19 +52,13 @@ public class X25519IdentityException(
 public class X25519LowOrderPointException(
   message: String? = null,
   cause: Throwable? = null,
-) : CryptoException(message, cause)
-
-/** Raised when an incompatible stanza is provided to [kage.Identity.unwrap] */
-public class InvalidIdentityException(
-  message: String? = null,
-  cause: Throwable? = null,
-) : CryptoException(message, cause)
+) : InvalidIdentityException(message, cause)
 
 /** Raised when there are no [kage.Identity]s when decrypting a ciphertext */
 public class NoIdentitiesException(
   message: String? = null,
   cause: Throwable? = null,
-) : CryptoException(message, cause)
+) : InvalidIdentityException(message, cause)
 
 public class IncorrectCipherTextSizeException(
   cause: Throwable? = null,
@@ -76,6 +76,24 @@ public class IncorrectIdentityException(
 
 /** Throw when an error occurs while streaming encrypted or decrypted data */
 public class StreamException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
+/** Raised when the Base64 string is not canonical according to RFC 4648 section 3.5 */
+public class InvalidBase64StringException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
+/** Raised when the mac is incorrect */
+public class IncorrectHMACException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
+
+/** Raised when the mac is invalid (truncated or the wrong size) */
+public class InvalidHMACHeaderException(
   message: String? = null,
   cause: Throwable? = null,
 ) : CryptoException(message, cause)
