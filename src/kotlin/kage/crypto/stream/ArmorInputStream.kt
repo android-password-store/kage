@@ -7,6 +7,7 @@ package kage.crypto.stream
 
 import java.io.InputStream
 import kage.errors.ArmorCodingException
+import kage.errors.InvalidBase64StringException
 import kage.utils.decodeBase64
 
 internal class ArmorInputStream(src: InputStream) : InputStream() {
@@ -39,7 +40,14 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
       throw ArmorCodingException("column limit exceeded")
     }
 
-    unread = line.decodeBase64()
+    unread =
+      try {
+        line.decodeBase64()
+      } catch (e: InvalidBase64StringException) {
+        val exc = ArmorCodingException("missing base64 padding")
+        exc.addSuppressed(e)
+        throw exc
+      }
     unreadSize = unread.size
     unreadOffset = 0
 
