@@ -99,5 +99,7 @@ public class InvalidHMACHeaderException(
 ) : CryptoException(message, cause)
 
 /** Thrown when an error occurs while encoding/decoding armor data */
-public class ArmorCodingException(message: String? = null, cause: Throwable? = null) :
-  CryptoException(message, cause)
+public class ArmorCodingException(
+  message: String? = null,
+  cause: Throwable? = null,
+) : CryptoException(message, cause)
