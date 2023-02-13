@@ -144,7 +144,6 @@ public object Age {
           continue
         }
 
-
       if (ageFile.header.mac.size != HMAC_SIZE)
         throw InvalidHMACHeaderException("invalid header mac")
 

@@ -31,10 +31,8 @@ private inline fun <reified T : Exception> hasCause(error: Throwable): Boolean {
 fun mapToUpstreamExpect(error: Throwable): Expect {
   if (error is InvalidIdentityException && hasCause<InvalidCipherTextException>(error))
     return NoMatch
-  if (error is IncorrectHMACException || hasCause<IncorrectHMACException>(error))
-    return HMACFailure
-  if (error is InvalidHMACHeaderException)
-    return HeaderFailure
+  if (error is IncorrectHMACException || hasCause<IncorrectHMACException>(error)) return HMACFailure
+  if (error is InvalidHMACHeaderException) return HeaderFailure
   if (error is IncorrectIdentityException) return NoMatch
   if (error is StreamException) return PayloadFailure
   if (error is ParseException) return HeaderFailure
