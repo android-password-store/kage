@@ -31,7 +31,7 @@ jobs:
         java-version: 18
 
     - name: Run unit tests
-      uses: gradle/gradle-build-action@v2.3.3
+      uses: gradle/gradle-build-action@v2.4.0
       with:
         arguments: --no-configuration-cache check
 
@@ -59,7 +59,7 @@ jobs:
         java-version: 18
 
     - name: Run unit tests
-      uses: gradle/gradle-build-action@v2.3.3
+      uses: gradle/gradle-build-action@v2.4.0
       with:
         arguments: --no-configuration-cache koverXmlReport
 
