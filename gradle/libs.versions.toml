@@ -8,7 +8,7 @@ bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.72"
 hkdf = "at.favre.lib:hkdf:2.0.0"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-legacy = "junit:junit:4.13.2"
-kotlinresult = "com.michael-bull.kotlin-result:kotlin-result:1.1.16"
+kotlinresult = "com.michael-bull.kotlin-result:kotlin-result:1.1.17"
 kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 truth = "com.google.truth:truth:1.1.3"
 
