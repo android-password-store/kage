@@ -13,6 +13,7 @@ enum class Expect {
   PayloadFailure,
   NoMatch,
   ;
+
   companion object {
     fun fromString(value: String): Expect {
       return when (value) {
