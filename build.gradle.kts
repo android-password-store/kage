@@ -19,7 +19,6 @@ plugins {
   alias(libs.plugins.spotless)
   alias(libs.plugins.versions)
   alias(libs.plugins.vcu)
-  id("signing")
 }
 
 group = requireNotNull(project.findProperty("GROUP"))
