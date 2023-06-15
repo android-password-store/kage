@@ -4,7 +4,7 @@ kotlin = "1.8.22"
 
 [libraries]
 animalsniffer-signature-android = "net.sf.androidscents.signature:android-api-level-23:6.0_r3"
-bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.73"
+bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.74"
 hkdf = "at.favre.lib:hkdf:2.0.0"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-legacy = "junit:junit:4.13.2"
