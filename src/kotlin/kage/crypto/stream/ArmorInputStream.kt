@@ -99,6 +99,7 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
   }
 
   internal companion object {
+    const val HEADER_START = "-----"
     const val HEADER = "-----BEGIN AGE ENCRYPTED FILE-----"
     const val FOOTER = "-----END AGE ENCRYPTED FILE-----"
 
