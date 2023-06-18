@@ -15,15 +15,19 @@ internal fun ByteArray.encodeBase64(): String {
   return Base64.getEncoder().withoutPadding().encodeToString(this)
 }
 
-internal fun String.decodeBase64(): ByteArray {
-  val (isCanonical, decoded) = this.isCanonicalBase64()
+internal fun String.decodeBase64(isArmor: Boolean = false): ByteArray {
+  val (isCanonical, decoded) = this.isCanonicalBase64(isArmor)
   if (!isCanonical) throw InvalidBase64StringException()
   return decoded
 }
 
-internal fun String.isCanonicalBase64(): Pair<Boolean, ByteArray> {
+internal fun String.isCanonicalBase64(isArmor: Boolean = false): Pair<Boolean, ByteArray> {
   val decodedByteArray = Base64.getDecoder().decode(this)
-  val encodedString = Base64.getEncoder().withoutPadding().encodeToString(decodedByteArray)
+  // Armor can contain padding
+  val encodedString =
+    Base64.getEncoder()
+      .run { if (isArmor) this else withoutPadding() }
+      .encodeToString(decodedByteArray)
   return Pair(this == encodedString, decodedByteArray)
 }
 
