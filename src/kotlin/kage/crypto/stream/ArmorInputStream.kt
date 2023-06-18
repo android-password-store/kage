@@ -6,6 +6,7 @@
 package kage.crypto.stream
 
 import java.io.InputStream
+import java.lang.IllegalArgumentException
 import kage.errors.ArmorCodingException
 import kage.errors.InvalidBase64StringException
 import kage.utils.decodeBase64
@@ -43,6 +44,10 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
     unread =
       try {
         line.decodeBase64()
+      } catch (e: IllegalArgumentException) {
+        val exc = ArmorCodingException("invalid base64 string")
+        exc.addSuppressed(e)
+        throw exc
       } catch (e: InvalidBase64StringException) {
         val exc = ArmorCodingException("missing base64 padding")
         exc.addSuppressed(e)
