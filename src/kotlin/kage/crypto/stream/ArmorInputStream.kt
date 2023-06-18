@@ -43,7 +43,7 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
 
     unread =
       try {
-        line.decodeBase64()
+        line.decodeBase64(isArmor = true)
       } catch (e: IllegalArgumentException) {
         val exc = ArmorCodingException("invalid base64 string")
         exc.addSuppressed(e)
@@ -104,6 +104,7 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
   }
 
   internal companion object {
+    const val CRLF = "\\r\\n"
     const val HEADER_START = "-----"
     const val HEADER = "-----BEGIN AGE ENCRYPTED FILE-----"
     const val FOOTER = "-----END AGE ENCRYPTED FILE-----"
