@@ -73,7 +73,7 @@ public object Age {
     markSupportedStream.reset()
 
     val decodedStream =
-      if (headerStr == ArmorInputStream.HEADER) {
+      if (headerStr.startsWith(ArmorInputStream.HEADER_START)) {
         ArmorInputStream(markSupportedStream)
       } else markSupportedStream
 
