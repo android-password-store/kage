@@ -13,7 +13,7 @@ kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.
 truth = "com.google.truth:truth:1.1.5"
 
 [plugins]
-animalsniffer = "ru.vyarus.animalsniffer:1.7.0"
+animalsniffer = "ru.vyarus.animalsniffer:1.7.1"
 dokka = "org.jetbrains.dokka:1.8.20"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = "org.jetbrains.kotlinx.kover:0.7.2"
