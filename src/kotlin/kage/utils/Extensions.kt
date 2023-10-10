@@ -11,8 +11,8 @@ import java.io.Writer
 import java.util.Base64
 import kage.errors.InvalidBase64StringException
 
-internal fun ByteArray.encodeBase64(): String {
-  return Base64.getEncoder().withoutPadding().encodeToString(this)
+internal fun ByteArray.encodeBase64(isArmor: Boolean = false): String {
+  return Base64.getEncoder().run { if (isArmor) this else withoutPadding() }.encodeToString(this)
 }
 
 internal fun String.decodeBase64(isArmor: Boolean = false): ByteArray {

@@ -6,7 +6,7 @@
 package kage.crypto.stream
 
 import java.io.OutputStream
-import java.util.Base64
+import kage.utils.encodeBase64
 
 internal class ArmorOutputStream(private val dst: OutputStream) : OutputStream() {
 
@@ -34,7 +34,7 @@ internal class ArmorOutputStream(private val dst: OutputStream) : OutputStream()
 
   private fun writeLine() {
     if (bufSize > 0) {
-      val b64Bytes = Base64.getEncoder().withoutPadding().encode(buf.sliceArray(0 until bufSize))
+      val b64Bytes = (buf.sliceArray(0 until bufSize)).encodeBase64(true).toByteArray()
       dst.write(b64Bytes)
     }
 
