@@ -40,7 +40,7 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
 
   override fun close() {
     flushChunk(last = true)
-    // Not closing underlying stream
+    dst.close()
   }
 
   private fun flushChunk(last: Boolean = false) {

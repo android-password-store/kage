@@ -5,6 +5,7 @@
  */
 package kage.kage.utils
 
+import kage.errors.ArmorCodingException
 import kage.errors.CryptoException
 import kage.errors.IncorrectHMACException
 import kage.errors.IncorrectIdentityException
@@ -13,6 +14,7 @@ import kage.errors.InvalidIdentityException
 import kage.errors.ParseException
 import kage.errors.StreamException
 import kage.test.utils.Expect
+import kage.test.utils.Expect.ArmorFailure
 import kage.test.utils.Expect.HMACFailure
 import kage.test.utils.Expect.HeaderFailure
 import kage.test.utils.Expect.NoMatch
@@ -36,6 +38,7 @@ fun mapToUpstreamExpect(error: Throwable): Expect {
   if (error is IncorrectIdentityException) return NoMatch
   if (error is StreamException) return PayloadFailure
   if (error is ParseException) return HeaderFailure
+  if (error is ArmorCodingException) return ArmorFailure
   if (error is CryptoException) return HeaderFailure
 
   // TODO: Handle cases where we are throwing anything other than CryptoException or ParseException

@@ -11,20 +11,24 @@ import java.io.Writer
 import java.util.Base64
 import kage.errors.InvalidBase64StringException
 
-internal fun ByteArray.encodeBase64(): String {
-  return Base64.getEncoder().withoutPadding().encodeToString(this)
+internal fun ByteArray.encodeBase64(isArmor: Boolean = false): String {
+  return Base64.getEncoder().run { if (isArmor) this else withoutPadding() }.encodeToString(this)
 }
 
-internal fun String.decodeBase64(): ByteArray {
-  if (!this.isCanonicalBase64()) throw InvalidBase64StringException()
-
-  return Base64.getDecoder().decode(this)
+internal fun String.decodeBase64(isArmor: Boolean = false): ByteArray {
+  val (isCanonical, decoded) = this.isCanonicalBase64(isArmor)
+  if (!isCanonical) throw InvalidBase64StringException()
+  return decoded
 }
 
-internal fun String.isCanonicalBase64(): Boolean {
+internal fun String.isCanonicalBase64(isArmor: Boolean = false): Pair<Boolean, ByteArray> {
   val decodedByteArray = Base64.getDecoder().decode(this)
-  val encodedString = Base64.getEncoder().withoutPadding().encodeToString(decodedByteArray)
-  return this == encodedString
+  // Armor can contain padding
+  val encodedString =
+    Base64.getEncoder()
+      .run { if (isArmor) this else withoutPadding() }
+      .encodeToString(decodedByteArray)
+  return Pair(this == encodedString, decodedByteArray)
 }
 
 // Writer.newLine() uses System.lineSeparator(), we want to only use \n
