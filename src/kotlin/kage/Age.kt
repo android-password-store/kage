@@ -66,14 +66,16 @@ public object Age {
     val markSupportedStream =
       if (srcStream.markSupported()) srcStream else BufferedInputStream(srcStream)
 
-    markSupportedStream.mark(ArmorInputStream.HEADER.length)
+    // Check if the InputStream contains whitespace + header
+    val readLimit = ArmorInputStream.MAX_WHITESPACE + ArmorInputStream.HEADER.length
+    markSupportedStream.mark(readLimit)
 
-    val headerStr = markSupportedStream.readNBytes(ArmorInputStream.HEADER.length).decodeToString()
+    val initialString = markSupportedStream.readNBytes(readLimit).decodeToString()
 
     markSupportedStream.reset()
 
     val decodedStream =
-      if (headerStr.startsWith(ArmorInputStream.HEADER_START)) {
+      if (initialString.contains(ArmorInputStream.HEADER_START)) {
         ArmorInputStream(markSupportedStream)
       } else markSupportedStream
 

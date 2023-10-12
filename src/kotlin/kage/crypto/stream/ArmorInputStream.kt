@@ -111,7 +111,6 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
 
     const val COLUMNS_PER_LINE = 64
     const val BYTES_PER_LINE = COLUMNS_PER_LINE / 4 * 3
-
-    private const val MAX_WHITESPACE = 1024
+    const val MAX_WHITESPACE = 1024
   }
 }
