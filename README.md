@@ -1,4 +1,4 @@
-# 🚧 kage 🚧
+# 🚧 kage 🚧 ![Maven Central](https://img.shields.io/maven-central/v/com.github.android-password-store/kage?style=flat-square&label=Latest%20version)
 
 <p align="center"><img alt="The age logo, an wireframe of St. Peters dome in Rome, with the text: age, file encryption" width="600" src="https://user-images.githubusercontent.com/1225294/132245842-fda4da6a-1cea-4738-a3da-2dc860861c98.png"></p>
 
@@ -6,7 +6,16 @@ kage is a work-in-progress implementation of the [age encryption protocol] for K
 
 ## Download
 
-The library does not have a stable release yet but you can obtain snapshots from [Sonatype's snapshots repository].
+An initial alpha release is available on [Maven Central]
+
+```kotlin
+// build.gradle.kts
+dependencies {
+  implementation("com.github.android-password-store:kage:0.1.0")
+}
+```
+
+Builds from the development branch can be obtained from [Sonatype's snapshots repository].
 
 ```kotlin
 // settings.gradle.kts
@@ -24,7 +33,7 @@ dependencyResolutionManagement {
 ```kotlin
 // build.gradle.kts
 dependencies {
-  implementation("com.github.android-password-store:kage:0.0.1-SNAPSHOT")
+  implementation("com.github.android-password-store:kage:0.2.0-SNAPSHOT")
 }
 ```
 
@@ -63,3 +72,4 @@ conditions.
 [reference go implementation]: https://github.com/FiloSottile/age
 [rust implementation]: https://github.com/str4d/rage
 [sonatype's snapshots repository]: https://oss.sonatype.org/content/repositories/snapshots
+[maven central]: https://central.sonatype.com/
