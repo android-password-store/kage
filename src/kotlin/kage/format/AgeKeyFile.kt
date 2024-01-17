@@ -15,7 +15,7 @@ import kage.utils.writeNewLine
 public class AgeKeyFile(
   public val created: String,
   public val publicKey: X25519Recipient?,
-  public val privateKey: X25519Identity
+  public val privateKey: X25519Identity,
 ) {
   override fun equals(other: Any?): Boolean {
     if (other == null) return false

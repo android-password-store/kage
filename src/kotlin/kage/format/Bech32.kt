@@ -72,7 +72,7 @@ internal object Bech32 {
     data: ByteArray,
     frombits: Byte,
     tobits: Byte,
-    pad: Boolean
+    pad: Boolean,
   ): Bech32Result<ByteArray> {
     val ret = mutableListOf<Byte>()
     var acc = 0u

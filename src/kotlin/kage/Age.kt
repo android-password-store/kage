@@ -36,7 +36,7 @@ public object Age {
     recipients: List<Recipient>,
     inputStream: InputStream,
     outputStream: OutputStream,
-    generateArmor: Boolean = false
+    generateArmor: Boolean = false,
   ) {
     val dstStream = if (generateArmor) ArmorOutputStream(outputStream) else outputStream
 
@@ -60,7 +60,7 @@ public object Age {
   public fun decryptStream(
     identities: List<Identity>,
     srcStream: InputStream,
-    dstStream: OutputStream
+    dstStream: OutputStream,
   ) {
 
     val markSupportedStream =
@@ -97,7 +97,7 @@ public object Age {
   private fun encryptInternal(
     recipients: List<Recipient>,
     dst: OutputStream,
-    writeHeaders: Boolean = true
+    writeHeaders: Boolean = true,
   ): Pair<AgeHeader, OutputStream> {
     if (recipients.isEmpty()) {
       throw NoRecipientsException("No recipients specified")

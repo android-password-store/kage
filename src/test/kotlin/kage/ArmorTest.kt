@@ -182,7 +182,7 @@ class ArmorTest {
       listOf(recipient),
       payload.byteInputStream(),
       encryptedOutput,
-      generateArmor = true
+      generateArmor = true,
     )
 
     val decryptedOutput = ByteArrayOutputStream()

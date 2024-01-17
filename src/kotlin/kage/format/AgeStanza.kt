@@ -27,7 +27,7 @@ import kage.utils.writeSpace
 public class AgeStanza(
   public val type: String,
   public val args: List<String>,
-  public val body: ByteArray
+  public val body: ByteArray,
 ) {
 
   override fun equals(other: Any?): Boolean {
@@ -86,7 +86,7 @@ public class AgeStanza(
         encodedBody.windowed(
           size = COLUMNS_PER_LINE,
           step = COLUMNS_PER_LINE,
-          partialWindows = true
+          partialWindows = true,
         )
       lines.forEach {
         writer.write(it)
