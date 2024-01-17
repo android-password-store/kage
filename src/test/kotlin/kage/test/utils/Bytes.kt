@@ -45,8 +45,5 @@ class BytesTest {
     assertThat(rest).isNull()
   }
 
-  private fun check(
-    testString: String,
-    split: Char,
-  ) = testString.encodeToByteArray().split(split)
+  private fun check(testString: String, split: Char) = testString.encodeToByteArray().split(split)
 }

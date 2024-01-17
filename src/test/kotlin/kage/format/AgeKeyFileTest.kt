@@ -32,9 +32,7 @@ class AgeKeyFileTest {
     assertThat(key.publicKey?.encodeToString())
       .isEqualTo("age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5")
     assertThat(key.privateKey.encodeToString())
-      .isEqualTo(
-        "AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS",
-      )
+      .isEqualTo("AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS")
   }
 
   @Test

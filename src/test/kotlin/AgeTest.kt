@@ -247,7 +247,7 @@ class AgeTest {
     Age.encryptStream(
       listOf(agePublicKey),
       ByteArrayInputStream(payload.toByteArray()),
-      ciphertextStream
+      ciphertextStream,
     )
 
     val ciphertext = Base64.toBase64String(ciphertextStream.toByteArray())

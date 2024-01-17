@@ -15,7 +15,7 @@ import org.bouncycastle.crypto.generators.SCrypt
 
 public class ScryptRecipient(
   private val password: ByteArray,
-  private val workFactor: Int = DEFAULT_WORK_FACTOR
+  private val workFactor: Int = DEFAULT_WORK_FACTOR,
 ) : Recipient {
 
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {

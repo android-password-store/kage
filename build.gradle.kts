@@ -53,7 +53,7 @@ tasks.withType<DependencyUpdatesTask> {
 }
 
 spotless {
-  val KTFMT_VERSION = "0.46"
+  val KTFMT_VERSION = "0.47"
   kotlin {
     ktfmt(KTFMT_VERSION).googleStyle()
     target("**/*.kt")

@@ -18,7 +18,7 @@ import org.bouncycastle.crypto.generators.SCrypt
 
 public class ScryptIdentity(
   private val password: ByteArray,
-  private val maxWorkFactor: Int = DEFAULT_WORK_FACTOR
+  private val maxWorkFactor: Int = DEFAULT_WORK_FACTOR,
 ) : Identity {
 
   init {

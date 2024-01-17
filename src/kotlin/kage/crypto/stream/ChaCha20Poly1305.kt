@@ -52,7 +52,7 @@ internal object ChaCha20Poly1305 {
     inOff: Int,
     inLen: Int,
     out: ByteArray,
-    outOff: Int
+    outOff: Int,
   ): Int {
     val cipher = ChaCha20Poly1305()
     val secKey = KeyParameter(key)

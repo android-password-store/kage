@@ -50,12 +50,12 @@ class Bech32Test {
         T("a12uel5l", true),
         T(
           "an83characterlonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1tt5tgs",
-          true
+          true,
         ),
         T("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw", true),
         T(
           "11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
-          true
+          true,
         ),
         T("split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w", true),
 
@@ -69,18 +69,18 @@ class Bech32Test {
         // invalid character (DEL) in hrp
         T(
           "spl" + (127).toChar() + "t1checkupstagehandshakeupstreamerranterredcaperred2y9e3w",
-          false
+          false,
         ),
         // too long
         T(
           "11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
-          false
+          false,
         ),
 
         // BIP 173 invalid vectors.
         T(
           "an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx",
-          false
+          false,
         ),
         T("pzry9x0s0muk", false),
         T("1pzry9x0s0muk", false),
