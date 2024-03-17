@@ -106,11 +106,11 @@ internal object Bech32 {
   // Encode encodes the HRP and a bytes slice to Bech32. If the HRP is uppercase,
   // the output will be uppercase.
   fun encode(hrp: String, data: ByteArray): Bech32Result<String> {
-    val values =
-      when (val maybeValues = convertBits(data, 8, 5, true)) {
-        is Err -> return maybeValues
-        is Ok -> maybeValues.value
-      }
+    val maybeValues = convertBits(data, 8, 5, true)
+    if (maybeValues.isErr) {
+      return Err(maybeValues.error)
+    }
+    val values = maybeValues.value
 
     if (hrp.length + values.size + 7 > 90) {
       return Err(Bech32Exception("too long: hrp length=${hrp.length}, data length=${values.size}"))
