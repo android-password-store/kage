@@ -11,8 +11,7 @@ enum class Expect {
   HeaderFailure,
   ArmorFailure,
   PayloadFailure,
-  NoMatch,
-  ;
+  NoMatch;
 
   companion object {
     fun fromString(value: String): Expect {
