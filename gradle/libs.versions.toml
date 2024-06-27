@@ -10,7 +10,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-legacy = "junit:junit:4.13.2"
 kotlinresult = "com.michael-bull.kotlin-result:kotlin-result:2.0.0"
 kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
-truth = "com.google.truth:truth:1.4.2"
+truth = "com.google.truth:truth:1.4.3"
 
 [plugins]
 animalsniffer = "ru.vyarus.animalsniffer:1.7.1"
