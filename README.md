@@ -33,7 +33,7 @@ dependencyResolutionManagement {
 ```kotlin
 // build.gradle.kts
 dependencies {
-  implementation("com.github.android-password-store:kage:0.2.0-SNAPSHOT")
+  implementation("com.github.android-password-store:kage:0.3.0-SNAPSHOT")
 }
 ```
 
