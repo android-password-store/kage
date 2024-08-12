@@ -11,7 +11,7 @@ An initial alpha release is available on [Maven Central]
 ```kotlin
 // build.gradle.kts
 dependencies {
-  implementation("com.github.android-password-store:kage:0.1.0")
+  implementation("com.github.android-password-store:kage:0.2.0")
 }
 ```
 
