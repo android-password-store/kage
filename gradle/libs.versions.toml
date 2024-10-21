@@ -1,5 +1,5 @@
 [versions]
-junit = "5.11.2"
+junit = "5.11.3"
 kotlin = "2.0.21"
 
 [libraries]
