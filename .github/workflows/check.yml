@@ -25,15 +25,20 @@ jobs:
         fetch-depth: 0
 
     - name: Set up JDK
-      uses: actions/setup-java@v4.7.0
+      uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
       with:
         distribution: temurin
-        java-version: 18
+        java-version: 23
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4
+      with:
+        add-job-summary: always
+        validate-wrappers: true
 
     - name: Run unit tests
-      uses: gradle/gradle-build-action@v3.5.0
-      with:
-        arguments: --no-configuration-cache check
+      shell: bash
+      run: ./gradlew --no-daemon --no-configuration-cache check
 
     - name: (Fail-only) Upload test report
       if: "${{ failure() }}"
@@ -53,15 +58,20 @@ jobs:
         fetch-depth: 0
 
     - name: Set up JDK
-      uses: actions/setup-java@v4.7.0
+      uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
       with:
         distribution: temurin
-        java-version: 18
+        java-version: 23
 
-    - name: Run unit tests
-      uses: gradle/gradle-build-action@v3.5.0
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4
       with:
-        arguments: --no-configuration-cache koverXmlReport
+        add-job-summary: always
+        validate-wrappers: true
+
+    - name: Check coverage
+      shell: bash
+      run: ./gradlew --no-daemon --no-configuration-cache koverXmlReport
 
     - name: Add coverage report to PR
       id: kover
