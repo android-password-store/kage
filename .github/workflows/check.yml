@@ -42,7 +42,7 @@ jobs:
 
     - name: (Fail-only) Upload test report
       if: "${{ failure() }}"
-      uses: actions/upload-artifact@v4.6.1
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: Test report
         path: build/reports
