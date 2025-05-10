@@ -24,7 +24,7 @@
         ".kts$"
       ],
       "matchStrings": [
-        "KTFMT_VERSION = \"(?<currentValue>.*)\"",
+        "ktfmtVersion = \"(?<currentValue>.*)\"",
       ],
       "datasourceTemplate": "maven",
       "depNameTemplate": "com.facebook:ktfmt",

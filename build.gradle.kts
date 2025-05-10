@@ -5,6 +5,7 @@
  */
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Workaround for false-positive IDE errors
@@ -25,13 +26,6 @@ group = requireNotNull(project.findProperty("GROUP"))
 
 version = requireNotNull(project.findProperty("VERSION_NAME"))
 
-fun isNonStable(version: String): Boolean {
-  val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
-  val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-  val isStable = stableKeyword || regex.matches(version)
-  return isStable.not()
-}
-
 kotlin { explicitApi() }
 
 java {
@@ -40,28 +34,34 @@ java {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-  kotlinOptions {
+  compilerOptions {
     moduleName = "kage"
-    jvmTarget = JavaVersion.VERSION_11.toString()
+    jvmTarget = JvmTarget.JVM_11
   }
 }
 
 tasks.withType<DependencyUpdatesTask> {
+  fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return isStable.not()
+  }
   rejectVersionIf { isNonStable(candidate.version) && !isNonStable(currentVersion) }
   checkForGradleUpdate = false
   checkBuildEnvironmentConstraints = true
 }
 
 spotless {
-  val KTFMT_VERSION = "0.54"
+  val ktfmtVersion = "0.54"
   kotlin {
-    ktfmt(KTFMT_VERSION).googleStyle()
+    ktfmt(ktfmtVersion).googleStyle()
     target("**/*.kt")
     targetExclude("**/build/")
     licenseHeaderFile("spotless.license", "package")
   }
   kotlinGradle {
-    ktfmt(KTFMT_VERSION).googleStyle()
+    ktfmt(ktfmtVersion).googleStyle()
     target("**/*.kts")
     licenseHeaderFile("spotless.license", "package |import|enableFeaturePreview")
   }
