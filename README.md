@@ -71,5 +71,5 @@ conditions.
 [age encryption protocol]: https://age-encryption.org/v1
 [reference go implementation]: https://github.com/FiloSottile/age
 [rust implementation]: https://github.com/str4d/rage
-[sonatype's snapshots repository]: https://oss.sonatype.org/content/repositories/snapshots
+[sonatype's snapshots repository]: https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/android-password-store/kage/
 [maven central]: https://central.sonatype.com/
