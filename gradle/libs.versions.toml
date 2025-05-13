@@ -1,6 +1,6 @@
 [versions]
 junit = "5.11.4"
-kotlin = "2.1.20"
+kotlin = "2.1.21"
 
 [libraries]
 animalsniffer-signature-android = "net.sf.androidscents.signature:android-api-level-23:6.0_r3"
