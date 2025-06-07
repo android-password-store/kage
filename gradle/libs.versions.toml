@@ -6,7 +6,11 @@ kotlin = "2.1.21"
 animalsniffer-signature-android = "net.sf.androidscents.signature:android-api-level-23:6.0_r3"
 bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.81"
 hkdf = "at.favre.lib:hkdf:2.0.0"
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 junit-legacy = "junit:junit:4.13.2"
 kotlinresult = "com.michael-bull.kotlin-result:kotlin-result:2.0.1"
 kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
