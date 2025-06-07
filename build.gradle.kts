@@ -80,7 +80,7 @@ spotless {
 sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
-  signature(libs.animalsniffer.signature.android)
+  signature(variantOf(libs.animalsniffer.signature.android) { artifactType("signature") })
   implementation(platform(libs.junit.bom))
   implementation(libs.bouncycastle.bcprov)
   implementation(libs.hkdf)
