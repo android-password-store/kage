@@ -4,6 +4,8 @@
 
 kage is a work-in-progress implementation of the [age encryption protocol] for Kotlin/JVM and Android. The [reference Go implementation] and the third-party [Rust implementation] are being used as reference for the development of the library.
 
+The minimum supported Android version is API 26, and the minimum supported Java version is 11.
+
 ## Download
 
 An initial alpha release is available on [Maven Central]
