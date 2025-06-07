@@ -3,7 +3,7 @@ junit = "5.13.1"
 kotlin = "2.1.21"
 
 [libraries]
-animalsniffer-signature-android = "net.sf.androidscents.signature:android-api-level-23:6.0_r3"
+animalsniffer-signature-android = "com.toasttab.android:gummy-bears-api-26:0.12.0"
 bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.81"
 hkdf = "at.favre.lib:hkdf:2.0.0"
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
@@ -17,7 +17,7 @@ kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.
 truth = "com.google.truth:truth:1.4.4"
 
 [plugins]
-animalsniffer = "ru.vyarus.animalsniffer:1.7.2"
+animalsniffer = "ru.vyarus.animalsniffer:2.0.1"
 dokka = "org.jetbrains.dokka:2.0.0"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = "org.jetbrains.kotlinx.kover:0.9.1"

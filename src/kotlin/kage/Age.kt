@@ -70,7 +70,9 @@ public object Age {
     val readLimit = ArmorInputStream.MAX_WHITESPACE + ArmorInputStream.HEADER.length
     markSupportedStream.mark(readLimit)
 
-    val initialString = markSupportedStream.readNBytes(readLimit).decodeToString()
+    val initialBytes = ByteArray(readLimit)
+    val bytesRead = markSupportedStream.read(initialBytes, 0, readLimit)
+    val initialString = String(initialBytes, 0, bytesRead)
 
     markSupportedStream.reset()
 
