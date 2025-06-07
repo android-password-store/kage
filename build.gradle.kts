@@ -81,10 +81,14 @@ sourceSets { named("main") { java.srcDirs("src/kotlin") } }
 
 dependencies {
   signature(libs.animalsniffer.signature.android)
+  implementation(platform(libs.junit.bom))
   implementation(libs.bouncycastle.bcprov)
   implementation(libs.hkdf)
   implementation(libs.kotlinresult)
   testImplementation(libs.junit.jupiter)
+  testImplementation(libs.junit.jupiter.api)
+  testRuntimeOnly(libs.junit.jupiter.engine)
+  testRuntimeOnly(libs.junit.platform.launcher)
   testImplementation(libs.truth) { exclude(group = "junit", module = "junit") }
   testRuntimeOnly(libs.junit.legacy) {
     // See https://github.com/google/truth/issues/333
