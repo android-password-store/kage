@@ -11,9 +11,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-// Workaround for false-positive IDE errors
-// From https://youtrack.jetbrains.com/issue/KTIJ-19369#focus=Comments-27-5181027.0-0
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   alias(libs.plugins.animalsniffer)
   alias(libs.plugins.dokka)
