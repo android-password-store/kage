@@ -7,6 +7,7 @@ package kage.crypto.scrypt
 
 import java.security.SecureRandom
 import kage.Recipient
+import kage.RecipientWithLabels
 import kage.crypto.stream.ChaCha20Poly1305
 import kage.crypto.stream.ChaCha20Poly1305.KEY_LENGTH
 import kage.format.AgeStanza
@@ -16,7 +17,7 @@ import org.bouncycastle.crypto.generators.SCrypt
 public class ScryptRecipient(
   private val password: ByteArray,
   private val workFactor: Int = DEFAULT_WORK_FACTOR,
-) : Recipient {
+) : Recipient, RecipientWithLabels {
 
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val salt = ByteArray(SCRYPT_SALT_SIZE)
@@ -34,6 +35,14 @@ public class ScryptRecipient(
       AgeStanza(SCRYPT_STANZA_TYPE, listOf(salt.encodeBase64(), logN.toString()), wrappedKey)
 
     return listOf(stanza)
+  }
+
+  override fun wrapWithLabels(fileKey: ByteArray): Pair<List<AgeStanza>, List<String>> {
+    val stanzas = wrap(fileKey)
+    val label = ByteArray(16)
+    SecureRandom().nextBytes(label)
+
+    return Pair(stanzas, listOf(label.encodeBase64()))
   }
 
   internal companion object {
