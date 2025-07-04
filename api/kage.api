@@ -16,6 +16,10 @@ public abstract interface class kage/Recipient {
 	public abstract fun wrap ([B)Ljava/util/List;
 }
 
+public abstract interface class kage/RecipientWithLabels {
+	public abstract fun wrapWithLabels ([B)Lkotlin/Pair;
+}
+
 public final class kage/crypto/scrypt/ScryptIdentity : kage/Identity {
 	public static final field DEFAULT_WORK_FACTOR I
 	public fun <init> ([BI)V
@@ -23,7 +27,7 @@ public final class kage/crypto/scrypt/ScryptIdentity : kage/Identity {
 	public fun unwrap (Ljava/util/List;)[B
 }
 
-public final class kage/crypto/scrypt/ScryptRecipient : kage/Recipient {
+public final class kage/crypto/scrypt/ScryptRecipient : kage/Recipient, kage/RecipientWithLabels {
 	public static final field DEFAULT_WORK_FACTOR I
 	public static final field SCRYPT_SALT_LABEL Ljava/lang/String;
 	public static final field SCRYPT_SALT_SIZE I
@@ -31,6 +35,7 @@ public final class kage/crypto/scrypt/ScryptRecipient : kage/Recipient {
 	public fun <init> ([BI)V
 	public synthetic fun <init> ([BIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun wrap ([B)Ljava/util/List;
+	public fun wrapWithLabels ([B)Lkotlin/Pair;
 }
 
 public final class kage/crypto/x25519/X25519 {
