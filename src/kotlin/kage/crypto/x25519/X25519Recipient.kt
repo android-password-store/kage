@@ -43,14 +43,14 @@ public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
 
   public fun encodeToString(): String = Bech32.encode(AGE_PUBLIC_KEY_PREFIX, publicKey).getOrThrow()
 
-  internal companion object {
-    const val X25519_STANZA_TYPE = "X25519"
-    const val X25519_INFO = "age-encryption.org/v1/X25519"
-    const val KEY_LENGTH = 32 // bytes
-    const val MAC_KEY_LENGTH = 32 // bytes
-    const val EPHEMERAL_SECRET_LEN = 32 // bytes
+  public companion object {
+    internal const val X25519_STANZA_TYPE = "X25519"
+    internal const val X25519_INFO = "age-encryption.org/v1/X25519"
+    internal const val KEY_LENGTH = 32 // bytes
+    internal const val MAC_KEY_LENGTH = 32 // bytes
+    internal const val EPHEMERAL_SECRET_LEN = 32 // bytes
 
-    fun decode(string: String): X25519Recipient {
+    public fun decode(string: String): X25519Recipient {
       val (hrp, key) =
         Bech32.decode(string)
           .mapError { InvalidRecipientException("Invalid public key", it) }
