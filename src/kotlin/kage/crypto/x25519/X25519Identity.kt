@@ -59,6 +59,8 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
     return multiUnwrap(::unwrapSingle, stanzas)
   }
 
+  public fun recipient(): X25519Recipient = X25519Recipient(publicKey)
+
   public fun encodeToString(): String =
     Bech32.encode(AgeKeyFile.AGE_SECRET_KEY_PREFIX, secretKey).getOrThrow()
 
