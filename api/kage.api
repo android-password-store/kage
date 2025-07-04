@@ -51,14 +51,14 @@ public final class kage/crypto/x25519/X25519Identity$Companion {
 }
 
 public final class kage/crypto/x25519/X25519Recipient : kage/Recipient {
-	public static final field EPHEMERAL_SECRET_LEN I
-	public static final field KEY_LENGTH I
-	public static final field MAC_KEY_LENGTH I
-	public static final field X25519_INFO Ljava/lang/String;
-	public static final field X25519_STANZA_TYPE Ljava/lang/String;
+	public static final field Companion Lkage/crypto/x25519/X25519Recipient$Companion;
 	public fun <init> ([B)V
 	public final fun encodeToString ()Ljava/lang/String;
 	public fun wrap ([B)Ljava/util/List;
+}
+
+public final class kage/crypto/x25519/X25519Recipient$Companion {
+	public final fun decode (Ljava/lang/String;)Lkage/crypto/x25519/X25519Recipient;
 }
 
 public final class kage/errors/ArmorCodingException : kage/errors/CryptoException {
