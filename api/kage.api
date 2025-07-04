@@ -1,0 +1,237 @@
+public final class kage/Age {
+	public static final field INSTANCE Lkage/Age;
+	public static final fun decrypt (Ljava/util/List;Lkage/format/AgeFile;)Ljava/io/InputStream;
+	public static final fun decrypt (Lkage/Identity;Lkage/format/AgeFile;)Ljava/io/InputStream;
+	public static final fun decryptStream (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;)V
+	public static final fun encrypt (Ljava/util/List;Ljava/io/InputStream;)Lkage/format/AgeFile;
+	public static final fun encryptStream (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;Z)V
+	public static synthetic fun encryptStream$default (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;ZILjava/lang/Object;)V
+}
+
+public abstract interface class kage/Identity {
+	public abstract fun unwrap (Ljava/util/List;)[B
+}
+
+public abstract interface class kage/Recipient {
+	public abstract fun wrap ([B)Ljava/util/List;
+}
+
+public final class kage/crypto/scrypt/ScryptIdentity : kage/Identity {
+	public static final field DEFAULT_WORK_FACTOR I
+	public fun <init> ([BI)V
+	public synthetic fun <init> ([BIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun unwrap (Ljava/util/List;)[B
+}
+
+public final class kage/crypto/scrypt/ScryptRecipient : kage/Recipient {
+	public static final field DEFAULT_WORK_FACTOR I
+	public static final field SCRYPT_SALT_LABEL Ljava/lang/String;
+	public static final field SCRYPT_SALT_SIZE I
+	public static final field SCRYPT_STANZA_TYPE Ljava/lang/String;
+	public fun <init> ([BI)V
+	public synthetic fun <init> ([BIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun wrap ([B)Ljava/util/List;
+}
+
+public final class kage/crypto/x25519/X25519 {
+	public static final field INSTANCE Lkage/crypto/x25519/X25519;
+	public final fun scalarMult ([B[B)[B
+	public final fun scalarMultBase ([B)[B
+}
+
+public final class kage/crypto/x25519/X25519Identity : kage/Identity {
+	public static final field Companion Lkage/crypto/x25519/X25519Identity$Companion;
+	public fun <init> ([B[B)V
+	public final fun encodeToString ()Ljava/lang/String;
+	public fun unwrap (Ljava/util/List;)[B
+}
+
+public final class kage/crypto/x25519/X25519Identity$Companion {
+	public final fun decode (Ljava/lang/String;)Lkage/crypto/x25519/X25519Identity;
+}
+
+public final class kage/crypto/x25519/X25519Recipient : kage/Recipient {
+	public static final field EPHEMERAL_SECRET_LEN I
+	public static final field KEY_LENGTH I
+	public static final field MAC_KEY_LENGTH I
+	public static final field X25519_INFO Ljava/lang/String;
+	public static final field X25519_STANZA_TYPE Ljava/lang/String;
+	public fun <init> ([B)V
+	public final fun encodeToString ()Ljava/lang/String;
+	public fun wrap ([B)Ljava/util/List;
+}
+
+public final class kage/errors/ArmorCodingException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/Bech32Exception : java/lang/Exception {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public abstract class kage/errors/CryptoException : java/lang/Exception {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/IncorrectCipherTextSizeException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/IncorrectHMACException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/IncorrectIdentityException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidAgeKeyException : kage/errors/ParseException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidArbitraryStringException : kage/errors/ParseException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidBase64StringException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidFooterException : kage/errors/ParseException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidHMACException : kage/errors/ParseException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidHMACHeaderException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public abstract class kage/errors/InvalidIdentityException : kage/errors/CryptoException {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidRecipientException : kage/errors/ParseException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidScryptRecipientException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/InvalidVersionException : kage/errors/ParseException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/NoIdentitiesException : kage/errors/InvalidIdentityException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/NoRecipientsException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public abstract class kage/errors/ParseException : java/lang/Exception {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/ScryptIdentityException : kage/errors/InvalidIdentityException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/StreamException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/X25519IdentityException : kage/errors/InvalidIdentityException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/X25519LowOrderPointException : kage/errors/InvalidIdentityException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/format/AgeFile {
+	public fun <init> (Lkage/format/AgeHeader;[B)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()[B
+	public final fun getHeader ()Lkage/format/AgeHeader;
+	public fun hashCode ()I
+}
+
+public final class kage/format/AgeHeader {
+	public fun <init> (Ljava/util/List;[B)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMac ()[B
+	public final fun getRecipients ()Ljava/util/List;
+	public fun hashCode ()I
+}
+
+public final class kage/format/AgeKeyFile {
+	public fun <init> (Ljava/lang/String;Lkage/crypto/x25519/X25519Recipient;Lkage/crypto/x25519/X25519Identity;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCreated ()Ljava/lang/String;
+	public final fun getPrivateKey ()Lkage/crypto/x25519/X25519Identity;
+	public final fun getPublicKey ()Lkage/crypto/x25519/X25519Recipient;
+	public fun hashCode ()I
+}
+
+public final class kage/format/AgeStanza {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;[B)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArgs ()Ljava/util/List;
+	public final fun getBody ()[B
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static final fun parse$kage (Ljava/io/BufferedInputStream;)Lkage/format/AgeStanza;
+	public static final fun parseBodyLines$kage (Ljava/io/BufferedInputStream;)[B
+	public static final fun parseRecipientLine$kage (Ljava/lang/String;)Lkotlin/Pair;
+	public static final fun write$kage (Ljava/io/BufferedWriter;Lkage/format/AgeStanza;)V
+	public static final fun writeBody$kage (Ljava/io/BufferedWriter;[B)V
+}
+
