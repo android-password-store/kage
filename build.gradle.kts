@@ -25,7 +25,11 @@ group = requireNotNull(project.findProperty("GROUP"))
 
 version = requireNotNull(project.findProperty("VERSION_NAME"))
 
-kotlin { explicitApi() }
+kotlin {
+  explicitApi()
+  @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
+  abiValidation { enabled = true }
+}
 
 java {
   sourceCompatibility = JavaVersion.VERSION_11
