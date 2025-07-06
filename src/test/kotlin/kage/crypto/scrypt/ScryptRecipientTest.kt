@@ -26,4 +26,20 @@ class ScryptRecipientTest {
 
     assertThat(fileKey).asList().containsExactlyElementsIn(unwrappedKey.asList())
   }
+
+  @Test
+  fun testWrapUnwrapWithLabels() {
+    val recipient = ScryptRecipient("mypass".toByteArray(), workFactor = 1)
+    val fileKey = ByteArray(Age.FILE_KEY_SIZE)
+    SecureRandom().nextBytes(fileKey)
+
+    val (stanzas, labels) = recipient.wrapWithLabels(fileKey)
+
+    val identity = ScryptIdentity("mypass".toByteArray())
+
+    val unwrappedKey = identity.unwrap(listOf(stanzas.first()))
+
+    assertThat(fileKey).asList().containsExactlyElementsIn(unwrappedKey.asList())
+    assertThat(labels).isNotEmpty()
+  }
 }
