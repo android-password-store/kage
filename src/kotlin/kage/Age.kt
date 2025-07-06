@@ -107,21 +107,21 @@ public object Age {
     }
 
     val fileKey = generateFileKey()
-    var stanzas = mutableListOf<AgeStanza>()
+    val stanzas = mutableListOf<AgeStanza>()
     var labels = emptyList<String>()
 
     for (idx in 0 until recipients.size) {
       val recipient = requireNotNull(recipients[idx])
       val (s, l) = wrapWithLabels(recipient, fileKey)
       val sorted = l.sorted()
+      stanzas.addAll(s)
       if (idx == 0) {
         labels = sorted
-      } else {
-        if (labels != sorted) {
-          throw InvalidScryptRecipientException("incompatible scrypt recipients")
-        }
+        continue
       }
-      stanzas.addAll(s)
+      if (labels != sorted) {
+        throw InvalidScryptRecipientException("incompatible scrypt recipients")
+      }
     }
 
     // TODO: Check if we need a deep copy of stanzas here
