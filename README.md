@@ -1,19 +1,19 @@
-# 🚧 kage 🚧 ![Maven Central](https://img.shields.io/maven-central/v/com.github.android-password-store/kage?style=flat-square&label=Latest%20version)
+# kage ![Maven Central](https://img.shields.io/maven-central/v/com.github.android-password-store/kage?style=flat-square&label=Latest%20version)
 
 <p align="center"><img alt="The age logo, an wireframe of St. Peters dome in Rome, with the text: age, file encryption" width="600" src="https://user-images.githubusercontent.com/1225294/132245842-fda4da6a-1cea-4738-a3da-2dc860861c98.png"></p>
 
-kage is a work-in-progress implementation of the [age encryption protocol] for Kotlin/JVM and Android. The [reference Go implementation] and the third-party [Rust implementation] are being used as reference for the development of the library.
+kage is an implementation of the [age encryption protocol] for Kotlin/JVM and Android. The [reference Go implementation] and the third-party [Rust implementation] are being used as reference for the development of the library. The public APIs provided by the library correspond to the v1.2.0 release of age. If you find something missing, please file an issue.
 
 The minimum supported Android version is API 26, and the minimum supported Java version is 11.
 
 ## Download
 
-An initial alpha release is available on [Maven Central]
+The library is available on [Maven Central]. Despite the 0.x versioning, we aim to make no further breaking changes to the kage APIs, and it will be incremented to 1.0.0 soon and follow strict Semantic Versioning going forward.
 
 ```kotlin
 // build.gradle.kts
 dependencies {
-  implementation("com.github.android-password-store:kage:0.2.0")
+  implementation("com.github.android-password-store:kage:0.3.0")
 }
 ```
 
@@ -35,7 +35,7 @@ dependencyResolutionManagement {
 ```kotlin
 // build.gradle.kts
 dependencies {
-  implementation("com.github.android-password-store:kage:0.3.0-SNAPSHOT")
+  implementation("com.github.android-password-store:kage:0.4.0-SNAPSHOT")
 }
 ```
 
