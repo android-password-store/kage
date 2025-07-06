@@ -54,6 +54,7 @@ public final class kage/crypto/x25519/X25519Identity : kage/Identity {
 
 public final class kage/crypto/x25519/X25519Identity$Companion {
 	public final fun decode (Ljava/lang/String;)Lkage/crypto/x25519/X25519Identity;
+	public final fun new ()Lkage/crypto/x25519/X25519Identity;
 }
 
 public final class kage/crypto/x25519/X25519Recipient : kage/Recipient {

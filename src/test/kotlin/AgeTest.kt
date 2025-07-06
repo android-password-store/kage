@@ -297,7 +297,7 @@ class AgeTest {
   @Test
   fun labels() {
     val scrypt = ScryptRecipient("xxx".toByteArray())
-    val x25519 = X25519Recipient(ByteArray(16))
+    val x25519 = X25519Identity.new().recipient()
     val pqc = TestRecipient(listOf("postquantum"))
     val pqcAndFoo = TestRecipient(listOf("postquantum", "foo"))
     val fooAndPqc = TestRecipient(listOf("foo", "postquantum"))
