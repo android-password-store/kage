@@ -37,7 +37,7 @@ java {
 }
 
 mavenPublishing {
-  publishToMavenCentral()
+  publishToMavenCentral(automaticRelease = true)
   signAllPublications()
   @Suppress("UnstableApiUsage") pomFromGradleProperties()
   configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate"), sourcesJar = true))
