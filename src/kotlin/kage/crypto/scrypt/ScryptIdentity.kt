@@ -37,7 +37,7 @@ public class ScryptIdentity(
     val salt =
       try {
         stanza.args.first().decodeBase64()
-      } catch (err: IllegalAccessException) {
+      } catch (err: IllegalArgumentException) {
         throw ScryptIdentityException("failed to parse scrypt salt: ${err.message}")
       }
 
@@ -52,9 +52,6 @@ public class ScryptIdentity(
     if (workFactor > maxWorkFactor)
       throw ScryptIdentityException("scrypt factor too large: $workFactor")
 
-    if (workFactor <= 0) // Unreachable due to regex
-     throw ScryptIdentityException("invalid scrypt workfactor: $workFactor")
-
     val fullSalt = ScryptRecipient.SCRYPT_SALT_LABEL.toByteArray().plus(salt)
 
     try {
@@ -65,7 +62,7 @@ public class ScryptIdentity(
     }
   }
 
-  internal companion object {
+  private companion object {
     const val DEFAULT_WORK_FACTOR = 22
   }
 }
