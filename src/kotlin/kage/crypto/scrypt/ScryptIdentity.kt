@@ -37,7 +37,7 @@ public class ScryptIdentity(
     val salt =
       try {
         stanza.args.first().decodeBase64()
-      } catch (err: IllegalAccessException) {
+      } catch (err: IllegalArgumentException) {
         throw ScryptIdentityException("failed to parse scrypt salt: ${err.message}")
       }
 
