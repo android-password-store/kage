@@ -8,6 +8,7 @@ package kage.crypto.x25519
 import at.favre.lib.hkdf.HKDF
 import com.github.michaelbull.result.getOrThrow
 import com.github.michaelbull.result.mapError
+import java.security.SecureRandom
 import kage.Age
 import kage.Identity
 import kage.crypto.stream.ChaCha20Poly1305
@@ -42,10 +43,10 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
 
       val hkdf = HKDF.fromHmacSha256()
 
-      val wrapingKey =
+      val wrappingKey =
         hkdf.extractAndExpand(salt, sharedSecret, X25519_INFO.toByteArray(), MAC_KEY_LENGTH)
 
-      return ChaCha20Poly1305.aeadDecrypt(wrapingKey, stanza.body, Age.FILE_KEY_SIZE)
+      return ChaCha20Poly1305.aeadDecrypt(wrappingKey, stanza.body, Age.FILE_KEY_SIZE)
     } catch (err: Exception) {
       if (err is X25519IdentityException) {
         throw err
@@ -81,6 +82,14 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
       val publicKey = X25519.scalarMultBase(key)
 
       return X25519Identity(key, publicKey)
+    }
+
+    /** Generates a new [kage.crypto.x25519.X25519Identity] with a random private key. */
+    public fun new(): X25519Identity {
+      val privateKey = ByteArray(POINT_SIZE)
+      SecureRandom().nextBytes(privateKey)
+
+      return X25519Identity(privateKey, X25519.scalarMultBase(privateKey))
     }
   }
 }

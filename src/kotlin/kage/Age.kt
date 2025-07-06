@@ -25,6 +25,7 @@ import kage.errors.NoRecipientsException
 import kage.errors.ScryptIdentityException
 import kage.format.AgeFile
 import kage.format.AgeHeader
+import kage.format.AgeStanza
 
 public object Age {
   internal const val FILE_KEY_SIZE: Int = 16
@@ -105,21 +106,23 @@ public object Age {
       throw NoRecipientsException("No recipients specified")
     }
 
-    // From the age docs:
-    // As a best effort, prevent an API user from generating a file that the
-    // ScryptIdentity will refuse to decrypt. This check can't unfortunately be
-    // implemented as part of the Recipient interface, so it lives as a special
-    // case in Encrypt.
-    // https://github.com/FiloSottile/age/blob/ab3707c085f2c1fdfd767a2ed718423e3925f4c4/age.go#L114-L122
-    recipients.forEach { recipient ->
-      if (recipient is ScryptRecipient && recipients.size != 1) {
-        throw InvalidScryptRecipientException("Only one scrypt recipient is supported")
+    val fileKey = generateFileKey()
+    val stanzas = mutableListOf<AgeStanza>()
+    var labels = emptyList<String>()
+
+    for (idx in 0 until recipients.size) {
+      val recipient = requireNotNull(recipients[idx])
+      val (s, l) = wrapWithLabels(recipient, fileKey)
+      val sorted = l.sorted()
+      stanzas.addAll(s)
+      if (idx == 0) {
+        labels = sorted
+        continue
+      }
+      if (labels != sorted) {
+        throw InvalidScryptRecipientException("incompatible scrypt recipients")
       }
     }
-
-    val fileKey = generateFileKey()
-
-    val stanzas = recipients.flatMap { recipient -> recipient.wrap(fileKey) }
 
     // TODO: Check if we need a deep copy of stanzas here
     val ageHeader = AgeHeader.withMac(stanzas, fileKey)
@@ -139,6 +142,16 @@ public object Age {
     val streamKey = Primitives.streamKey(fileKey, nonce)
 
     return Pair(ageHeader, EncryptOutputStream(streamKey, dst))
+  }
+
+  private fun wrapWithLabels(
+    recipient: Recipient,
+    fileKey: ByteArray,
+  ): Pair<List<AgeStanza>, List<String>> {
+    if (recipient is RecipientWithLabels) {
+      return recipient.wrapWithLabels(fileKey)
+    }
+    return Pair(recipient.wrap(fileKey), emptyList())
   }
 
   private fun generateFileKey(): ByteArray {
