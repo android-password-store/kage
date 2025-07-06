@@ -8,6 +8,7 @@ package kage
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.security.SecureRandom
 import java.util.Random
 import kage.crypto.scrypt.ScryptIdentity
@@ -19,9 +20,12 @@ import kage.crypto.x25519.X25519Recipient
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
 import kage.format.AgeFile
+import kage.format.AgeStanza
 import org.bouncycastle.util.encoders.Base64
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.fail
 
 class AgeTest {
   private fun genX25519Identity(): Pair<X25519Recipient, X25519Identity> {
@@ -264,5 +268,53 @@ class AgeTest {
     val ageFile = Age.encrypt(listOf(recipient), inputStream)
 
     assertThrows<NoIdentitiesException> { Age.decrypt(emptyList(), ageFile) }
+  }
+
+  /**
+   * Scrypt-like recipient that returns a hard-coded value on wrapping, allowing assertions against
+   * it.
+   */
+  private class TestRecipient(private val labels: List<String>) : Recipient, RecipientWithLabels {
+    override fun wrap(fileKey: ByteArray): List<AgeStanza> {
+      fail("Should never be called")
+    }
+
+    override fun wrapWithLabels(fileKey: ByteArray): Pair<List<AgeStanza>, List<String>> {
+      return Pair(listOf(AgeStanza("Test", emptyList(), ByteArray(16))), labels)
+    }
+  }
+
+  /**
+   * Spin on `io.Discard` from Golang which discards all writes, but instead this reports EOF on all
+   * reads.
+   */
+  private object Discard : InputStream() {
+    override fun read(): Int {
+      return -1
+    }
+  }
+
+  @Test
+  fun labels() {
+    val scrypt = ScryptRecipient("xxx".toByteArray())
+    val x25519 = X25519Recipient(ByteArray(16))
+    val pqc = TestRecipient(listOf("postquantum"))
+    val pqcAndFoo = TestRecipient(listOf("postquantum", "foo"))
+    val fooAndPqc = TestRecipient(listOf("foo", "postquantum"))
+
+    assertThrows<InvalidScryptRecipientException> { Age.encrypt(listOf(scrypt, scrypt), Discard) }
+    assertThrows<InvalidScryptRecipientException> { Age.encrypt(listOf(scrypt, x25519), Discard) }
+    assertThrows<InvalidScryptRecipientException> { Age.encrypt(listOf(x25519, scrypt), Discard) }
+    assertThrows<InvalidScryptRecipientException> { Age.encrypt(listOf(pqc, x25519), Discard) }
+    assertThrows<InvalidScryptRecipientException> { Age.encrypt(listOf(x25519, pqc), Discard) }
+    assertDoesNotThrow { Age.encrypt(listOf(pqc, pqc), Discard) }
+    assertDoesNotThrow { Age.encrypt(listOf(pqc), Discard) }
+    assertThrows<InvalidScryptRecipientException> { Age.encrypt(listOf(pqcAndFoo, pqc), Discard) }
+    assertThrows<InvalidScryptRecipientException> { Age.encrypt(listOf(pqc, pqcAndFoo), Discard) }
+    assertThrows<InvalidScryptRecipientException> {
+      Age.encrypt(listOf(pqc, pqc, pqcAndFoo), Discard)
+    }
+    assertDoesNotThrow { Age.encrypt(listOf(pqcAndFoo, pqcAndFoo), Discard) }
+    assertDoesNotThrow { Age.encrypt(listOf(fooAndPqc, pqcAndFoo), Discard) }
   }
 }
