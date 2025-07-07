@@ -24,6 +24,23 @@ import kage.utils.writeSpace
 
 public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: ByteArray) {
 
+  internal fun write(writer: BufferedWriter) {
+    if (mac.isEmpty()) throw InvalidHMACException("MAC must not be empty")
+    writeWithoutMac(writer)
+    writer.writeSpace()
+    writer.write(mac.encodeBase64())
+    writer.writeNewLine()
+  }
+
+  internal fun writeWithoutMac(writer: BufferedWriter) {
+    writer.write(VERSION_LINE)
+    writer.writeNewLine()
+    for (recipient in recipients) {
+      AgeStanza.write(writer, recipient)
+    }
+    writer.write(FOOTER_PREFIX)
+  }
+
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
     if (other !is AgeHeader) return false
@@ -50,23 +67,6 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
       val mac = parseFooter(reader)
 
       return AgeHeader(recipients, mac)
-    }
-
-    internal fun write(writer: BufferedWriter, header: AgeHeader) {
-      if (header.mac.isEmpty()) throw InvalidHMACException("MAC must not be empty")
-      writeWithoutMac(writer, header)
-      writer.writeSpace()
-      writer.write(header.mac.encodeBase64())
-      writer.writeNewLine()
-    }
-
-    internal fun writeWithoutMac(writer: BufferedWriter, header: AgeHeader) {
-      writer.write(VERSION_LINE)
-      writer.writeNewLine()
-      for (recipient in header.recipients) {
-        AgeStanza.write(writer, recipient)
-      }
-      writer.write(FOOTER_PREFIX)
     }
 
     internal fun parseVersion(reader: BufferedInputStream) {

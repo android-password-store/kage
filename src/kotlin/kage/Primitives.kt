@@ -33,7 +33,7 @@ internal object Primitives {
     mac.init(secretKey)
 
     val outputStream = ByteArrayOutputStream()
-    outputStream.bufferedWriter().use { writer -> AgeHeader.writeWithoutMac(writer, header) }
+    outputStream.bufferedWriter().use { writer -> header.writeWithoutMac(writer) }
 
     // Here we need to pass the complete header including the footer prefix
     return mac.doFinal(outputStream.toByteArray())

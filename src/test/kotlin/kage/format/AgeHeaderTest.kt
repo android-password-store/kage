@@ -9,6 +9,8 @@ import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.util.Base64
 import kage.errors.InvalidFooterException
+import kage.errors.InvalidHMACException
+import kage.errors.InvalidRecipientException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -61,6 +63,32 @@ class AgeHeaderTest {
     val reader = footerLine.byteInputStream().buffered()
 
     assertThrows<InvalidFooterException> { AgeHeader.parseFooter(reader).decodeToString() }
+  }
+
+  @Test
+  fun testEmptyFooter() {
+    val footerLine = ""
+
+    val reader = footerLine.byteInputStream().buffered()
+
+    assertThrows<InvalidFooterException> { AgeHeader.parseFooter(reader).decodeToString() }
+  }
+
+  @Test
+  fun testEquality() {
+    val headerString =
+      """age-encryption.org/v1
+            |-> X25519 SVrzdFfkPxf0LPHOUGB1gNb9E5Vr8EUDa9kxk04iQ0o
+            |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
+            |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
+            |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
+            |--- gxhoSa5BciRDt8lOpYNcx4EYtKpS0CJ06F3ZwN82VaM
+            |"""
+        .trimMargin()
+    val header1 = AgeHeader.parse(headerString.byteInputStream().buffered())
+    val header2 = AgeHeader.parse(headerString.byteInputStream().buffered())
+    assertThat(header1).isEqualTo(header2)
+    assertThat(header1.hashCode()).isEqualTo(header2.hashCode())
   }
 
   @Test
@@ -129,9 +157,26 @@ class AgeHeaderTest {
     val ageHeader = AgeHeader.parse(reader)
 
     val outputStream = ByteArrayOutputStream()
-    outputStream.bufferedWriter().use { writer -> AgeHeader.write(writer, ageHeader) }
+    outputStream.bufferedWriter().use { writer -> ageHeader.write(writer) }
     val output = outputStream.toByteArray().decodeToString()
 
     assertThat(output).isEqualTo(header)
+  }
+
+  @Test
+  fun testEmptyReader() {
+    val header =
+      """
+      |age-encryption.org/v1
+    """
+        .trimMargin()
+
+    assertThrows<InvalidRecipientException> { AgeHeader.parse(header.byteInputStream().buffered()) }
+  }
+
+  @Test
+  fun testEmptyMac() {
+    val header = AgeHeader(emptyList(), ByteArray(0))
+    assertThrows<InvalidHMACException> { header.write(ByteArrayOutputStream().bufferedWriter()) }
   }
 }

@@ -132,7 +132,7 @@ public object Age {
 
     if (writeHeaders) {
       val writer = dst.bufferedWriter()
-      AgeHeader.write(writer, ageHeader)
+      ageHeader.write(writer)
       // Need to flush the wrapping stream before writing again to the underlying stream
       writer.flush()
     }
