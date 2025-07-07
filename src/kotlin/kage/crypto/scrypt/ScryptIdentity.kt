@@ -16,10 +16,10 @@ import kage.multiUnwrap
 import kage.utils.decodeBase64
 import org.bouncycastle.crypto.generators.SCrypt
 
-public class ScryptIdentity(
-  private val password: ByteArray,
-  private val maxWorkFactor: Int = DEFAULT_WORK_FACTOR,
-) : Identity {
+public class ScryptIdentity
+@JvmOverloads
+constructor(private val password: ByteArray, private val maxWorkFactor: Int = DEFAULT_WORK_FACTOR) :
+  Identity {
 
   init {
     require(maxWorkFactor in 2..30) { "workFactor must be > 1 and <= 30" }
