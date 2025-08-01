@@ -16,6 +16,7 @@ plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kover)
   alias(libs.plugins.mavenPublish)
+  alias(libs.plugins.pitest)
   alias(libs.plugins.spotless)
   alias(libs.plugins.versions)
   alias(libs.plugins.vcu)
@@ -41,6 +42,19 @@ mavenPublishing {
   signAllPublications()
   @Suppress("UnstableApiUsage") pomFromGradleProperties()
   configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate"), sourcesJar = true))
+}
+
+pitest {
+  junit5PluginVersion.set("1.2.3")
+  pitestVersion.set("1.20.1")
+  avoidCallsTo.set(setOf("kotlin.jvm.internal"))
+  mutators.set(setOf("STRONGER"))
+  targetClasses.set(setOf("kage.*"))
+  targetTests.set(setOf("kage.*"))
+  threads.set(Runtime.getRuntime().availableProcessors())
+  outputFormats.set(setOf("XML", "HTML"))
+  mutationThreshold.set(75)
+  coverageThreshold.set(90)
 }
 
 tasks.withType<KotlinCompile>().configureEach {
