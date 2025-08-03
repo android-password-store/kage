@@ -9,6 +9,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapBoth
 import kage.errors.Bech32Exception
 
 /**
@@ -107,10 +108,13 @@ internal object Bech32 {
   // the output will be uppercase.
   fun encode(hrp: String, data: ByteArray): Bech32Result<String> {
     val maybeValues = convertBits(data, 8, 5, true)
-    if (maybeValues.isErr) {
-      return Err(maybeValues.error)
-    }
-    val values = maybeValues.value
+    val values =
+      maybeValues.mapBoth(
+        success = { it },
+        failure = {
+          return Err(it)
+        },
+      )
 
     if (hrp.length + values.size + 7 > 90) {
       return Err(Bech32Exception("too long: hrp length=${hrp.length}, data length=${values.size}"))
