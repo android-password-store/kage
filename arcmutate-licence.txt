@@ -1,0 +1,7 @@
+#Licence file for arcmutate mutation testing https://www.arcmutate.com
+#Mon Aug 04 09:46:10 BST 2025
+expires=04/02/2027
+keyVersion=1
+packages=kage.*
+signature=Mya8m4p9K7bibac+UKXbzyKLj9dc7ZyF09Vm7qN7HMOSulwhMkkeSGihYDnkuAQt/RVCPMYS2WkILdUt01mZMsIxJ36tN0lWmB9PgWr2oxC8x/TsGBIdDF+LkAJSXy3PheyMxzUM/c2ux/zqWwGhqMajfVs577MrZV+18opIgI8\=
+type=OSSS

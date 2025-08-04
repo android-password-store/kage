@@ -17,9 +17,11 @@ pluginManagement {
             "org.jetbrains.kotlin.jvm",
             "com.diffplug.spotless",
             "com.github.ben-manes.versions",
+            "info.solidsoft.pitest",
           )
           .forEach { plugin -> includeModule(plugin, "${plugin}.gradle.plugin") }
         includeModule("com.github.ben-manes", "gradle-versions-plugin")
+        includeModule("info.solidsoft.gradle.pitest", "gradle-pitest-plugin")
       }
     }
     mavenCentral()

@@ -16,6 +16,7 @@ plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kover)
   alias(libs.plugins.mavenPublish)
+  alias(libs.plugins.pitest)
   alias(libs.plugins.spotless)
   alias(libs.plugins.versions)
   alias(libs.plugins.vcu)
@@ -42,6 +43,23 @@ mavenPublishing {
   @Suppress("UnstableApiUsage") pomFromGradleProperties()
   configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate"), sourcesJar = true))
 }
+
+pitest {
+  junit5PluginVersion.set("1.2.3")
+  pitestVersion.set("1.20.1")
+  avoidCallsTo.set(setOf("kotlin.jvm.internal"))
+  mutators.set(setOf("STRONGER"))
+  targetClasses.set(setOf("kage.*"))
+  targetTests.set(setOf("kage.*"))
+  threads.set(Runtime.getRuntime().availableProcessors())
+  outputFormats.set(setOf("XML", "HTML"))
+  // This is the current level we hit as of introducing pitest. It should never
+  // be allowed to regress.
+  mutationThreshold.set(73)
+  coverageThreshold.set(90)
+}
+
+tasks.named("check") { dependsOn("pitest") }
 
 tasks.withType<KotlinCompile>().configureEach {
   compilerOptions {
@@ -85,6 +103,7 @@ dependencies {
   implementation(libs.bouncycastle.bcprov)
   implementation(libs.hkdf)
   implementation(libs.kotlinresult)
+  pitest(libs.pitest.kotlin)
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.junit.jupiter.api)
   testRuntimeOnly(libs.junit.jupiter.engine)
