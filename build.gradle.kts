@@ -101,6 +101,7 @@ dependencies {
   implementation(libs.bouncycastle.bcprov)
   implementation(libs.hkdf)
   implementation(libs.kotlinresult)
+  pitest(libs.pitest.kotlin)
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.junit.jupiter.api)
   testRuntimeOnly(libs.junit.jupiter.engine)

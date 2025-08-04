@@ -14,6 +14,7 @@ junit-legacy = "junit:junit:4.13.2"
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlinresult = "com.michael-bull.kotlin-result:kotlin-result:2.1.0"
 kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+pitest-kotlin = "com.arcmutate:pitest-kotlin-plugin:1.4.3"
 truth = "com.google.truth:truth:1.4.4"
 
 [plugins]
