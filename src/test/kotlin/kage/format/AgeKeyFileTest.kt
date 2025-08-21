@@ -19,10 +19,10 @@ class AgeKeyFileTest {
   fun testAgeKeyFile() {
     val keyString =
       """
-      # created: 2006-01-02T15:04:05Z07:00
-      # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
-      AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """
+        # created: 2006-01-02T15:04:05Z07:00
+        # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
+        AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
+      """
         .trimIndent()
 
     val reader = keyString.reader().buffered()
@@ -39,8 +39,8 @@ class AgeKeyFileTest {
   fun testAgeKeyWithOnlyPrivateKey() {
     val keyString =
       """
-      AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """
+        AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
+      """
         .trimIndent()
 
     val reader = keyString.reader().buffered()
@@ -54,10 +54,10 @@ class AgeKeyFileTest {
   fun testAgeKeyWithInvalidPublicKeyThrowsException() {
     val keyString =
       """
-      # created: 2006-01-02T15:04:05Z07:00
-      # public key: not a valid public key
-      AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """
+        # created: 2006-01-02T15:04:05Z07:00
+        # public key: not a valid public key
+        AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
+      """
         .trimIndent()
 
     val reader = keyString.reader().buffered()
@@ -69,11 +69,11 @@ class AgeKeyFileTest {
   fun testExtraDataIsIgnored() {
     val keyString =
       """
-      # created: 2006-01-02T15:04:05Z07:00
-      # something funny
-      # not really
-      AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """
+        # created: 2006-01-02T15:04:05Z07:00
+        # something funny
+        # not really
+        AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
+      """
         .trimIndent()
 
     val reader = keyString.reader().buffered()
@@ -88,9 +88,9 @@ class AgeKeyFileTest {
   fun testAgeKeyWithInvalidPrivateKeyThrowsException() {
     val keyString =
       """
-      # created: 2006-01-02T15:04:05Z07:00
-      1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-    """
+        # created: 2006-01-02T15:04:05Z07:00
+        1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
+      """
         .trimIndent()
 
     val reader = keyString.reader().buffered()
@@ -102,10 +102,10 @@ class AgeKeyFileTest {
   fun testAgeKeyWithDifferentOrder() {
     val keyString =
       """
-      AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-      # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
-      # created: 2006-01-02T15:04:05Z07:00
-    """
+        AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
+        # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
+        # created: 2006-01-02T15:04:05Z07:00
+      """
         .trimIndent()
 
     val reader = keyString.reader().buffered()
@@ -122,11 +122,11 @@ class AgeKeyFileTest {
   fun testWrite() {
     val keyString =
       """
-        # created: 2006-01-02T15:04:05Z07:00
-        # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
-        AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
-        
-        """
+      # created: 2006-01-02T15:04:05Z07:00
+      # public key: age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5
+      AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS
+      
+      """
         .trimIndent()
 
     val publicKey =

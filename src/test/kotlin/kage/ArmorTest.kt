@@ -22,7 +22,8 @@ class ArmorTest {
   @Test
   fun testDecryptArmorPayload() {
     val encryptedInputStr =
-      """-----BEGIN AGE ENCRYPTED FILE-----
+      """
+      |-----BEGIN AGE ENCRYPTED FILE-----
       |YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBEUXh3Qk95OWtmOEdBVFJH
       |Ukw4aE1RIDE4CnNlY1pRR011ekJpVjZvZUFhakhGZE8rcUtyRWtEN1c4b0hXbzhr
       |ZG5iekEKLS0tIEYzcXpHb2N4STExV0VEWnZtQUFpRXA4OXBLUWlWTTJnbkhPbEJs
@@ -44,7 +45,8 @@ class ArmorTest {
   @Test
   fun testTrailingData() {
     val encryptedInputStr =
-      """-----BEGIN AGE ENCRYPTED FILE-----
+      """
+      |-----BEGIN AGE ENCRYPTED FILE-----
       |YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBEUXh3Qk95OWtmOEdBVFJH
       |Ukw4aE1RIDE4CnNlY1pRR011ekJpVjZvZUFhakhGZE8rcUtyRWtEN1c4b0hXbzhr
       |ZG5iekEKLS0tIEYzcXpHb2N4STExV0VEWnZtQUFpRXA4OXBLUWlWTTJnbkhPbEJs
@@ -71,7 +73,8 @@ class ArmorTest {
   @Test
   fun testTrailingWhitespaceData() {
     val encryptedInputStr =
-      """-----BEGIN AGE ENCRYPTED FILE-----
+      """
+      |-----BEGIN AGE ENCRYPTED FILE-----
       |YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBEUXh3Qk95OWtmOEdBVFJH
       |Ukw4aE1RIDE4CnNlY1pRR011ekJpVjZvZUFhakhGZE8rcUtyRWtEN1c4b0hXbzhr
       |ZG5iekEKLS0tIEYzcXpHb2N4STExV0VEWnZtQUFpRXA4OXBLUWlWTTJnbkhPbEJs
@@ -97,7 +100,8 @@ class ArmorTest {
   @Test
   fun testInvalidFirstLine() {
     val encryptedInputStr =
-      """-----BEGIN AGE ENCRYPTED FILE-----something else
+      """
+      |-----BEGIN AGE ENCRYPTED FILE-----something else
       |YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBEUXh3Qk95OWtmOEdBVFJH
       |Ukw4aE1RIDE4CnNlY1pRR011ekJpVjZvZUFhakhGZE8rcUtyRWtEN1c4b0hXbzhr
       |ZG5iekEKLS0tIEYzcXpHb2N4STExV0VEWnZtQUFpRXA4OXBLUWlWTTJnbkhPbEJs
@@ -124,7 +128,8 @@ class ArmorTest {
   @Test
   fun testInvalidLineLength() {
     val encryptedInputStr =
-      """-----BEGIN AGE ENCRYPTED FILE-----
+      """
+      |-----BEGIN AGE ENCRYPTED FILE-----
       |YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBEUXh3Qk95OWtmOEdBVFJHUkw4aE1RIDE4CnNlY1pRR011ekJpVjZvZUFhakhGZE8rcUtyRWtEN1c4b0hXbzhr
       |ZG5iekEKLS0tIEYzcXpHb2N4STExV0VEWnZtQUFpRXA4OXBLUWlWTTJnbkhPbEJs
       |Sy8vNVUKjYeREvMLfFR1ZFUCohjQnSP/d1n4hPuxTeFggWM94q6dhTr6qrvjBMPL
@@ -148,7 +153,8 @@ class ArmorTest {
   @Test
   fun testInvalidFooter() {
     val encryptedInputStr =
-      """-----BEGIN AGE ENCRYPTED FILE-----
+      """
+      |-----BEGIN AGE ENCRYPTED FILE-----
       |YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBEUXh3Qk95OWtmOEdBVFJH
       |Ukw4aE1RIDE4CnNlY1pRR011ekJpVjZvZUFhakhGZE8rcUtyRWtEN1c4b0hXbzhr
       |ZG5iekEKLS0tIEYzcXpHb2N4STExV0VEWnZtQUFpRXA4OXBLUWlWTTJnbkhPbEJs
