@@ -15,7 +15,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 kotlinresult = "com.michael-bull.kotlin-result:kotlin-result:2.1.0"
 kotlintest-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 pitest-kotlin = "com.arcmutate:pitest-kotlin-plugin:1.4.3"
-truth = "com.google.truth:truth:1.4.4"
+truth = "com.google.truth:truth:1.4.5"
 
 [plugins]
 animalsniffer = "ru.vyarus.animalsniffer:2.0.1"
