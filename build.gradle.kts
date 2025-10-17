@@ -46,7 +46,7 @@ mavenPublishing {
 
 pitest {
   junit5PluginVersion.set("1.2.3")
-  pitestVersion.set("1.20.1")
+  pitestVersion.set("1.21.0")
   avoidCallsTo.set(setOf("kotlin.jvm.internal"))
   mutators.set(setOf("STRONGER"))
   targetClasses.set(setOf("kage.*"))
