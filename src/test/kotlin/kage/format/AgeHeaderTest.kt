@@ -115,7 +115,8 @@ class AgeHeaderTest {
       |
       |-> ssh-ed25519 Xyg06A rH24zuz7XHFc1lRyQmMrekpLrcKrJupohEh/YjvQCxs
       |Bbtnl6veSZhZmG7uXGQUX0hJbrC8mxDkL3zW06tqlWY
-      |---"""
+      |---
+      """
         .trimMargin()
 
     val reader = recipients.byteInputStream().buffered()
@@ -132,7 +133,8 @@ class AgeHeaderTest {
       |0OrTkKHpE7klNLd0k+9Uam5hkQkzMxaqKcIPRIO1sNE
       |-> X25519 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8
       |tXgpAxKgqyu1jl9I/ATwFgV42ZbNgeAlvCTJ0WgvfEo
-      |---"""
+      |---
+      """
         .trimMargin()
 
     val reader = recipients.byteInputStream().buffered()
@@ -172,7 +174,8 @@ class AgeHeaderTest {
   fun testEmptyReader() {
     val header =
       """
-      |age-encryption.org/v1"""
+      |age-encryption.org/v1
+      """
         .trimMargin()
 
     assertThrows<InvalidRecipientException> { AgeHeader.parse(header.byteInputStream().buffered()) }
