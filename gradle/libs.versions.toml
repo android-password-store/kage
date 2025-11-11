@@ -22,7 +22,7 @@ animalsniffer = "ru.vyarus.animalsniffer:2.0.1"
 dokka = "org.jetbrains.dokka:2.1.0"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = "org.jetbrains.kotlinx.kover:0.9.3"
-mavenPublish = "com.vanniktech.maven.publish.base:0.34.0"
+mavenPublish = "com.vanniktech.maven.publish.base:0.35.0"
 pitest = "info.solidsoft.pitest:1.19.0-rc.2"
 spotless = "com.diffplug.spotless:8.0.0"
 vcu = "nl.littlerobots.version-catalog-update:1.0.1"
