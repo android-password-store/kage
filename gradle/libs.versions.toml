@@ -1,6 +1,6 @@
 [versions]
 junit = "6.0.1"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 
 [libraries]
 animalsniffer-signature-android = "com.toasttab.android:gummy-bears-api-26:0.12.0"
