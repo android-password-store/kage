@@ -38,14 +38,13 @@ public class AgeFile(public val header: AgeHeader, public val body: ByteArray) {
     internal fun parse(input: InputStream): AgeFile {
       val body = ByteArrayOutputStream()
 
-      val header =
-        body.use { b ->
-          input.buffered().use { i ->
-            val hdr = AgeHeader.parse(i)
-            i.copyTo(b)
-            hdr
-          }
+      val header = body.use { b ->
+        input.buffered().use { i ->
+          val hdr = AgeHeader.parse(i)
+          i.copyTo(b)
+          hdr
         }
+      }
 
       return AgeFile(header, body.toByteArray())
     }
