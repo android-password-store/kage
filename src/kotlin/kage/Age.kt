@@ -35,15 +35,27 @@ public object Age {
   @JvmStatic
   public fun encryptStream(
     recipients: List<Recipient>,
-    inputStream: InputStream,
     outputStream: OutputStream,
     generateArmor: Boolean = false,
+    writeInputTo: (OutputStream) -> Unit,
   ) {
     val dstStream = if (generateArmor) ArmorOutputStream(outputStream) else outputStream
 
     val (_, stream) = encryptInternal(recipients, dstStream)
 
-    stream.use { output -> inputStream.use { input -> input.copyTo(output) } }
+    stream.use { output -> writeInputTo(output) }
+  }
+
+  @JvmStatic
+  public fun encryptStream(
+    recipients: List<Recipient>,
+    inputStream: InputStream,
+    outputStream: OutputStream,
+    generateArmor: Boolean = false,
+  ) {
+    encryptStream(recipients, outputStream, generateArmor) { output ->
+      inputStream.use { input -> input.copyTo(output) }
+    }
   }
 
   @JvmStatic
