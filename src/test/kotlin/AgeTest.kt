@@ -94,7 +94,8 @@ class AgeTest {
 
     Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
 
-    assertThat(decryptedOutput.toByteArray().decodeToString()).isEqualTo("this is my dynamically generated data. Time $now")
+    assertThat(decryptedOutput.toByteArray().decodeToString())
+      .isEqualTo("this is my dynamically generated data. Time $now")
   }
 
   @Test
