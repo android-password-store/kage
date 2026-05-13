@@ -75,6 +75,30 @@ class AgeTest {
   }
 
   @Test
+  fun testEncryptWithLambda() {
+    val (recipient, identity) = genX25519Identity()
+
+    val recipients = listOf(recipient)
+
+    val baos = ByteArrayOutputStream()
+
+    val now = System.currentTimeMillis()
+    Age.encryptStream(recipients, baos) { output ->
+      output.write("this is my ".toByteArray())
+      output.write("dynamically generated data. ".toByteArray())
+      output.write("Time $now".toByteArray())
+    }
+
+    val encryptedInput = ByteArrayInputStream(baos.toByteArray())
+    val decryptedOutput = ByteArrayOutputStream()
+
+    Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
+
+    assertThat(decryptedOutput.toByteArray().decodeToString())
+      .isEqualTo("this is my dynamically generated data. Time $now")
+  }
+
+  @Test
   fun testScryptEncryptDecryptExactBlockSizeMultiple() {
     val (recipient, identity) = genX25519Identity()
 

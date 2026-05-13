@@ -5,7 +5,9 @@ public final class kage/Age {
 	public static final fun decryptStream (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;)V
 	public static final fun encrypt (Ljava/util/List;Ljava/io/InputStream;)Lkage/format/AgeFile;
 	public static final fun encryptStream (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;Z)V
+	public static final fun encryptStream (Ljava/util/List;Ljava/io/OutputStream;ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun encryptStream$default (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;ZILjava/lang/Object;)V
+	public static synthetic fun encryptStream$default (Ljava/util/List;Ljava/io/OutputStream;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
 public abstract interface class kage/Identity {
