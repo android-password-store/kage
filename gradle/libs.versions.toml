@@ -24,6 +24,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = "org.jetbrains.kotlinx.kover:0.9.8"
 mavenPublish = "com.vanniktech.maven.publish.base:0.36.0"
 pitest = "info.solidsoft.pitest:1.19.0"
-spotless = "com.diffplug.spotless:8.5.0"
+spotless = "com.diffplug.spotless:8.5.1"
 vcu = "nl.littlerobots.version-catalog-update:1.1.0"
 versions = "com.github.ben-manes.versions:0.54.0"
