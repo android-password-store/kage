@@ -75,7 +75,7 @@ class AgeTest {
   }
 
   @Test
-  fun testEncryptWithLambda() {
+  fun testEncryptWithOutputStreamReturnValue() {
     val (recipient, identity) = genX25519Identity()
 
     val recipients = listOf(recipient)
@@ -83,7 +83,7 @@ class AgeTest {
     val baos = ByteArrayOutputStream()
 
     val now = System.currentTimeMillis()
-    Age.encryptStream(recipients, baos) { output ->
+    Age.encryptStream(recipients, baos).use { output ->
       output.write("this is my ".toByteArray())
       output.write("dynamically generated data. ".toByteArray())
       output.write("Time $now".toByteArray())

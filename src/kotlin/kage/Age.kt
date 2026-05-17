@@ -37,13 +37,12 @@ public object Age {
     recipients: List<Recipient>,
     outputStream: OutputStream,
     generateArmor: Boolean = false,
-    writeInputTo: (OutputStream) -> Unit,
-  ) {
+  ): OutputStream {
     val dstStream = if (generateArmor) ArmorOutputStream(outputStream) else outputStream
 
     val (_, stream) = encryptInternal(recipients, dstStream)
 
-    stream.use { output -> writeInputTo(output) }
+    return stream
   }
 
   @JvmStatic
@@ -53,7 +52,7 @@ public object Age {
     outputStream: OutputStream,
     generateArmor: Boolean = false,
   ) {
-    encryptStream(recipients, outputStream, generateArmor) { output ->
+    encryptStream(recipients, outputStream, generateArmor).use { output ->
       inputStream.use { input -> input.copyTo(output) }
     }
   }
