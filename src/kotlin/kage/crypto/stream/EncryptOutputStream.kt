@@ -27,15 +27,26 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
   private var bufSize = 0
 
   override fun write(i: Int) {
-    val b = i.toByte()
+    write(byteArrayOf(i.toByte()))
+  }
 
-    if (bufSize == CHUNK_SIZE) {
-      flushChunk()
-      bufSize = 0
+  override fun write(b: ByteArray, off: Int, len: Int) {
+    var inputStart = off
+    val inputEnd = off + len
+
+    while (inputStart < inputEnd) {
+      if (bufSize == CHUNK_SIZE) {
+        flushChunk()
+        bufSize = 0
+      }
+
+      val bufSpaceRemaining = CHUNK_SIZE - bufSize
+      val copyLen = (inputEnd - inputStart).coerceAtMost(bufSpaceRemaining)
+
+      b.copyInto(buf, bufSize, startIndex = inputStart, endIndex = inputStart + copyLen)
+      bufSize += copyLen
+      inputStart += copyLen
     }
-
-    buf[bufSize] = b
-    bufSize++
   }
 
   override fun close() {

@@ -16,20 +16,35 @@ internal class ArmorOutputStream(private val dst: OutputStream) : OutputStream()
   private var started = false
 
   override fun write(i: Int) {
+    write(byteArrayOf(i.toByte()))
+  }
+
+  override fun write(b: ByteArray, off: Int, len: Int) {
+    if (len == 0) {
+      return
+    }
+
     if (!started) {
       dst.write((ArmorInputStream.HEADER + "\n").toByteArray())
       started = true
     }
 
-    val b = i.toByte()
+    var inputStart = off
+    val inputEnd = off + len
 
-    if (bufSize == ArmorInputStream.BYTES_PER_LINE) {
-      writeLine()
-      bufSize = 0
+    while (inputStart < inputEnd) {
+      if (bufSize == ArmorInputStream.BYTES_PER_LINE) {
+        writeLine()
+        bufSize = 0
+      }
+
+      val bufSpaceRemaining = ArmorInputStream.BYTES_PER_LINE - bufSize
+      val copyLen = (inputEnd - inputStart).coerceAtMost(bufSpaceRemaining)
+
+      b.copyInto(buf, bufSize, startIndex = inputStart, endIndex = inputStart + copyLen)
+      bufSize += copyLen
+      inputStart += copyLen
     }
-
-    buf[bufSize] = b
-    bufSize++
   }
 
   private fun writeLine() {
