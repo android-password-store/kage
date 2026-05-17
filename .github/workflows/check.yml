@@ -81,8 +81,14 @@ jobs:
       shell: bash
       run: ./gradlew --no-daemon --no-configuration-cache koverXmlReport
 
-    - name: Upload coverage artifacts
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+    - name: Add coverage report to PR
+      id: kover
+      if: ${{ !github.event.pull_request.head.repo.fork }}
+      uses: mi-kas/kover-report@db9938358b8e1e6175dd4136132bf4eb7aa4ae6d # v2
       with:
-        name: coverage-report
-        path: build/reports/kover/report.xml
+        path: ${{ github.workspace }}/build/reports/kover/report.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: Code Coverage
+        update-comment: true
+        min-coverage-overall: 80
+        min-coverage-changed-files: 80
