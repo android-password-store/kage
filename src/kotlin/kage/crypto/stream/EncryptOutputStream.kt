@@ -26,6 +26,8 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
   private val buf = ByteArray(CHUNK_SIZE)
   private var bufSize = 0
 
+  private val encryptOutputBuf = ByteArray(ChaCha20Poly1305.getEncryptOutputSize(buf.size))
+
   override fun write(i: Int) {
     write(byteArrayOf(i.toByte()))
   }
@@ -63,9 +65,9 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
 
     if (last) setLastChunkFlag(nonce)
 
-    val chunk = ChaCha20Poly1305.encrypt(key, nonce, buf, 0, bufSize)
+    val encryptSize = ChaCha20Poly1305.encrypt(key, nonce, buf, 0, bufSize, encryptOutputBuf)
 
-    dst.write(chunk)
+    dst.write(encryptOutputBuf, 0, encryptSize)
 
     incNonce(nonce)
   }

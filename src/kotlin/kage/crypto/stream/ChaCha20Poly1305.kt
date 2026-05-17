@@ -16,6 +16,8 @@ internal object ChaCha20Poly1305 {
   const val KEY_LENGTH: Int = 32 // bytes
   const val NONCE_LENGTH: Int = 12 // bytes
 
+  internal fun getEncryptOutputSize(inLen: Int) = inLen + MAC_SIZE
+
   fun encrypt(
     key: ByteArray,
     nonce: ByteArray,
@@ -23,18 +25,29 @@ internal object ChaCha20Poly1305 {
     inOff: Int,
     inLen: Int,
   ): ByteArray {
+    val output = ByteArray(getEncryptOutputSize(inLen))
+    encrypt(key, nonce, input, inOff, inLen, output)
+    return output
+  }
+
+  fun encrypt(
+    key: ByteArray,
+    nonce: ByteArray,
+    input: ByteArray,
+    inOff: Int,
+    inLen: Int,
+    output: ByteArray,
+  ): Int {
     val cipher = ChaCha20Poly1305()
     val secKey = KeyParameter(key)
     val params = AEADParameters(secKey, MAC_SIZE * 8, nonce)
 
     cipher.init(true, params)
 
-    val output = ByteArray(cipher.getOutputSize(inLen))
-
     val c = cipher.processBytes(input, inOff, inLen, output, 0)
     cipher.doFinal(output, c)
 
-    return output
+    return getEncryptOutputSize(inLen)
   }
 
   fun aeadEncrypt(key: ByteArray, input: ByteArray): ByteArray {
