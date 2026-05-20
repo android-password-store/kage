@@ -26,16 +26,29 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
   private val buf = ByteArray(CHUNK_SIZE)
   private var bufSize = 0
 
+  private val encryptOutputBuf = ByteArray(ChaCha20Poly1305.getEncryptOutputSize(buf.size))
+
   override fun write(i: Int) {
-    val b = i.toByte()
+    write(byteArrayOf(i.toByte()))
+  }
 
-    if (bufSize == CHUNK_SIZE) {
-      flushChunk()
-      bufSize = 0
+  override fun write(b: ByteArray, off: Int, len: Int) {
+    var inputStart = off
+    val inputEnd = off + len
+
+    while (inputStart < inputEnd) {
+      if (bufSize == CHUNK_SIZE) {
+        flushChunk()
+        bufSize = 0
+      }
+
+      val bufSpaceRemaining = CHUNK_SIZE - bufSize
+      val copyLen = (inputEnd - inputStart).coerceAtMost(bufSpaceRemaining)
+
+      b.copyInto(buf, bufSize, startIndex = inputStart, endIndex = inputStart + copyLen)
+      bufSize += copyLen
+      inputStart += copyLen
     }
-
-    buf[bufSize] = b
-    bufSize++
   }
 
   override fun close() {
@@ -52,9 +65,9 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
 
     if (last) setLastChunkFlag(nonce)
 
-    val chunk = ChaCha20Poly1305.encrypt(key, nonce, buf, 0, bufSize)
+    val encryptSize = ChaCha20Poly1305.encrypt(key, nonce, buf, 0, bufSize, encryptOutputBuf)
 
-    dst.write(chunk)
+    dst.write(encryptOutputBuf, 0, encryptSize)
 
     incNonce(nonce)
   }
