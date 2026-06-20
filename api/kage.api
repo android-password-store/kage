@@ -23,7 +23,6 @@ public abstract interface class kage/RecipientWithLabels {
 }
 
 public final class kage/crypto/scrypt/ScryptIdentity : kage/Identity {
-	public static final field DEFAULT_WORK_FACTOR I
 	public fun <init> ([B)V
 	public fun <init> ([BI)V
 	public synthetic fun <init> ([BIILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -31,10 +30,6 @@ public final class kage/crypto/scrypt/ScryptIdentity : kage/Identity {
 }
 
 public final class kage/crypto/scrypt/ScryptRecipient : kage/Recipient, kage/RecipientWithLabels {
-	public static final field DEFAULT_WORK_FACTOR I
-	public static final field SCRYPT_SALT_LABEL Ljava/lang/String;
-	public static final field SCRYPT_SALT_SIZE I
-	public static final field SCRYPT_STANZA_TYPE Ljava/lang/String;
 	public fun <init> ([B)V
 	public fun <init> ([BI)V
 	public synthetic fun <init> ([BIILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -87,7 +82,6 @@ public final class kage/errors/Bech32Exception : java/lang/Exception {
 }
 
 public abstract class kage/errors/CryptoException : java/lang/Exception {
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
@@ -154,7 +148,6 @@ public final class kage/errors/InvalidHMACHeaderException : kage/errors/CryptoEx
 }
 
 public abstract class kage/errors/InvalidIdentityException : kage/errors/CryptoException {
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
@@ -202,7 +195,6 @@ public final class kage/errors/NoRecipientsException : kage/errors/CryptoExcepti
 }
 
 public abstract class kage/errors/ParseException : java/lang/Exception {
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 }

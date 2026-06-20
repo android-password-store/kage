@@ -6,6 +6,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
+import com.vanniktech.maven.publish.SourcesJar
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -28,8 +29,7 @@ version = requireNotNull(project.findProperty("VERSION_NAME"))
 
 kotlin {
   explicitApi()
-  @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
-  abiValidation { enabled = true }
+  @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class) abiValidation()
 }
 
 java {
@@ -41,7 +41,9 @@ mavenPublishing {
   publishToMavenCentral(automaticRelease = true)
   signAllPublications()
   @Suppress("UnstableApiUsage") pomFromGradleProperties()
-  configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate"), sourcesJar = true))
+  configure(
+    KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate"), sourcesJar = SourcesJar.Sources())
+  )
 }
 
 pitest {
