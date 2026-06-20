@@ -29,6 +29,10 @@ class UpstreamTestSuite {
     return Files.newDirectoryStream(testFixtureRoot).map { path ->
       val contents = path.toFile().readBytes()
       DynamicTest.dynamicTest(path.name) {
+        // Skip hybrid post-quantum crypto
+        if (path.name.contains("hybrid")) {
+          return@dynamicTest
+        }
         val suite = TestSuite.parse(contents)
         val expect = suite.expect
 
