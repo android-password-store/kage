@@ -41,7 +41,7 @@ fun mapToUpstreamExpect(error: Throwable): Expect {
   if (error is ArmorCodingException) return ArmorFailure
   if (error is CryptoException) return HeaderFailure
 
-  // TODO: Handle cases where we are throwing anything other than CryptoException or ParseException
-  //  throw IllegalStateException("Only exceptions thrown by kage can be mapped to expect value")
-  return HeaderFailure
+  throw IllegalArgumentException(
+    "Only exceptions thrown by kage can be mapped to expect value: ${error.javaClass.name}"
+  )
 }

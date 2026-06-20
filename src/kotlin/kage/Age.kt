@@ -85,6 +85,9 @@ public object Age {
 
     val initialBytes = ByteArray(readLimit)
     val bytesRead = markSupportedStream.read(initialBytes, 0, readLimit)
+    if (bytesRead == -1) {
+      throw InvalidHMACHeaderException("stream was too short")
+    }
     val initialString = String(initialBytes, 0, bytesRead)
 
     markSupportedStream.reset()
