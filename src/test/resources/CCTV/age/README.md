@@ -3,8 +3,48 @@
 This directory contains a large set of test vectors for the age file encryption
 format, as well as a framework to easily generate them.
 
+The test suite can be applied to any age implementation, regardless of the language
+it's implemented in, and the level of abstraction of its interface.
+For the simplest, most universal integration, the implementation can just attempt
+to decrypt the test files, check the operation only succeeds if `expect` is
+`success`, and compare the decrypted payload. Test vectors involving
+unimplemented features (such as passphrase encryption or armoring) can be ignored.
+
+These vectors can't be used to test the encryption direction end-to-end (because
+there is no strict specification for how to [reproducibly inject randomness](
+https://words.filippo.io/dispatches/avoid-the-randomness-from-the-sky/)
+in the process), however, they can be used to test that parsing and encoding
+operations round-trip in various edge cases. Specifically, `armored` vectors can
+be used to test round-trips of armor decode/encode (accounting for CRLF/LF and
+trailing and leading spaces tolerance), any vector that's not a `header failure`
+can be used to test round-trips of header decode/encode, and any `success` vector
+can be used to test round-trips of STREAM decrypt/encrypt (with the help of the
+`file key`).
+
 For an example of how to use this test suite, check [the reference Go
-implementation](https://github.com/FiloSottile/age/blob/bf8d2a39/testkit_test.go).
+implementation](https://github.com/FiloSottile/age/blob/980763a/testkit_test.go).
+
+## Accessing the test vectors
+
+If testing a Go program, you can import the `c2sp.org/CCTV/age` module and use
+the embedded filesystem.
+
+If using npm, you can install the `cctv-age` package and use the module exports.
+
+Otherwise, you can use `git-subtree` to include a copy of the vectors in your
+project. The license allows this without attribution.
+
+```
+git fetch https://github.com/C2SP/CCTV
+TEMPDIR=$(mktemp -d)
+git worktree add $TEMPDIR FETCH_HEAD
+SPLIT=$(cd $TEMPDIR && git subtree split -P age/testdata --annotate 'testkit: ')
+git worktree remove $TEMPDIR
+git subtree add -P testkit $SPLIT
+```
+
+To update the vectors, repeat the process with `git subtree merge` instead of
+`git subtree add`.
 
 ## Test file format
 
@@ -13,8 +53,8 @@ processed independently. Each vector is meant to test only one failure (or
 success) scenario.
 
 The file is in two parts: first a textual header, then an empty line, and then
-an age encrypted file. The textual header is a series of key-value pairs,
-separated by a colon and a space, each on their own line.
+an age encrypted file, possibly compressed. The textual header is a series of
+key-value pairs, separated by a colon and a space, each on their own line.
 
 The following header keys are defined. Files with unknown keys should be
 ignored.
@@ -59,6 +99,13 @@ ignored.
 
     The ASCII armor should fail to parse successfully.
 
+- `compressed`
+
+  This key will be `zlib` if the age encrypted file is compressed with zlib.
+  Note that encrypted files usually don't compress well, but large test files in
+  this collection are generated from plaintexts selected to make the ciphertext
+  compressible. **Some of these files can be several megabytes once decompressed.**
+
 - `payload`
 
   This is a hex-encoded SHA-256 hash of the payload. **All** the plaintext that
@@ -67,7 +114,7 @@ ignored.
 
 - `identity`
 
-  This is a Bech32 encoded X25519 identity that should be used to unwrap
+  This is a Bech32 encoded X25519 or hybrid identity that should be used to unwrap
   recipient stanzas. This key can appear multiple times.
 
 - `passphrase`
@@ -101,7 +148,8 @@ go generate ./...
 
 ## License
 
-The vectors in the `testdata` folder are available under the terms of the
+The vectors in the `testdata` folder and the files in this top-level directory
+are available under the terms of the
 [Zero-Clause BSD](https://opensource.org/licenses/0BSD) (reproduced below),
 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), or
 [Unlicense](https://unlicense.org/) license, to your choice.

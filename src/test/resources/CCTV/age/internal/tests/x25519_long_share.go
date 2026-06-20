@@ -26,6 +26,6 @@ func main() {
 	f.HMAC()
 	f.Payload("age")
 	f.ExpectHeaderFailure()
-	f.Comment("a trailing zero is missing from the X25519 share")
+	f.Comment("an extra most-significant zero byte is appended to the X25519 share")
 	f.Generate()
 }
