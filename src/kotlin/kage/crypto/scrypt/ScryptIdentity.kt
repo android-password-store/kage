@@ -47,7 +47,9 @@ constructor(private val password: ByteArray, private val maxWorkFactor: Int = DE
     val digitsRe = "^[1-9][0-9]*$".toRegex()
     if (!stanza.args[1].matches(digitsRe))
       throw ScryptIdentityException("scrypt work factor encoding invalid: ${stanza.args[1]}")
-    val workFactor = stanza.args[1].toInt()
+    val workFactor =
+      stanza.args[1].toIntOrNull()
+        ?: throw ScryptIdentityException("scrypt work factor too large: ${stanza.args[1]}")
 
     if (workFactor > maxWorkFactor)
       throw ScryptIdentityException("scrypt factor too large: $workFactor")
