@@ -19,6 +19,7 @@ import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
 import kage.errors.IncorrectHMACException
 import kage.errors.InvalidHMACHeaderException
+import kage.errors.InvalidNonceException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
 import kage.errors.NoRecipientsException
@@ -93,11 +94,8 @@ public object Age {
         ArmorInputStream(markSupportedStream)
       } else markSupportedStream
 
-    val ageFile = AgeFile.parse(decodedStream)
-
-    val input = decryptInternal(identities, ageFile)
-
-    input.use { src -> dstStream.use { dst -> src.copyTo(dst) } }
+    // Parse only the header, then stream the payload — avoids buffering the whole body in memory.
+    decryptStreamInternal(identities, decodedStream.buffered(), dstStream)
   }
 
   @JvmStatic
@@ -207,6 +205,60 @@ public object Age {
       bis.skip(STREAM_NONCE_SIZE.toLong())
 
       return DecryptInputStream(streamKey, bis)
+    }
+
+    throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
+  }
+
+  // Streaming counterpart of decryptInternal: parses the header off [src], then decrypts the
+  // remaining live stream chunk-by-chunk into [dstStream] without holding the body in memory.
+  private fun decryptStreamInternal(
+    identities: List<Identity>,
+    src: BufferedInputStream,
+    dstStream: OutputStream,
+  ) {
+    if (identities.isEmpty()) throw NoIdentitiesException("no identities specified")
+
+    val header = AgeHeader.parse(src)
+
+    header.recipients.forEach { stanza ->
+      if (stanza.type == ScryptRecipient.SCRYPT_STANZA_TYPE && header.recipients.size != 1)
+        throw ScryptIdentityException("an scrypt identity must be the only one")
+    }
+
+    val exceptions = mutableListOf<Exception>()
+
+    for (identity in identities) {
+      val fileKey =
+        try {
+          identity.unwrap(header.recipients)
+        } catch (err: Exception) {
+          exceptions.add(err)
+          continue
+        }
+
+      if (header.mac.size != HMAC_SIZE) throw InvalidHMACHeaderException("invalid header mac")
+
+      val calculatedMac = Primitives.headerMAC(fileKey, header)
+
+      if (!MessageDigest.isEqual(header.mac, calculatedMac))
+        throw IncorrectHMACException("bad header MAC")
+
+      val nonce = ByteArray(STREAM_NONCE_SIZE)
+      var nonceOffset = 0
+      while (nonceOffset < STREAM_NONCE_SIZE) {
+        val read = src.read(nonce, nonceOffset, STREAM_NONCE_SIZE - nonceOffset)
+        if (read == -1)
+          throw InvalidNonceException("could not read payload nonce: stream truncated")
+        nonceOffset += read
+      }
+
+      val streamKey = Primitives.streamKey(fileKey, nonce)
+
+      DecryptInputStream(streamKey, src).use { decrypted ->
+        dstStream.use { dst -> decrypted.copyTo(dst) }
+      }
+      return
     }
 
     throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
