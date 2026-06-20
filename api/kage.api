@@ -159,6 +159,13 @@ public abstract class kage/errors/InvalidIdentityException : kage/errors/CryptoE
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
+public final class kage/errors/InvalidNonceException : kage/errors/ParseException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
 public final class kage/errors/InvalidRecipientException : kage/errors/ParseException {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;)V

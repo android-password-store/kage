@@ -42,3 +42,12 @@ constructor(message: String? = null, cause: Throwable? = null) : ParseException(
 public class InvalidAgeKeyException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
+
+/**
+ * Raised when the payload nonce cannot be read after the header. age reads the nonce as the final
+ * step of header processing, so a missing or truncated nonce is treated as a header failure rather
+ * than a payload failure.
+ */
+public class InvalidNonceException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
