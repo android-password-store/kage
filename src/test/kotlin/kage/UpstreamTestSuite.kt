@@ -50,8 +50,12 @@ class UpstreamTestSuite {
             assertThat(payloadHash.bytes).isEqualTo(expectedHash.bytes)
           }
         } else {
-          error.printStackTrace()
-          val actual = mapToUpstreamExpect(error)
+          val actual =
+            try {
+              mapToUpstreamExpect(error)
+            } catch (_: IllegalArgumentException) {
+              fail { error.stackTraceToString() }
+            }
           assertThat(actual).isEqualTo(expect)
         }
       }
