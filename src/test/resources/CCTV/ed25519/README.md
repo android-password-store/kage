@@ -9,6 +9,7 @@ security properties that require rejecting some or all of these signatures.
 
 See https://hdevalence.ca/blog/2020-10-04-its-25519am for more details. This set
 of vectors is an extension of those discussed in that article.
+See also https://eprint.iacr.org/2020/823 for the extra security properties.
 
 ## Vectors format
 
@@ -53,17 +54,19 @@ what edge cases the vector exercises.
 
 ## Ecosystem behaviors
 
-RFC8032 requires rejecting `non_canonical_A` and `non_canonical_R`, allows both
-rejecting and accepting `low_order_residue` depending on what formula is used,
-and is silent on the rest.
+RFC8032 and FIPS 186-5 require rejecting `non_canonical_A` and `non_canonical_R`,
+allow both rejecting or accepting `low_order_residue` depending on what formula
+is used, and are silent on the rest.
 
 The most common verification behavior, derived from the "ref10" implementation
-and exhibited by Go and OpenSSL amongst others, is to reject `low_order_R` and
-`low_order_residue` and to accept everything else.
+and exhibited by Go, ed25519-dalek, and OpenSSL amongst others, is to reject
+`non_canonical_R` and `low_order_residue` and to accept everything else.
 
 ZIP215 rules require accepting all vectors.
 
-Recent libsodium and ed25519-dalek's `verify_strict()` reject all vectors.
+[ed25519-dalek's `verify_strict()`](https://github.com/dalek-cryptography/curve25519-dalek/blob/31ccb6705067d68782cb135e23c79b640a6a06ee/ed25519-dalek/tests/validation_criteria.rs#L21-L23)
+rejects any `low_order_A` and `low_order_R` vectors (and by extension all other
+flags except `low_order_component_A` and `low_order_component_R`).
 
 No known validators re-encode k, let us know if you find any!
 

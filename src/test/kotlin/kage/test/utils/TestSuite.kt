@@ -5,6 +5,8 @@
  */
 package kage.kage.test.utils
 
+import java.io.ByteArrayInputStream
+import java.util.zip.InflaterInputStream
 import kage.Identity
 import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.x25519.X25519Identity
@@ -25,6 +27,7 @@ private constructor(
       var payloadHash: PayloadHash? = null
       val identities = mutableListOf<Identity>()
       var armored = false
+      var compressed = false
 
       var remaining = contents
       do {
@@ -45,6 +48,10 @@ private constructor(
           "armored" -> armored = true
           "file key" -> {}
           "comment" -> {}
+          "compressed" -> {
+            require(value == "zlib") { "invalid test file: unknown compression: $value" }
+            compressed = true
+          }
           else -> error("invalid test file: unknown header key: $key")
         }
       } while (true)
@@ -54,6 +61,10 @@ private constructor(
         // This check verifies that the payload is present except when expectation is either
         // Success or PayloadFailure
         "invalid test file: no 'payload' header found"
+      }
+
+      if (compressed) {
+        remaining = InflaterInputStream(ByteArrayInputStream(remaining)).use { it.readBytes() }
       }
 
       return TestSuite(expect, payloadHash, identities, armored, remaining)

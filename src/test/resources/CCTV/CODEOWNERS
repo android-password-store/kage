@@ -1,0 +1,8 @@
+# The C2SP stewards own the repository and assign maintainers
+# of new or unmaintained vector libraries.
+*         @dconnolly @FiloSottile @str4d
+
+age/            @FiloSottile
+cocktail-dkg/   @soatok
+ed25519/        @FiloSottile
+jq255/          @pornin
