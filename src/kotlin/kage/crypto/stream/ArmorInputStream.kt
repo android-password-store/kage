@@ -37,6 +37,10 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
       return -1
     }
 
+    if (line.isEmpty()) {
+      throw ArmorCodingException("empty line in armored data")
+    }
+
     if (line.length > COLUMNS_PER_LINE) {
       throw ArmorCodingException("column limit exceeded")
     }
