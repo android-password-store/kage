@@ -10,7 +10,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.security.SecureRandom
-import java.util.Random
 import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.EncryptOutputStream.Companion.CHUNK_SIZE
@@ -104,7 +103,7 @@ class AgeTest {
 
     // Encrypt exactly 2 chunks
     val i = ByteArray(CHUNK_SIZE * 2)
-    Random().nextBytes(i)
+    SecureRandom().nextBytes(i)
 
     val bais = ByteArrayInputStream(i)
     val baos = ByteArrayOutputStream()
@@ -123,9 +122,9 @@ class AgeTest {
   fun testScryptEncryptDecryptExactBlock() {
     val (recipient, identity) = genX25519Identity()
 
-    // Encrypt exactly 1 chunks
+    // Encrypt exactly 1 chunk
     val i = ByteArray(CHUNK_SIZE)
-    Random().nextBytes(i)
+    SecureRandom().nextBytes(i)
 
     val bais = ByteArrayInputStream(i)
     val baos = ByteArrayOutputStream()
@@ -170,7 +169,7 @@ class AgeTest {
     val (otherRecipient, otherIdentity) = genX25519Identity()
 
     val payload = ByteArray(1023)
-    Random().nextBytes(payload)
+    SecureRandom().nextBytes(payload)
 
     val bais = ByteArrayInputStream(payload)
     val ageFile = Age.encrypt(listOf(otherRecipient, recipient), bais)
@@ -188,7 +187,7 @@ class AgeTest {
     val (_, otherIdentity) = genX25519Identity()
 
     val payload = ByteArray(1023)
-    Random().nextBytes(payload)
+    SecureRandom().nextBytes(payload)
 
     val bais = ByteArrayInputStream(payload)
     val ageFile = Age.encrypt(listOf(recipient), bais)
@@ -203,7 +202,7 @@ class AgeTest {
     val scryptRecipient = ScryptRecipient("mypass1".toByteArray())
 
     val payload = ByteArray(1023)
-    Random().nextBytes(payload)
+    SecureRandom().nextBytes(payload)
 
     val bais = ByteArrayInputStream(payload)
 
