@@ -61,7 +61,8 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
       throw StreamException("internal error: flush called with partial chunk")
     }
 
-    if (bufSize == 0 && !nonceIsZero(this.nonce)) throw StreamException("chunk cannot be empty")
+    if (bufSize == 0 && !nonceIsZero(this.nonce))
+      throw StreamException("only the first chunk can be empty")
 
     if (last) setLastChunkFlag(nonce)
 
