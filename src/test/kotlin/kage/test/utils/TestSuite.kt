@@ -57,8 +57,8 @@ private constructor(
       } while (true)
 
       check(expect != null) { "invalid test file: no 'expect' header found" }
-      check((expect != Expect.Success || expect != Expect.PayloadFailure) || payloadHash != null) {
-        // This check verifies that the payload is present except when expectation is either
+      check((expect != Expect.Success && expect != Expect.PayloadFailure) || payloadHash != null) {
+        // This check verifies that the payload is required except when expectation is either
         // Success or PayloadFailure
         "invalid test file: no 'payload' header found"
       }

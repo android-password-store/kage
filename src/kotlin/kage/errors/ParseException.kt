@@ -5,12 +5,18 @@
  */
 package kage.errors
 
-/** Wrapper type for errors triggered while parsing an [kage.format.AgeStanza] */
+/**
+ * Wrapper type for errors triggered while parsing age-formatted structures (for example,
+ * [kage.format.AgeHeader], [kage.format.AgeKeyFile], and [kage.format.AgeStanza]).
+ */
 public sealed class ParseException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
-/** Raised when a non-ASCII string is encountered when parsing an [kage.format.AgeHeader]. */
+/**
+ * Raised when an invalid arbitrary string is encountered when parsing an [kage.format.AgeHeader],
+ * such as one containing disallowed non-ASCII characters.
+ */
 public class InvalidArbitraryStringException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)

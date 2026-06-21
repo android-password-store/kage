@@ -24,7 +24,7 @@ import org.bouncycastle.crypto.InvalidCipherTextException
 private inline fun <reified T : Exception> hasCause(error: Throwable): Boolean {
   var cause = error.cause
   while (cause != null) {
-    if (error.cause is T) return true
+    if (cause is T) return true
     cause = cause.cause
   }
   return false
