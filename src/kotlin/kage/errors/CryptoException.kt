@@ -41,6 +41,25 @@ public class X25519IdentityException
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
+/** Raised when an error occurs when unwrapping an SSH stanza from an [kage.Identity]. */
+public class SshIdentityException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) :
+  InvalidIdentityException(message, cause)
+
+/** Raised when an SSH key cannot be parsed into a [kage.Recipient] or [kage.Identity]. */
+public class InvalidSshKeyException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
+
+/**
+ * Raised when an SSH key is well-formed but not supported, e.g. a passphrase-encrypted private key
+ * or an unsupported key type.
+ */
+public class UnsupportedSshKeyException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
+
 /**
  * Raised when an error occurs while calculating the X25519 shared secret. If the X25519 share is a
  * low order point, the shared secret is the disallowed all-zero value.

@@ -42,6 +42,26 @@ public final class kage/crypto/scrypt/ScryptRecipient : kage/Recipient, kage/Rec
 public final class kage/crypto/scrypt/ScryptRecipient$Companion {
 }
 
+public final class kage/crypto/ssh/SshEd25519Identity : kage/Identity {
+	public final fun recipient ()Lkage/crypto/ssh/SshEd25519Recipient;
+	public fun unwrap (Ljava/util/List;)[B
+}
+
+public final class kage/crypto/ssh/SshEd25519Recipient : kage/Recipient {
+	public static final field Companion Lkage/crypto/ssh/SshEd25519Recipient$Companion;
+	public fun wrap ([B)Ljava/util/List;
+}
+
+public final class kage/crypto/ssh/SshEd25519Recipient$Companion {
+	public final fun parse (Ljava/lang/String;)Lkage/crypto/ssh/SshEd25519Recipient;
+}
+
+public final class kage/crypto/ssh/SshKey {
+	public static final field INSTANCE Lkage/crypto/ssh/SshKey;
+	public final fun parseIdentity (Ljava/lang/String;)Lkage/Identity;
+	public final fun parseRecipient (Ljava/lang/String;)Lkage/Recipient;
+}
+
 public final class kage/crypto/x25519/X25519 {
 	public static final field INSTANCE Lkage/crypto/x25519/X25519;
 	public final fun scalarMult ([B[B)[B
@@ -178,6 +198,13 @@ public final class kage/errors/InvalidScryptRecipientException : kage/errors/Cry
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
+public final class kage/errors/InvalidSshKeyException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
 public final class kage/errors/InvalidVersionException : kage/errors/ParseException {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;)V
@@ -211,7 +238,21 @@ public final class kage/errors/ScryptIdentityException : kage/errors/InvalidIden
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
+public final class kage/errors/SshIdentityException : kage/errors/InvalidIdentityException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
 public final class kage/errors/StreamException : kage/errors/CryptoException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kage/errors/UnsupportedSshKeyException : kage/errors/CryptoException {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
