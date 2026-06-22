@@ -18,8 +18,10 @@ import org.bouncycastle.crypto.generators.SCrypt
 
 public class ScryptIdentity
 @JvmOverloads
-constructor(private val password: ByteArray, private val maxWorkFactor: Int = DEFAULT_WORK_FACTOR) :
-  Identity {
+constructor(
+  private val password: ByteArray,
+  private val maxWorkFactor: Int = DEFAULT_MAX_WORK_FACTOR,
+) : Identity {
 
   init {
     require(maxWorkFactor in 2..30) { "workFactor must be > 1 and <= 30" }
@@ -65,6 +67,8 @@ constructor(private val password: ByteArray, private val maxWorkFactor: Int = DE
   }
 
   private companion object {
-    const val DEFAULT_WORK_FACTOR = 22
+    // Ceiling on the work factor accepted when decrypting, bounding the scrypt cost a hostile file
+    // can force. Distinct from the encrypt-side ScryptRecipient.DEFAULT_WORK_FACTOR.
+    const val DEFAULT_MAX_WORK_FACTOR = 22
   }
 }

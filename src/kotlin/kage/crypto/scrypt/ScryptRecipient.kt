@@ -19,6 +19,12 @@ public class ScryptRecipient
 constructor(private val password: ByteArray, private val workFactor: Int = DEFAULT_WORK_FACTOR) :
   Recipient, RecipientWithLabels {
 
+  init {
+    // wrap() computes `1 shl workFactor`, whose shift is masked to 5 bits, so >= 31 silently wraps
+    // to a weak N. Bound it to the range ScryptIdentity accepts on decrypt.
+    require(workFactor in 1..30) { "workFactor must be in 1..30, was $workFactor" }
+  }
+
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val salt = ByteArray(SCRYPT_SALT_SIZE)
     SecureRandom().nextBytes(salt)
@@ -45,10 +51,16 @@ constructor(private val password: ByteArray, private val workFactor: Int = DEFAU
     return Pair(stanzas, listOf(label.encodeBase64()))
   }
 
-  internal companion object {
-    const val SCRYPT_SALT_SIZE = 16
-    const val SCRYPT_STANZA_TYPE = "scrypt"
-    const val SCRYPT_SALT_LABEL = "age-encryption.org/v1/scrypt"
-    const val DEFAULT_WORK_FACTOR = 18
+  public companion object {
+    /**
+     * The default scrypt work factor: the base-2 logarithm of the CPU/memory cost parameter N, used
+     * when a work factor is not supplied to the constructor. Exposed so callers can reference the
+     * value kage applies by default, e.g. to surface it in a UI or to derive a relative one.
+     */
+    public const val DEFAULT_WORK_FACTOR: Int = 18
+
+    internal const val SCRYPT_SALT_SIZE = 16
+    internal const val SCRYPT_STANZA_TYPE = "scrypt"
+    internal const val SCRYPT_SALT_LABEL = "age-encryption.org/v1/scrypt"
   }
 }

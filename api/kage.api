@@ -30,11 +30,16 @@ public final class kage/crypto/scrypt/ScryptIdentity : kage/Identity {
 }
 
 public final class kage/crypto/scrypt/ScryptRecipient : kage/Recipient, kage/RecipientWithLabels {
+	public static final field Companion Lkage/crypto/scrypt/ScryptRecipient$Companion;
+	public static final field DEFAULT_WORK_FACTOR I
 	public fun <init> ([B)V
 	public fun <init> ([BI)V
 	public synthetic fun <init> ([BIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun wrap ([B)Ljava/util/List;
 	public fun wrapWithLabels ([B)Lkotlin/Pair;
+}
+
+public final class kage/crypto/scrypt/ScryptRecipient$Companion {
 }
 
 public final class kage/crypto/x25519/X25519 {
