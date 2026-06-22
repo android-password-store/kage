@@ -36,6 +36,9 @@ class SshEd25519Test {
     """
       .trimIndent()
 
+  private val alternatePublicKey =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINkhx96uLzMoBqVWIrLvxT7dZX12UXlFtm3Q/MXnAMPJ test2"
+
   @Test
   fun testWrapUnwrap() {
     val recipient = SshEd25519Recipient.parse(publicKey)
@@ -99,6 +102,37 @@ class SshEd25519Test {
     val decrypted = Age.decrypt(identity, ageFile).readBytes()
 
     assertThat(String(decrypted)).isEqualTo("kage ssh-ed25519 interop vector")
+  }
+
+  @Test
+  fun testParseRecipientAcceptsAuthorizedKeysOptions() {
+    val keyWithOptions = "restrict,command=\"/bin/false\" $publicKey"
+
+    val recipient = SshKey.parseRecipient(keyWithOptions)
+
+    assertThat(recipient).isInstanceOf(SshEd25519Recipient::class.java)
+  }
+
+  @Test
+  fun testParseIdentityRejectsMismatchedEd25519PublicKey() {
+    val tamperedPrivateKey = tamperEd25519PrivateKeyPublicParts(privateKey, alternatePublicKey)
+
+    assertThrows<InvalidSshKeyException> { SshKey.parseIdentity(tamperedPrivateKey) }
+  }
+
+  @Test
+  fun testParseIdentityWrapsTruncatedOpenSshWireErrors() {
+    val truncatedPrivateKey =
+      encodeOpenSshPem("openssh-key-v1\u0000".toByteArray(Charsets.US_ASCII))
+
+    assertThrows<InvalidSshKeyException> { SshKey.parseIdentity(truncatedPrivateKey) }
+  }
+
+  @Test
+  fun testParseRejectsInvalidEd25519PublicKeyPoint() {
+    val invalidPublicKey = buildEd25519AuthorizedKey(ByteArray(32))
+
+    assertThrows<InvalidSshKeyException> { SshEd25519Recipient.parse(invalidPublicKey) }
   }
 
   @Test

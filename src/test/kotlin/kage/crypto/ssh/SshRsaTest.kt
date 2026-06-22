@@ -60,6 +60,9 @@ class SshRsaTest {
     """
       .trimIndent()
 
+  private val alternatePublicKey =
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCol7YjhrNPP1EFFeV7JfbjwIQBUM+Ky9L+N2qyZLWR1bj7RIk7T4VFnox7tPsKEFS3b3YhsbNWpeiesMczivgzxiYMIsbgYY3LR0Q8+QXvihKSLdnfPxx6EKcL2go5eGtHaJO0IjXILQIsP0ER1OeTIN6aOXvgnq2Pe96D8AGTJltuyvK4TD/CC1WE5F+88Gvy7gH/7vd6QGcQqevXy36dRkyNdHUgcnufOhwQmetDq4gsW4GxNPufzbm1PMVkmA7d87Zwig1JQAV/bcQnHIHNo7QgRds7tjOSIQ7vzl+pTbf677FWlQSR9QziKBuk1TQcTluwOXoYOnOZ9vmy2XTZ test2"
+
   @Test
   fun testWrapUnwrap() {
     val recipient = SshRsaRecipient.parse(publicKey)
@@ -129,6 +132,13 @@ class SshRsaTest {
     val decrypted = Age.decrypt(identity, ageFile).readBytes()
 
     assertThat(String(decrypted)).isEqualTo("kage ssh-rsa interop vector")
+  }
+
+  @Test
+  fun testParseIdentityRejectsMismatchedRsaPublicKey() {
+    val tamperedPrivateKey = tamperRsaPrivateKeyOuterPublicKey(privateKey, alternatePublicKey)
+
+    assertThrows<InvalidSshKeyException> { SshKey.parseIdentity(tamperedPrivateKey) }
   }
 
   @Test
