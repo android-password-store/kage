@@ -9,8 +9,22 @@ import com.google.common.truth.Truth.assertThat
 import java.security.SecureRandom
 import kage.Age
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class ScryptRecipientTest {
+  @Test
+  fun testRejectsOutOfRangeWorkFactor() {
+    // Below the lower bound, plus values where `1 shl workFactor` overflows or wraps (31, 33).
+    for (bad in listOf(Int.MIN_VALUE, -1, 0, 31, 32, 33, Int.MAX_VALUE)) {
+      assertThrows<IllegalArgumentException>("workFactor=$bad should be rejected") {
+        ScryptRecipient("mypass".toByteArray(), workFactor = bad)
+      }
+    }
+    // The valid bounds construct without throwing.
+    ScryptRecipient("mypass".toByteArray(), workFactor = 1)
+    ScryptRecipient("mypass".toByteArray(), workFactor = 30)
+  }
+
   @Test
   fun testWrapUnwrap() {
     val recipient = ScryptRecipient("mypass".toByteArray(), workFactor = 1)

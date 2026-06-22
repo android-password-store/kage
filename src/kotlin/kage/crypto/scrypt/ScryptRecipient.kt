@@ -19,6 +19,12 @@ public class ScryptRecipient
 constructor(private val password: ByteArray, private val workFactor: Int = DEFAULT_WORK_FACTOR) :
   Recipient, RecipientWithLabels {
 
+  init {
+    // wrap() computes `1 shl workFactor`, whose shift is masked to 5 bits, so >= 31 silently wraps
+    // to a weak N. Bound it to the range ScryptIdentity accepts on decrypt.
+    require(workFactor in 1..30) { "workFactor must be in 1..30, was $workFactor" }
+  }
+
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val salt = ByteArray(SCRYPT_SALT_SIZE)
     SecureRandom().nextBytes(salt)
