@@ -5,11 +5,14 @@
  */
 package kage.crypto.ssh
 
+import java.math.BigInteger
 import java.util.Base64
 import kage.Identity
 import kage.Recipient
 import kage.errors.InvalidSshKeyException
 import kage.errors.UnsupportedSshKeyException
+import org.bouncycastle.crypto.params.RSAKeyParameters
+import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters
 
 /**
  * Parses SSH keys into kage [Recipient]s and [Identity]s.
@@ -30,7 +33,7 @@ public object SshKey {
     val (type, _) = parseAuthorizedKey(authorizedKey)
     return when (type) {
       SSH_ED25519 -> SshEd25519Recipient.parse(authorizedKey)
-      SSH_RSA -> throw UnsupportedSshKeyException("ssh-rsa recipients are not yet supported")
+      SSH_RSA -> SshRsaRecipient.parse(authorizedKey)
       else -> throw UnsupportedSshKeyException("unsupported SSH key type: $type")
     }
   }
@@ -76,7 +79,20 @@ public object SshKey {
         val seed = privateKeyBytes.copyOfRange(0, 32)
         SshEd25519Identity(publicKeyBlob, seed, publicKey)
       }
-      SSH_RSA -> throw UnsupportedSshKeyException("ssh-rsa identities are not yet supported")
+      SSH_RSA -> {
+        // OpenSSH serializes the RSA private key as mpints in the order n, e, d, iqmp, p, q.
+        val n = priv.readMpint()
+        val e = priv.readMpint()
+        val d = priv.readMpint()
+        val iqmp = priv.readMpint()
+        val p = priv.readMpint()
+        val q = priv.readMpint()
+        if (n.bitLength() < SshRsaRecipient.MIN_RSA_BITS)
+          throw UnsupportedSshKeyException("RSA keys shorter than 2048 bits are not supported")
+        val dp = d.mod(p.subtract(BigInteger.ONE))
+        val dq = d.mod(q.subtract(BigInteger.ONE))
+        SshRsaIdentity(publicKeyBlob, RSAPrivateCrtKeyParameters(n, e, d, p, q, dp, dq, iqmp))
+      }
       else -> throw UnsupportedSshKeyException("unsupported SSH key type: $keyType")
     }
   }
@@ -112,6 +128,17 @@ public object SshKey {
     val publicKey = reader.readString()
     if (publicKey.size != 32) throw InvalidSshKeyException("bad ed25519 public key length")
     return publicKey
+  }
+
+  /** Builds an RSA public key from its SSH wire blob (`string "ssh-rsa", mpint e, mpint n`). */
+  internal fun rsaPublicKeyFromBlob(blob: ByteArray): RSAKeyParameters {
+    val reader = SshWireReader(blob)
+    reader.readString() // type
+    val e = reader.readMpint()
+    val n = reader.readMpint()
+    if (n.bitLength() < SshRsaRecipient.MIN_RSA_BITS)
+      throw UnsupportedSshKeyException("RSA keys shorter than 2048 bits are not supported")
+    return RSAKeyParameters(false, n, e)
   }
 
   private fun decodeOpenSshPem(pem: String): ByteArray {
