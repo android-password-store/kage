@@ -8,6 +8,7 @@ package kage.crypto.ssh
 import java.math.BigInteger
 import java.security.MessageDigest
 import kage.errors.InvalidSshKeyException
+import org.bouncycastle.math.ec.rfc8032.Ed25519
 
 /**
  * Birational maps between the Ed25519 (Edwards) and Curve25519 (Montgomery) forms, matching how age
@@ -25,6 +26,10 @@ internal object Ed25519Conversions {
    */
   fun publicKeyToCurve25519(ed25519PublicKey: ByteArray): ByteArray {
     require(ed25519PublicKey.size == 32) { "ed25519 public key must be 32 bytes" }
+    // Reject off-curve, non-canonical, and low-order keys (e.g. all-zero); they have no usable
+    // Montgomery form and would yield a degenerate X25519 secret.
+    if (!Ed25519.validatePublicKeyFull(ed25519PublicKey, 0))
+      throw InvalidSshKeyException("invalid ssh-ed25519 public key")
     val le = ed25519PublicKey.copyOf()
     le[31] = (le[31].toInt() and 0x7f).toByte() // drop the encoded x sign bit, leaving y
     val y = leToBigInteger(le)

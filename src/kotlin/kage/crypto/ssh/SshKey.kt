@@ -41,14 +41,23 @@ public object SshKey {
   /** Parses an unencrypted OpenSSH private key (PEM) into an [Identity]. */
   public fun parseIdentity(privateKey: String): Identity {
     val blob = decodeOpenSshPem(privateKey)
+    // Normalize low-level wire errors (e.g. truncation) to InvalidSshKeyException, but let the
+    // exceptions we raise on purpose pass through unchanged.
+    return try {
+      readIdentity(blob)
+    } catch (e: InvalidSshKeyException) {
+      throw e
+    } catch (e: UnsupportedSshKeyException) {
+      throw e
+    } catch (e: Exception) {
+      throw InvalidSshKeyException("malformed OpenSSH private key", e)
+    }
+  }
+
+  private fun readIdentity(blob: ByteArray): Identity {
     val reader = SshWireReader(blob)
 
-    val magic =
-      try {
-        reader.readRaw(AUTH_MAGIC.size)
-      } catch (e: Exception) {
-        throw InvalidSshKeyException("not an OpenSSH private key", e)
-      }
+    val magic = reader.readRaw(AUTH_MAGIC.size)
     if (!magic.contentEquals(AUTH_MAGIC))
       throw InvalidSshKeyException("not an OpenSSH private key (bad magic)")
 
@@ -76,6 +85,12 @@ public object SshKey {
         val privateKeyBytes = priv.readString()
         if (privateKeyBytes.size != 64)
           throw InvalidSshKeyException("bad ed25519 private key length")
+        // The private value is seed || public key; its embedded copy and the top-level blob must
+        // both match the in-section public key, else identity and secret material disagree.
+        if (!publicKey.contentEquals(privateKeyBytes.copyOfRange(32, 64)))
+          throw InvalidSshKeyException("ed25519 public key does not match private key")
+        if (!ed25519PublicKeyFromBlob(publicKeyBlob).contentEquals(publicKey))
+          throw InvalidSshKeyException("ed25519 public key does not match private key")
         val seed = privateKeyBytes.copyOfRange(0, 32)
         SshEd25519Identity(publicKeyBlob, seed, publicKey)
       }
@@ -89,6 +104,11 @@ public object SshKey {
         val q = priv.readMpint()
         if (n.bitLength() < SshRsaRecipient.MIN_RSA_BITS)
           throw UnsupportedSshKeyException("RSA keys shorter than 2048 bits are not supported")
+        // The top-level public blob must match the private parameters, else our published
+        // fingerprint wouldn't belong to the key we decrypt with.
+        val outer = rsaPublicKeyFromBlob(publicKeyBlob)
+        if (outer.modulus != n || outer.exponent != e)
+          throw InvalidSshKeyException("rsa public key does not match private key")
         val dp = d.mod(p.subtract(BigInteger.ONE))
         val dq = d.mod(q.subtract(BigInteger.ONE))
         SshRsaIdentity(publicKeyBlob, RSAPrivateCrtKeyParameters(n, e, d, p, q, dp, dq, iqmp))
@@ -97,27 +117,40 @@ public object SshKey {
     }
   }
 
-  /** Reads `<type> <base64-blob> [comment]`, validates the inner type, returns (type, key blob). */
+  /**
+   * Reads an `authorized_keys` line (`[options] <type> <base64-blob> [comment]`), returning (type,
+   * key blob). The optional options field means the type isn't always first, so scan for the field
+   * whose following blob's inner type string matches it.
+   */
   internal fun parseAuthorizedKey(line: String): Pair<String, ByteArray> {
     val fields = line.trim().split(Regex("\\s+"))
-    if (fields.size < 2) throw InvalidSshKeyException("not an SSH public key line")
-    val type = fields[0]
+    for (i in fields.indices) {
+      val parsed = tryParseKeyTypeAt(fields, i)
+      if (parsed != null) return parsed
+    }
+    throw InvalidSshKeyException("not an SSH public key line")
+  }
 
+  /**
+   * Returns (type, blob) if [fields] at [index] names an SSH key type immediately followed by a
+   * base64 blob whose inner type string matches it, otherwise null.
+   */
+  private fun tryParseKeyTypeAt(fields: List<String>, index: Int): Pair<String, ByteArray>? {
+    if (index + 1 >= fields.size) return null
+    val type = fields[index]
     val blob =
       try {
-        Base64.getDecoder().decode(fields[1])
+        Base64.getDecoder().decode(fields[index + 1])
       } catch (e: IllegalArgumentException) {
-        throw InvalidSshKeyException("invalid base64 in SSH public key", e)
+        return null
       }
-
     val inner =
       try {
         String(SshWireReader(blob).readString(), Charsets.US_ASCII)
       } catch (e: Exception) {
-        throw InvalidSshKeyException("malformed SSH public key", e)
+        return null
       }
-    if (inner != type) throw InvalidSshKeyException("SSH key type mismatch ($type vs $inner)")
-
+    if (inner != type) return null
     return type to blob
   }
 
