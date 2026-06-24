@@ -167,10 +167,11 @@ public class AgeStanza(
               "Line is null, did you forget an extra newline after a full length body chunk?"
             )
 
-        val bytes =
-          runCatching { line.decodeBase64() }
-            .mapError { e -> InvalidRecipientException("error occurred while decoding", e) }
-            .getOrThrow()
+        val bytes = runCatching {
+          line.decodeBase64()
+        }
+          .mapError { e -> InvalidRecipientException("error occurred while decoding", e) }
+          .getOrThrow()
         if (bytes.size > BYTES_PER_LINE)
           throw InvalidRecipientException("Body line is too long: $line")
 
