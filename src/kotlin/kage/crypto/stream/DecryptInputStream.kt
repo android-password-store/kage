@@ -68,10 +68,10 @@ internal class DecryptInputStream(private val key: ByteArray, private val input:
 
     var last = false
 
-    val read = input.read(buf, 0, buf.size)
+    val read = readFull(buf)
     bufSize = read
 
-    if (read == -1) throw StreamException("Unexpected EOF. File ended without a marked chunk")
+    if (read == 0) throw StreamException("Unexpected EOF. File ended without a marked chunk")
 
     if (read != buf.size) { // Incomplete chunk
       if (
@@ -106,5 +106,26 @@ internal class DecryptInputStream(private val key: ByteArray, private val input:
     incNonce(this.nonce)
 
     return last
+  }
+
+  /**
+   * Fill [dst] completely, looping until it is full or the stream is genuinely exhausted, and
+   * return the number of bytes read (0 only at immediate EOF).
+   *
+   * [InputStream.read] may return fewer bytes than requested even when the stream is not at EOF —
+   * this is common for file, SAF (`content://`) and buffered streams. The chunk reader treats a
+   * short read as the final chunk, so without reading fully a mid-stream short read is mistaken for
+   * the last chunk and ChaCha20-Poly1305 authentication fails ("error occurred while decrypting
+   * stream") on any payload larger than a single chunk. A ByteArrayInputStream always fills the
+   * buffer, which is why in-memory round-trips did not surface this.
+   */
+  private fun readFull(dst: ByteArray): Int {
+    var offset = 0
+    while (offset < dst.size) {
+      val n = input.read(dst, offset, dst.size - offset)
+      if (n == -1) break // genuine EOF
+      offset += n
+    }
+    return offset
   }
 }
