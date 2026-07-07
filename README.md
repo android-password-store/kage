@@ -53,6 +53,10 @@ These can evolve over time, but for now the following are non-goals for our work
 - Offer a user interface of any kind (CLI/GUI): The kage project intends to only be a library for other applications to build on
 - Support plugins: The upstream implementation of plugins relies on binaries in `$PATH`, which is [impractical for mobile](https://github.com/FiloSottile/age/discussions/365#discussioncomment-1711442).
 
+## Used by
+
+- [Mage](https://github.com/ElCruncharino/mage) — an Android GUI for age file encryption.
+
 ## License
 
 Licensed under either of
