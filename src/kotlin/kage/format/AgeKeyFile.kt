@@ -12,6 +12,13 @@ import kage.crypto.x25519.X25519Recipient
 import kage.errors.InvalidAgeKeyException
 import kage.utils.writeNewLine
 
+/**
+ * The contents of an age X25519 identity file.
+ *
+ * @property created Value from the file's `created` comment.
+ * @property publicKey Public key from the file, if present.
+ * @property privateKey Private X25519 identity from the file.
+ */
 public class AgeKeyFile(
   public val created: String,
   public val publicKey: X25519Recipient?,

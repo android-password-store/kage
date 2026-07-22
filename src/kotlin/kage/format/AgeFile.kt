@@ -8,6 +8,12 @@ package kage.format
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
+/**
+ * An in-memory age-encrypted file.
+ *
+ * @property header The file header containing recipient stanzas and its MAC.
+ * @property body The encrypted payload, including its nonce.
+ */
 public class AgeFile(public val header: AgeHeader, public val body: ByteArray) {
 
   override fun equals(other: Any?): Boolean {
