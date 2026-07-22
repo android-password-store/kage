@@ -17,6 +17,11 @@ import kage.format.AgeStanza
  * [Age docs](https://github.com/FiloSottile/age/blob/ab3707c085f2c1/age.go#L59-L72)
  */
 public interface Identity {
+  /**
+   * Unwraps the file key from a stanza in [stanzas].
+   *
+   * @throws kage.errors.IncorrectIdentityException if none of the stanzas match this identity.
+   */
   public fun unwrap(stanzas: List<AgeStanza>): ByteArray
 }
 

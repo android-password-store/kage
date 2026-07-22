@@ -56,7 +56,8 @@ public object Age {
   /**
    * Encrypts all data from [inputStream] for [recipients] and writes it to [outputStream].
    *
-   * This method closes both streams. Set [generateArmor] to emit ASCII-armored ciphertext.
+   * After encryption setup succeeds, this method closes both streams. Set [generateArmor] to emit
+   * ASCII-armored ciphertext.
    */
   @JvmStatic
   public fun encryptStream(
@@ -73,7 +74,8 @@ public object Age {
   /**
    * Encrypts [plainText] for [recipients] and returns the resulting in-memory age file.
    *
-   * This method closes [plainText]. Prefer [encryptStream] for large plaintexts.
+   * After encryption setup succeeds, this method closes [plainText]. Prefer [encryptStream] for
+   * large plaintexts.
    */
   @JvmStatic
   public fun encrypt(recipients: List<Recipient>, plainText: InputStream): AgeFile {
