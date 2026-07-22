@@ -17,6 +17,11 @@ import kage.format.AgeStanza
 import kage.format.Bech32
 import kage.utils.encodeBase64
 
+/**
+ * An age recipient backed by an X25519 public key.
+ *
+ * @param publicKey Raw public X25519 key.
+ */
 public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
 
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
@@ -41,6 +46,7 @@ public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
     return listOf(stanza)
   }
 
+  /** Encodes this recipient as an `age1...` Bech32 public key. */
   public fun encodeToString(): String = Bech32.encode(AGE_PUBLIC_KEY_PREFIX, publicKey).getOrThrow()
 
   public companion object {
@@ -50,6 +56,7 @@ public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
     internal const val MAC_KEY_LENGTH = 32 // bytes
     internal const val EPHEMERAL_SECRET_LEN = 32 // bytes
 
+    /** Decodes an `age1...` Bech32 public key into an X25519 recipient. */
     public fun decode(string: String): X25519Recipient {
       val (hrp, key) =
         Bech32.decode(string)

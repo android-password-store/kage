@@ -8,8 +8,14 @@ package kage.crypto.x25519
 import kage.errors.X25519LowOrderPointException
 import org.bouncycastle.math.ec.rfc7748.X25519
 
+/** X25519 scalar-multiplication primitives used by the age X25519 recipient implementation. */
 public object X25519 {
 
+  /**
+   * Multiplies the X25519 scalar [input] by the point [r].
+   *
+   * @throws X25519LowOrderPointException if [r] is a low-order point.
+   */
   public fun scalarMult(input: ByteArray, r: ByteArray): ByteArray {
     val out = ByteArray(input.size)
 
@@ -20,6 +26,7 @@ public object X25519 {
     return out
   }
 
+  /** Multiplies the X25519 scalar [input] by the standard base point. */
   public fun scalarMultBase(input: ByteArray): ByteArray {
     val out = ByteArray(input.size)
 
