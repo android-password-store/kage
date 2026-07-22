@@ -19,5 +19,11 @@ import kage.format.AgeStanza
  * alone (by returning a random label, for example to preserve its authentication properties).
  */
 public interface RecipientWithLabels {
+  /**
+   * Wraps [fileKey] and returns its stanzas with labels describing recipient compatibility.
+   *
+   * The first element contains the recipient stanzas; the second contains labels that must match
+   * those returned by every other recipient in an encryption operation.
+   */
   public fun wrapWithLabels(fileKey: ByteArray): Pair<List<AgeStanza>, List<String>>
 }

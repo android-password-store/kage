@@ -10,7 +10,7 @@ public sealed class CryptoException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
-/** Raised when no [kage.Recipient] is available in the ciphertext. */
+/** Raised when encryption is requested without any [kage.Recipient]s. */
 public class NoRecipientsException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
@@ -75,6 +75,7 @@ public class NoIdentitiesException
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
+/** Raised when ciphertext does not have the size required by its cryptographic operation. */
 public class IncorrectCipherTextSizeException(cause: Throwable? = null) :
   CryptoException("Incorrect cipher text size", cause)
 

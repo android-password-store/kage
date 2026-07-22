@@ -14,16 +14,14 @@ import org.junit.jupiter.api.Test
 
 class AgeFileTest {
 
+  val testFile =
+    Base64.decode(
+      "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCArNlZtcm5hOWRXdjZTNEFBOFJ2MEZRIDE4CjJISTM0aTYxRHNkVHNMdVVvdXoyWk1jVTM1WUk0R2F1TlJEMDBnL0M2Nk0KLS0tIC9GSXA0eElxS1BqUG80aEJkK2lPNDRibyt1R093Q2IvWVZrTTRxcFJhZk0KUuBcu00b/uzC+wlTRwEHxBI4tR1LlkR5YQ7rvOZXJepwOZ7j9pJNIW3jgbIotYnurGE/6A=="
+    )
+
   @Test
   fun testParseAgeGoFile() {
-    val testFile =
-      Base64.decode(
-        "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCArNlZtcm5hOWRXdjZTNEFBOFJ2MEZRIDE4CjJISTM0aTYxRHNkVHNMdVVvdXoyWk1jVTM1WUk0R2F1TlJEMDBnL0M2Nk0KLS0tIC9GSXA0eElxS1BqUG80aEJkK2lPNDRibyt1R093Q2IvWVZrTTRxcFJhZk0KUuBcu00b/uzC+wlTRwEHxBI4tR1LlkR5YQ7rvOZXJepwOZ7j9pJNIW3jgbIotYnurGE/6A=="
-      )
-
-    val inputStream = ByteArrayInputStream(testFile)
-
-    val ageFile = AgeFile.parse(inputStream)
+    val ageFile = AgeFile.parse(ByteArrayInputStream(testFile))
 
     val recipient = ageFile.header.recipients.first()
 
@@ -32,5 +30,16 @@ class AgeFileTest {
     assertThat(ageFile.body)
       .asList()
       .containsExactlyElementsIn(testFile.takeLast(ageFile.body.size))
+  }
+
+  // Mostly exists to appease the coverage gods but it's still a
+  // good enough property to keep intact
+  @Test
+  fun testEquals() {
+    val age1 = AgeFile.parse(ByteArrayInputStream(testFile))
+    val age2 = AgeFile.parse(ByteArrayInputStream(testFile))
+
+    assertThat(age1).isEqualTo(age2)
+    assertThat(age1.hashCode()).isEqualTo(age2.hashCode())
   }
 }

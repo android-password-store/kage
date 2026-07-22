@@ -23,6 +23,12 @@ import kage.multiUnwrap
 import kage.utils.decodeBase64
 import org.bouncycastle.math.ec.rfc7748.X25519.POINT_SIZE
 
+/**
+ * An age identity backed by an X25519 key pair.
+ *
+ * @param secretKey Raw private X25519 key.
+ * @param publicKey Raw public X25519 key corresponding to [secretKey].
+ */
 public class X25519Identity(private val secretKey: ByteArray, private val publicKey: ByteArray) :
   Identity {
 
@@ -60,13 +66,16 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
     return multiUnwrap(::unwrapSingle, stanzas)
   }
 
+  /** Returns the public recipient corresponding to this identity. */
   public fun recipient(): X25519Recipient = X25519Recipient(publicKey)
 
+  /** Encodes this identity as an `AGE-SECRET-KEY-` Bech32 string. */
   public fun encodeToString(): String =
     Bech32.encode(AgeKeyFile.AGE_SECRET_KEY_PREFIX, secretKey).getOrThrow()
 
   public companion object {
 
+    /** Decodes an `AGE-SECRET-KEY-` Bech32 string into an X25519 identity. */
     public fun decode(string: String): X25519Identity {
       val (hrp, key) =
         Bech32.decode(string)

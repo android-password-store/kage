@@ -28,11 +28,18 @@ import kage.format.AgeFile
 import kage.format.AgeHeader
 import kage.format.AgeStanza
 
+/** Encrypts and decrypts data using the age file format. */
 public object Age {
   internal const val FILE_KEY_SIZE: Int = 16
   private const val STREAM_NONCE_SIZE = 16
   private const val HMAC_SIZE = 32
 
+  /**
+   * Starts encrypting data for [recipients] to [outputStream].
+   *
+   * Write plaintext to the returned stream, then close it to finish the encrypted payload and close
+   * [outputStream]. Set [generateArmor] to emit ASCII-armored ciphertext.
+   */
   @JvmStatic
   public fun encryptStream(
     recipients: List<Recipient>,
@@ -46,6 +53,12 @@ public object Age {
     return stream
   }
 
+  /**
+   * Encrypts all data from [inputStream] for [recipients] and writes it to [outputStream].
+   *
+   * After encryption setup succeeds, this method closes both streams. Set [generateArmor] to emit
+   * ASCII-armored ciphertext.
+   */
   @JvmStatic
   public fun encryptStream(
     recipients: List<Recipient>,
@@ -58,6 +71,12 @@ public object Age {
     }
   }
 
+  /**
+   * Encrypts [plainText] for [recipients] and returns the resulting in-memory age file.
+   *
+   * After encryption setup succeeds, this method closes [plainText]. Prefer [encryptStream] for
+   * large plaintexts.
+   */
   @JvmStatic
   public fun encrypt(recipients: List<Recipient>, plainText: InputStream): AgeFile {
     val out = ByteArrayOutputStream()
@@ -69,6 +88,12 @@ public object Age {
     return AgeFile(header, out.toByteArray())
   }
 
+  /**
+   * Decrypts an age stream using one of [identities] and writes the plaintext to [dstStream].
+   *
+   * Both binary and ASCII-armored ciphertext are accepted. This method closes [dstStream] after
+   * writing the plaintext.
+   */
   @JvmStatic
   public fun decryptStream(
     identities: List<Identity>,
@@ -101,10 +126,17 @@ public object Age {
     decryptStreamInternal(identities, decodedStream.buffered(), dstStream)
   }
 
+  /**
+   * Returns a stream that decrypts [ageFile] with one of [identities].
+   *
+   * Close the returned stream when finished. Prefer [decryptStream] when the ciphertext is already
+   * available as a stream.
+   */
   @JvmStatic
   public fun decrypt(identities: List<Identity>, ageFile: AgeFile): InputStream =
     decryptInternal(identities, ageFile)
 
+  /** Returns a stream that decrypts [ageFile] with [identity]. */
   @JvmStatic
   public fun decrypt(identity: Identity, ageFile: AgeFile): InputStream =
     decryptInternal(listOf(identity), ageFile)

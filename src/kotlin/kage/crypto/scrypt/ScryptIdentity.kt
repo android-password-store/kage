@@ -16,6 +16,12 @@ import kage.multiUnwrap
 import kage.utils.decodeBase64
 import org.bouncycastle.crypto.generators.SCrypt
 
+/**
+ * An age identity that decrypts files encrypted with the supplied password.
+ *
+ * @param password Password bytes used to derive the wrapping key.
+ * @param maxWorkFactor Largest scrypt work factor accepted while decrypting, to bound resource use.
+ */
 public class ScryptIdentity
 @JvmOverloads
 constructor(
