@@ -39,6 +39,8 @@ dependencies {
 }
 ```
 
+Documentation for the latest stable release can be found on [GitHub Pages](https://android-password-store.github.io/kage/).
+
 ## Goals
 
 - Provide a library that can generate and parse age keys, as well as encrypt or decrypt bytes using said keys.
