@@ -48,6 +48,7 @@ internal constructor(
 
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray = multiUnwrap(::unwrapSingle, stanzas)
 
+  /** Returns the SSH RSA recipient corresponding to this identity. */
   public fun recipient(): SshRsaRecipient {
     val publicKey = RSAKeyParameters(false, privateKey.modulus, privateKey.publicExponent)
     return SshRsaRecipient(sshKeyBlob, publicKey)

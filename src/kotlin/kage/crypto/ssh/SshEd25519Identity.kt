@@ -70,6 +70,7 @@ internal constructor(
 
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray = multiUnwrap(::unwrapSingle, stanzas)
 
+  /** Returns the SSH Ed25519 recipient corresponding to this identity. */
   public fun recipient(): SshEd25519Recipient = SshEd25519Recipient(sshKeyBlob, ed25519PublicKey)
 
   private companion object {

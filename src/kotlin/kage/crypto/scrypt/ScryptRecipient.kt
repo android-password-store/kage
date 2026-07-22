@@ -14,6 +14,12 @@ import kage.format.AgeStanza
 import kage.utils.encodeBase64
 import org.bouncycastle.crypto.generators.SCrypt
 
+/**
+ * An age recipient that encrypts files with the supplied password.
+ *
+ * @param password Password bytes used to derive the wrapping key.
+ * @param workFactor Base-2 logarithm of scrypt's CPU and memory cost parameter N.
+ */
 public class ScryptRecipient
 @JvmOverloads
 constructor(private val password: ByteArray, private val workFactor: Int = DEFAULT_WORK_FACTOR) :
