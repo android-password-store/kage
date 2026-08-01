@@ -26,6 +26,14 @@ public class MlKem768X25519KeyFile(
   public val publicKey: MlKem768X25519Recipient?,
   public val privateKey: MlKem768X25519Identity,
 ) {
+  init {
+    if (
+      publicKey != null && publicKey.encodeToString() != privateKey.recipient().encodeToString()
+    ) {
+      throw InvalidAgeKeyException("Public key does not match private key")
+    }
+  }
+
   override fun equals(other: Any?): Boolean {
     if (other == null) return false
     if (other !is MlKem768X25519KeyFile) return false
@@ -69,12 +77,6 @@ public class MlKem768X25519KeyFile(
 
       val publicKey =
         if (publicKeyStr.isEmpty()) null else MlKem768X25519Recipient.decode(publicKeyStr)
-
-      if (
-        publicKey != null && publicKey.encodeToString() != privateKey.recipient().encodeToString()
-      ) {
-        throw InvalidAgeKeyException("Public key does not match private key")
-      }
 
       return MlKem768X25519KeyFile(created, publicKey, privateKey)
     }

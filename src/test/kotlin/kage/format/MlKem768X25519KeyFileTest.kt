@@ -158,6 +158,17 @@ class MlKem768X25519KeyFileTest {
   }
 
   @Test
+  fun testRejectsMismatchedKeysDuringConstruction() {
+    assertThrows<InvalidAgeKeyException> {
+      MlKem768X25519KeyFile(
+        "",
+        MlKem768X25519Identity.new().recipient(),
+        MlKem768X25519Identity.decode(secretKey),
+      )
+    }
+  }
+
+  @Test
   fun testPrivateOnlyKeyFilesWithSameIdentityAreEqual() {
     val identity = MlKem768X25519Identity.decode(secretKey)
     val first = MlKem768X25519KeyFile("", null, identity)
