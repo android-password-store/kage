@@ -41,6 +41,14 @@ public class X25519IdentityException
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
+/**
+ * Raised when an error occurs when unwrapping an MLKEM768-X25519 stanza from an [kage.Identity].
+ */
+public class MlKem768X25519IdentityException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) :
+  InvalidIdentityException(message, cause)
+
 /** Raised when an error occurs when unwrapping an SSH stanza from an [kage.Identity]. */
 public class SshIdentityException
 @JvmOverloads
