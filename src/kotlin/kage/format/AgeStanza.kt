@@ -20,6 +20,7 @@ import kage.format.ParseUtils.isValidArbitraryString
 import kage.format.ParseUtils.splitArgs
 import kage.utils.decodeBase64
 import kage.utils.encodeBase64
+import kage.utils.readFully
 import kage.utils.readLine
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
@@ -149,8 +150,8 @@ public class AgeStanza(
         // Add a mark to be able to reset the reader after reading the first 3 characters of the
         // line
         reader.mark(3)
-        reader.read(charArray)
-        val incompleteString = charArray.decodeToString()
+        val peeked = reader.readFully(charArray)
+        val incompleteString = charArray.decodeToString(0, peeked)
 
         // Reset the reader back to the start of the line
         reader.reset()

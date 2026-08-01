@@ -7,6 +7,7 @@ package kage.utils
 
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.io.Writer
 import java.util.Base64
 import kage.errors.InvalidBase64StringException
@@ -38,6 +39,20 @@ internal fun Writer.writeNewLine() {
 
 internal fun Writer.writeSpace() {
   write(" ")
+}
+
+/**
+ * Reads into [dst] until it is full or the stream is exhausted, returning the number of bytes read
+ * (0 only at immediate EOF). A single [InputStream.read] may return fewer bytes than requested.
+ */
+internal fun InputStream.readFully(dst: ByteArray): Int {
+  var offset = 0
+  while (offset < dst.size) {
+    val n = this.read(dst, offset, dst.size - offset)
+    if (n == -1) break
+    offset += n
+  }
+  return offset
 }
 
 internal fun BufferedInputStream.readLine(): String? {

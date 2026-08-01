@@ -18,6 +18,7 @@ import kage.format.AgeFile.Companion.VERSION_LINE
 import kage.format.ParseUtils.splitArgs
 import kage.utils.decodeBase64
 import kage.utils.encodeBase64
+import kage.utils.readFully
 import kage.utils.readLine
 import kage.utils.writeNewLine
 import kage.utils.writeSpace
@@ -97,10 +98,11 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
         // Add a mark to be able to reset the reader after reading the first 3 characters of the
         // line
         reader.mark(3)
-        if (reader.read(buf) == -1)
+        val peeked = reader.readFully(buf)
+        if (peeked == 0)
           throw InvalidRecipientException("End of stream reached while reading recipients")
 
-        val prefix = buf.decodeToString()
+        val prefix = buf.decodeToString(0, peeked)
         reader.reset()
 
         if (prefix.startsWith(RECIPIENT_PREFIX)) {
