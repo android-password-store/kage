@@ -365,3 +365,12 @@ public final class kage/format/AgeStanza {
 	public static final fun writeBody$kage (Ljava/io/BufferedWriter;[B)V
 }
 
+public final class kage/format/MlKem768X25519KeyFile {
+	public fun <init> (Ljava/lang/String;Lkage/crypto/mlkem/MlKem768X25519Recipient;Lkage/crypto/mlkem/MlKem768X25519Identity;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCreated ()Ljava/lang/String;
+	public final fun getPrivateKey ()Lkage/crypto/mlkem/MlKem768X25519Identity;
+	public final fun getPublicKey ()Lkage/crypto/mlkem/MlKem768X25519Recipient;
+	public fun hashCode ()I
+}
+
