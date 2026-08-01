@@ -9,6 +9,7 @@ import java.security.SecureRandom
 import kage.crypto.x25519.X25519
 import kage.errors.InvalidRecipientException
 import kage.errors.MlKem768X25519IdentityException
+import kage.errors.X25519LowOrderPointException
 import org.bouncycastle.crypto.digests.SHA3Digest
 import org.bouncycastle.crypto.digests.SHAKEDigest
 import org.bouncycastle.crypto.kems.MLKEMExtractor
@@ -70,6 +71,27 @@ internal object MlKem768X25519 {
 
   fun publicKey(privateKey: PrivateKey): ByteArray =
     privateKey.mlKem.publicKey.plus(privateKey.x25519PublicKey)
+
+  /** Rejects malformed ML-KEM and low-order X25519 public key components. */
+  fun validatePublicKey(publicKey: ByteArray) {
+    if (publicKey.size != PUBLIC_KEY_SIZE)
+      throw InvalidRecipientException("Invalid key size for age public key (${publicKey.size})")
+
+    try {
+      MLKEMPublicKeyParameters(
+        MLKEMParameters.ml_kem_768,
+        publicKey.copyOfRange(0, ENCAPSULATION_KEY_SIZE),
+      )
+      X25519.scalarMult(
+        ByteArray(POINT_SIZE),
+        publicKey.copyOfRange(ENCAPSULATION_KEY_SIZE, publicKey.size),
+      )
+    } catch (err: IllegalArgumentException) {
+      throw InvalidRecipientException("Invalid ML-KEM public key", err)
+    } catch (err: X25519LowOrderPointException) {
+      throw InvalidRecipientException("Invalid X25519 public key", err)
+    }
+  }
 
   /** Returns the shared secret and the encapsulated key for [publicKey]. */
   fun encapsulate(publicKey: ByteArray): Pair<ByteArray, ByteArray> {

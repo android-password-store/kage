@@ -20,8 +20,9 @@ import kage.utils.encodeBase64
  * @param publicKey Raw public key, an ML-KEM-768 encapsulation key followed by an X25519 public
  *   key.
  */
-public class MlKem768X25519Recipient(private val publicKey: ByteArray) :
-  Recipient, RecipientWithLabels {
+public class MlKem768X25519Recipient(publicKey: ByteArray) : Recipient, RecipientWithLabels {
+
+  private val publicKey = publicKey.copyOf().also(MlKem768X25519::validatePublicKey)
 
   override fun wrap(fileKey: ByteArray): List<AgeStanza> = wrapWithLabels(fileKey).first
 

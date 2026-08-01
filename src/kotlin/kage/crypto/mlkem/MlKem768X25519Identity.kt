@@ -26,9 +26,10 @@ import kage.utils.decodeBase64
  *
  * @param secretKey Raw 32 byte seed the key pair is derived from.
  */
-public class MlKem768X25519Identity(private val secretKey: ByteArray) : Identity {
+public class MlKem768X25519Identity(secretKey: ByteArray) : Identity {
 
-  private val privateKey = MlKem768X25519.newPrivateKey(secretKey)
+  private val secretKey = secretKey.copyOf()
+  private val privateKey = MlKem768X25519.newPrivateKey(this.secretKey)
 
   private fun unwrapSingle(stanza: AgeStanza): ByteArray {
     if (stanza.type != MLKEM768X25519_STANZA_TYPE) throw IncorrectIdentityException()

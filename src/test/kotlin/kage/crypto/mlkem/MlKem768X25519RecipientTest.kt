@@ -5,6 +5,7 @@
  */
 package kage.kage.crypto.mlkem
 
+import com.github.michaelbull.result.getOrThrow
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.util.Random
@@ -18,6 +19,7 @@ import kage.errors.InvalidRecipientException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.MlKem768X25519IdentityException
 import kage.format.AgeStanza
+import kage.format.Bech32
 import kage.utils.decodeBase64
 import kage.utils.encodeBase64
 import org.junit.jupiter.api.Test
@@ -153,6 +155,47 @@ class MlKem768X25519RecipientTest {
     assertThrows<IncorrectCipherTextSizeException> {
       testIdentity.unwrap(listOf(AgeStanza(stanza.type, stanza.args, stanza.body.plus(0))))
     }
+  }
+
+  @Test
+  fun testIdentityCopiesSeedBeforeDerivingKeyPair() {
+    val seed = ByteArray(32) { it.toByte() }
+    val identity = MlKem768X25519Identity(seed)
+    val expectedRecipient = identity.recipient().encodeToString()
+
+    seed.fill(0)
+
+    assertThat(
+        MlKem768X25519Identity.decode(identity.encodeToString()).recipient().encodeToString()
+      )
+      .isEqualTo(expectedRecipient)
+  }
+
+  @Test
+  fun testRecipientCopiesPublicKey() {
+    val publicKey = Bech32.decode(testIdentity.recipient().encodeToString()).getOrThrow().second
+    val recipient = MlKem768X25519Recipient(publicKey)
+    val expectedEncoding = recipient.encodeToString()
+
+    publicKey.fill(0)
+
+    assertThat(recipient.encodeToString()).isEqualTo(expectedEncoding)
+  }
+
+  @Test
+  fun testDecodeRejectsMalformedMlKemPublicKey() {
+    val malformedKey = Bech32.encode("age1pq", ByteArray(1216) { 0xff.toByte() }).getOrThrow()
+
+    assertThrows<InvalidRecipientException> { MlKem768X25519Recipient.decode(malformedKey) }
+  }
+
+  @Test
+  fun testDecodeRejectsLowOrderX25519PublicKey() {
+    val publicKey = Bech32.decode(testIdentity.recipient().encodeToString()).getOrThrow().second
+    publicKey.fill(0, publicKey.size - 32, publicKey.size)
+    val malformedKey = Bech32.encode("age1pq", publicKey).getOrThrow()
+
+    assertThrows<InvalidRecipientException> { MlKem768X25519Recipient.decode(malformedKey) }
   }
 
   @Test
