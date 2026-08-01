@@ -143,6 +143,31 @@ class MlKem768X25519KeyFileTest {
   }
 
   @Test
+  fun testRejectsPublicKeyThatDoesNotMatchPrivateKey() {
+    val otherPublicKey = MlKem768X25519Identity.new().recipient().encodeToString()
+    val keyString =
+      """
+      # public key: $otherPublicKey
+      $secretKey
+      """
+        .trimIndent()
+
+    assertThrows<InvalidAgeKeyException> {
+      MlKem768X25519KeyFile.parse(keyString.reader().buffered())
+    }
+  }
+
+  @Test
+  fun testPrivateOnlyKeyFilesWithSameIdentityAreEqual() {
+    val identity = MlKem768X25519Identity.decode(secretKey)
+    val first = MlKem768X25519KeyFile("", null, identity)
+    val second = MlKem768X25519KeyFile("", null, identity)
+
+    assertThat(first).isEqualTo(second)
+    assertThat(first.hashCode()).isEqualTo(second.hashCode())
+  }
+
+  @Test
   fun testWrite() {
     val keyString =
       """

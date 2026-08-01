@@ -33,14 +33,14 @@ public class MlKem768X25519KeyFile(
     if (this === other) return true
 
     if (!privateKey.equals(other.privateKey)) return false
-    if (publicKey?.equals(other.publicKey) != true) return false
+    if (publicKey != other.publicKey) return false
 
     return true
   }
 
   override fun hashCode(): Int {
     var result = privateKey.hashCode()
-    result = 31 * result + publicKey.hashCode()
+    result = 31 * result + (publicKey?.hashCode() ?: 0)
     return result
   }
 
@@ -69,6 +69,12 @@ public class MlKem768X25519KeyFile(
 
       val publicKey =
         if (publicKeyStr.isEmpty()) null else MlKem768X25519Recipient.decode(publicKeyStr)
+
+      if (
+        publicKey != null && publicKey.encodeToString() != privateKey.recipient().encodeToString()
+      ) {
+        throw InvalidAgeKeyException("Public key does not match private key")
+      }
 
       return MlKem768X25519KeyFile(created, publicKey, privateKey)
     }
