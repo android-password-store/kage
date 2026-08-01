@@ -27,6 +27,7 @@ import kage.errors.ScryptIdentityException
 import kage.format.AgeFile
 import kage.format.AgeHeader
 import kage.format.AgeStanza
+import kage.utils.readFully
 
 /** Encrypts and decrypts data using the age file format. */
 public object Age {
@@ -260,8 +261,8 @@ public object Age {
     markSupportedStream.mark(readLimit)
 
     val initialBytes = ByteArray(readLimit)
-    val bytesRead = markSupportedStream.read(initialBytes, 0, readLimit)
-    if (bytesRead == -1) {
+    val bytesRead = markSupportedStream.readFully(initialBytes)
+    if (bytesRead == 0) {
       throw InvalidHMACHeaderException("stream was too short")
     }
     val initialString = String(initialBytes, 0, bytesRead)
