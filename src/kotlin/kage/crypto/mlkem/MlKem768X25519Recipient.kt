@@ -25,10 +25,6 @@ public class MlKem768X25519Recipient(private val publicKey: ByteArray) :
 
   override fun wrap(fileKey: ByteArray): List<AgeStanza> = wrapWithLabels(fileKey).first
 
-  /**
-   * Wraps [fileKey] and returns the `postquantum` label, which stops this recipient from being
-   * mixed with recipients that would defeat its post-quantum security.
-   */
   override fun wrapWithLabels(fileKey: ByteArray): Pair<List<AgeStanza>, List<String>> {
     val (sharedSecret, enc) = MlKem768X25519.encapsulate(publicKey)
 
