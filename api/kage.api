@@ -2,16 +2,23 @@ public final class kage/Age {
 	public static final field INSTANCE Lkage/Age;
 	public static final fun decrypt (Ljava/util/List;Lkage/format/AgeFile;)Ljava/io/InputStream;
 	public static final fun decrypt (Lkage/Identity;Lkage/format/AgeFile;)Ljava/io/InputStream;
+	public static final fun decryptHeader ([BLjava/util/List;)[B
 	public static final fun decryptStream (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;)V
 	public static final fun encrypt (Ljava/util/List;Ljava/io/InputStream;)Lkage/format/AgeFile;
 	public static final fun encryptStream (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;Z)V
 	public static final fun encryptStream (Ljava/util/List;Ljava/io/OutputStream;Z)Ljava/io/OutputStream;
 	public static synthetic fun encryptStream$default (Ljava/util/List;Ljava/io/InputStream;Ljava/io/OutputStream;ZILjava/lang/Object;)V
 	public static synthetic fun encryptStream$default (Ljava/util/List;Ljava/io/OutputStream;ZILjava/lang/Object;)Ljava/io/OutputStream;
+	public static final fun extractHeader (Ljava/io/InputStream;)[B
 }
 
 public abstract interface class kage/Identity {
 	public abstract fun unwrap (Ljava/util/List;)[B
+}
+
+public final class kage/InjectedFileKeyIdentity : kage/Identity {
+	public fun <init> ([B)V
+	public fun unwrap (Ljava/util/List;)[B
 }
 
 public abstract interface class kage/Recipient {

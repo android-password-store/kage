@@ -100,30 +100,8 @@ public object Age {
     srcStream: InputStream,
     dstStream: OutputStream,
   ) {
-
-    val markSupportedStream =
-      if (srcStream.markSupported()) srcStream else BufferedInputStream(srcStream)
-
-    // Check if the InputStream contains whitespace + header
-    val readLimit = ArmorInputStream.MAX_WHITESPACE + ArmorInputStream.HEADER.length
-    markSupportedStream.mark(readLimit)
-
-    val initialBytes = ByteArray(readLimit)
-    val bytesRead = markSupportedStream.read(initialBytes, 0, readLimit)
-    if (bytesRead == -1) {
-      throw InvalidHMACHeaderException("stream was too short")
-    }
-    val initialString = String(initialBytes, 0, bytesRead)
-
-    markSupportedStream.reset()
-
-    val decodedStream =
-      if (initialString.contains(ArmorInputStream.HEADER_START)) {
-        ArmorInputStream(markSupportedStream)
-      } else markSupportedStream
-
     // Parse only the header, then stream the payload — avoids buffering the whole body in memory.
-    decryptStreamInternal(identities, decodedStream.buffered(), dstStream)
+    decryptStreamInternal(identities, decodeArmor(srcStream).buffered(), dstStream)
   }
 
   /**
@@ -140,6 +118,39 @@ public object Age {
   @JvmStatic
   public fun decrypt(identity: Identity, ageFile: AgeFile): InputStream =
     decryptInternal(listOf(identity), ageFile)
+
+  /**
+   * Returns the detached header of the age file in [srcStream], leaving its payload untouched.
+   *
+   * Both binary and ASCII-armored ciphertext are accepted, and the header is always returned in its
+   * binary form. The detached header can be decrypted with [decryptHeader], for example on a
+   * different system, without sharing the payload.
+   *
+   * This is a low-level method that most users won't need.
+   */
+  @JvmStatic
+  public fun extractHeader(srcStream: InputStream): ByteArray {
+    val header = AgeHeader.parse(decodeArmor(srcStream).buffered())
+
+    val out = ByteArrayOutputStream()
+    out.bufferedWriter().use { writer -> header.write(writer) }
+
+    return out.toByteArray()
+  }
+
+  /**
+   * Decrypts a detached [header] produced by [extractHeader] with one of [identities] and returns
+   * the file key it wraps.
+   *
+   * The file key can be handed to [InjectedFileKeyIdentity] to decrypt the corresponding payload.
+   * It is the caller's responsibility to keep track of which file the returned key decrypts, and to
+   * ensure it is not used for any other purpose.
+   *
+   * This is a low-level method that most users won't need.
+   */
+  @JvmStatic
+  public fun decryptHeader(header: ByteArray, identities: List<Identity>): ByteArray =
+    resolveFileKey(identities, AgeHeader.parse(ByteArrayInputStream(header).buffered()))
 
   private fun encryptInternal(
     recipients: List<Recipient>,
@@ -204,57 +215,10 @@ public object Age {
     return fileKey
   }
 
-  private fun decryptInternal(identities: List<Identity>, ageFile: AgeFile): InputStream {
+  // Unwraps the file key from [header] with the first matching identity and authenticates the
+  // header against it. Shared by every decryption entry point so they cannot drift apart.
+  private fun resolveFileKey(identities: List<Identity>, header: AgeHeader): ByteArray {
     if (identities.isEmpty()) throw NoIdentitiesException("no identities specified")
-
-    val exceptions = mutableListOf<Exception>()
-
-    ageFile.header.recipients.forEach { stanza ->
-      if (stanza.type == ScryptRecipient.SCRYPT_STANZA_TYPE && ageFile.header.recipients.size != 1)
-        throw ScryptIdentityException("an scrypt identity must be the only one")
-    }
-
-    for (identity in identities) {
-      val fileKey =
-        try {
-          identity.unwrap(ageFile.header.recipients)
-        } catch (err: Exception) {
-          exceptions.add(err)
-          continue
-        }
-
-      if (ageFile.header.mac.size != HMAC_SIZE)
-        throw InvalidHMACHeaderException("invalid header mac")
-
-      val calculatedMac = Primitives.headerMAC(fileKey, ageFile.header)
-
-      if (!MessageDigest.isEqual(ageFile.header.mac, calculatedMac))
-        throw IncorrectHMACException("bad header MAC")
-
-      val nonce = ByteArray(STREAM_NONCE_SIZE)
-      ageFile.body.copyInto(nonce, 0, 0, STREAM_NONCE_SIZE)
-
-      val streamKey = Primitives.streamKey(fileKey, nonce)
-
-      val bis = ByteArrayInputStream(ageFile.body)
-      bis.skip(STREAM_NONCE_SIZE.toLong())
-
-      return DecryptInputStream(streamKey, bis)
-    }
-
-    throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
-  }
-
-  // Streaming counterpart of decryptInternal: parses the header off [src], then decrypts the
-  // remaining live stream chunk-by-chunk into [dstStream] without holding the body in memory.
-  private fun decryptStreamInternal(
-    identities: List<Identity>,
-    src: BufferedInputStream,
-    dstStream: OutputStream,
-  ) {
-    if (identities.isEmpty()) throw NoIdentitiesException("no identities specified")
-
-    val header = AgeHeader.parse(src)
 
     header.recipients.forEach { stanza ->
       if (stanza.type == ScryptRecipient.SCRYPT_STANZA_TYPE && header.recipients.size != 1)
@@ -279,23 +243,73 @@ public object Age {
       if (!MessageDigest.isEqual(header.mac, calculatedMac))
         throw IncorrectHMACException("bad header MAC")
 
-      val nonce = ByteArray(STREAM_NONCE_SIZE)
-      var nonceOffset = 0
-      while (nonceOffset < STREAM_NONCE_SIZE) {
-        val read = src.read(nonce, nonceOffset, STREAM_NONCE_SIZE - nonceOffset)
-        if (read == -1)
-          throw InvalidNonceException("could not read payload nonce: stream truncated")
-        nonceOffset += read
-      }
-
-      val streamKey = Primitives.streamKey(fileKey, nonce)
-
-      DecryptInputStream(streamKey, src).use { decrypted ->
-        dstStream.use { dst -> decrypted.copyTo(dst) }
-      }
-      return
+      return fileKey
     }
 
     throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
+  }
+
+  // Wraps [srcStream] in an ArmorInputStream when it starts with an armor header, so that callers
+  // always read binary age data.
+  private fun decodeArmor(srcStream: InputStream): InputStream {
+    val markSupportedStream =
+      if (srcStream.markSupported()) srcStream else BufferedInputStream(srcStream)
+
+    // Check if the InputStream contains whitespace + header
+    val readLimit = ArmorInputStream.MAX_WHITESPACE + ArmorInputStream.HEADER.length
+    markSupportedStream.mark(readLimit)
+
+    val initialBytes = ByteArray(readLimit)
+    val bytesRead = markSupportedStream.read(initialBytes, 0, readLimit)
+    if (bytesRead == -1) {
+      throw InvalidHMACHeaderException("stream was too short")
+    }
+    val initialString = String(initialBytes, 0, bytesRead)
+
+    markSupportedStream.reset()
+
+    return if (initialString.contains(ArmorInputStream.HEADER_START)) {
+      ArmorInputStream(markSupportedStream)
+    } else markSupportedStream
+  }
+
+  private fun decryptInternal(identities: List<Identity>, ageFile: AgeFile): InputStream {
+    val fileKey = resolveFileKey(identities, ageFile.header)
+
+    val nonce = ByteArray(STREAM_NONCE_SIZE)
+    ageFile.body.copyInto(nonce, 0, 0, STREAM_NONCE_SIZE)
+
+    val streamKey = Primitives.streamKey(fileKey, nonce)
+
+    val bis = ByteArrayInputStream(ageFile.body)
+    bis.skip(STREAM_NONCE_SIZE.toLong())
+
+    return DecryptInputStream(streamKey, bis)
+  }
+
+  // Streaming counterpart of decryptInternal: parses the header off [src], then decrypts the
+  // remaining live stream chunk-by-chunk into [dstStream] without holding the body in memory.
+  private fun decryptStreamInternal(
+    identities: List<Identity>,
+    src: BufferedInputStream,
+    dstStream: OutputStream,
+  ) {
+    val header = AgeHeader.parse(src)
+
+    val fileKey = resolveFileKey(identities, header)
+
+    val nonce = ByteArray(STREAM_NONCE_SIZE)
+    var nonceOffset = 0
+    while (nonceOffset < STREAM_NONCE_SIZE) {
+      val read = src.read(nonce, nonceOffset, STREAM_NONCE_SIZE - nonceOffset)
+      if (read == -1) throw InvalidNonceException("could not read payload nonce: stream truncated")
+      nonceOffset += read
+    }
+
+    val streamKey = Primitives.streamKey(fileKey, nonce)
+
+    DecryptInputStream(streamKey, src).use { decrypted ->
+      dstStream.use { dst -> decrypted.copyTo(dst) }
+    }
   }
 }
