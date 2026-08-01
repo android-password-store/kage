@@ -11,8 +11,8 @@ import java.io.ByteArrayOutputStream
 import kage.crypto.stream.ArmorOutputStream
 import kage.crypto.x25519.X25519Identity
 import kage.errors.IncorrectHMACException
+import kage.errors.IncorrectIdentityException
 import kage.errors.NoIdentitiesException
-import kage.errors.X25519IdentityException
 import kage.format.AgeHeader
 import kage.format.AgeStanza
 import org.junit.jupiter.api.Test
@@ -79,8 +79,8 @@ class DetachedHeaderTest {
 
     val header = Age.extractHeader(ByteArrayInputStream(ciphertext))
 
-    assertThrows<X25519IdentityException> { Age.decryptHeader(header, listOf(otherIdentity)) }
-    assertThrows<X25519IdentityException> {
+    assertThrows<IncorrectIdentityException> { Age.decryptHeader(header, listOf(otherIdentity)) }
+    assertThrows<IncorrectIdentityException> {
       Age.decryptStream(
         listOf(otherIdentity),
         ByteArrayInputStream(ciphertext),
