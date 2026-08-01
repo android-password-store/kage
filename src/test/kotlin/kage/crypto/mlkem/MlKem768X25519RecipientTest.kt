@@ -18,6 +18,8 @@ import kage.errors.IncorrectIdentityException
 import kage.errors.InvalidRecipientException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.MlKem768X25519IdentityException
+import kage.format.AgeFile
+import kage.format.AgeHeader
 import kage.format.AgeStanza
 import kage.format.Bech32
 import kage.utils.decodeBase64
@@ -126,6 +128,20 @@ class MlKem768X25519RecipientTest {
 
     assertThrows<MlKem768X25519IdentityException> {
       testIdentity.unwrap(listOf(malformedStanza, validStanza))
+    }
+  }
+
+  @Test
+  fun testRejectsMalformedMatchingStanzaBeforeAnotherIdentityCanDecrypt() {
+    val x25519Identity = X25519Identity.new()
+    val ageFile = Age.encrypt(listOf(x25519Identity.recipient()), "plaintext".byteInputStream())
+    val fileKey = x25519Identity.unwrap(ageFile.header.recipients)
+    val malformedStanza = AgeStanza("mlkem768x25519", emptyList(), ByteArray(0))
+    val header = AgeHeader.withMac(listOf(malformedStanza).plus(ageFile.header.recipients), fileKey)
+    val malformedAgeFile = AgeFile(header, ageFile.body)
+
+    assertThrows<MlKem768X25519IdentityException> {
+      Age.decrypt(listOf(testIdentity, x25519Identity), malformedAgeFile)
     }
   }
 

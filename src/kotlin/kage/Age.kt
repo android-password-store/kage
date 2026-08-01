@@ -18,6 +18,7 @@ import kage.crypto.stream.ArmorOutputStream
 import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
 import kage.errors.IncorrectHMACException
+import kage.errors.IncorrectIdentityException
 import kage.errors.InvalidHMACHeaderException
 import kage.errors.InvalidNonceException
 import kage.errors.InvalidScryptRecipientException
@@ -232,7 +233,7 @@ public object Age {
       val fileKey =
         try {
           identity.unwrap(header.recipients)
-        } catch (err: Exception) {
+        } catch (err: IncorrectIdentityException) {
           exceptions.add(err)
           continue
         }
