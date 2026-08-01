@@ -229,26 +229,29 @@ public object Age {
 
     val exceptions = mutableListOf<Exception>()
 
+    var fileKey: ByteArray? = null
+
     for (identity in identities) {
-      val fileKey =
-        try {
-          identity.unwrap(header.recipients)
-        } catch (err: IncorrectIdentityException) {
-          exceptions.add(err)
-          continue
-        }
-
-      if (header.mac.size != HMAC_SIZE) throw InvalidHMACHeaderException("invalid header mac")
-
-      val calculatedMac = Primitives.headerMAC(fileKey, header)
-
-      if (!MessageDigest.isEqual(header.mac, calculatedMac))
-        throw IncorrectHMACException("bad header MAC")
-
-      return fileKey
+      try {
+        val unwrappedFileKey = identity.unwrap(header.recipients)
+        if (fileKey == null) fileKey = unwrappedFileKey
+      } catch (err: IncorrectIdentityException) {
+        exceptions.add(err)
+      }
     }
 
-    throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
+    val resolvedFileKey =
+      fileKey
+        ?: throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
+
+    if (header.mac.size != HMAC_SIZE) throw InvalidHMACHeaderException("invalid header mac")
+
+    val calculatedMac = Primitives.headerMAC(resolvedFileKey, header)
+
+    if (!MessageDigest.isEqual(header.mac, calculatedMac))
+      throw IncorrectHMACException("bad header MAC")
+
+    return resolvedFileKey
   }
 
   // Wraps [srcStream] in an ArmorInputStream when it starts with an armor header, so that callers
