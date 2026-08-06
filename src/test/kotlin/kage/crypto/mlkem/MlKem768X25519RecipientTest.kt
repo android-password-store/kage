@@ -120,6 +120,16 @@ class MlKem768X25519RecipientTest {
   }
 
   @Test
+  fun testRejectsMalformedMatchingStanzaBeforeValidStanza() {
+    val validStanza = wrapFileKey()
+    val malformedStanza = AgeStanza(validStanza.type, emptyList(), validStanza.body)
+
+    assertThrows<MlKem768X25519IdentityException> {
+      testIdentity.unwrap(listOf(malformedStanza, validStanza))
+    }
+  }
+
+  @Test
   fun testRejectsExtraArgument() {
     val stanza = wrapFileKey()
 

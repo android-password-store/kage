@@ -5,6 +5,7 @@
  */
 package kage
 
+import kage.errors.IncorrectIdentityException
 import kage.format.AgeStanza
 
 /**
@@ -31,7 +32,7 @@ internal fun multiUnwrap(unwrapFn: (AgeStanza) -> ByteArray, stanzas: List<AgeSt
   stanzas.forEach { stanza ->
     try {
       return unwrapFn(stanza)
-    } catch (err: Exception) {
+    } catch (err: IncorrectIdentityException) {
       // will try next stanza
       exceptions.add(err)
     }
