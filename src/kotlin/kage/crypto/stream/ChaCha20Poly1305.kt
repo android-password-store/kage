@@ -7,9 +7,13 @@ package kage.crypto.stream
 
 import kage.errors.IncorrectCipherTextSizeException
 import kotlin.math.max
+import org.bouncycastle.crypto.InvalidCipherTextException
 import org.bouncycastle.crypto.modes.ChaCha20Poly1305
 import org.bouncycastle.crypto.params.AEADParameters
 import org.bouncycastle.crypto.params.KeyParameter
+
+/** The authentication tag of an otherwise structurally valid AEAD ciphertext did not verify. */
+internal class AeadAuthenticationException(cause: Throwable) : Exception(cause)
 
 internal object ChaCha20Poly1305 {
   const val MAC_SIZE: Int = 16 // bytes
@@ -95,7 +99,11 @@ internal object ChaCha20Poly1305 {
 
     if (input.size != expectedPlaintextSize + MAC_SIZE) throw IncorrectCipherTextSizeException()
 
-    decrypt(key, nonce, input, 0, input.size, out, 0)
+    try {
+      decrypt(key, nonce, input, 0, input.size, out, 0)
+    } catch (err: InvalidCipherTextException) {
+      throw AeadAuthenticationException(err)
+    }
 
     return out
   }
