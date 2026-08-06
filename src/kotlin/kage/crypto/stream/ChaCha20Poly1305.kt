@@ -93,11 +93,10 @@ internal object ChaCha20Poly1305 {
    * which has limited impact.
    */
   fun aeadDecrypt(key: ByteArray, input: ByteArray, expectedPlaintextSize: Int): ByteArray {
-    val out = ByteArray(max(0, input.size - MAC_SIZE))
-
-    val nonce = ByteArray(NONCE_LENGTH)
-
     if (input.size != expectedPlaintextSize + MAC_SIZE) throw IncorrectCipherTextSizeException()
+
+    val out = ByteArray(max(0, input.size - MAC_SIZE))
+    val nonce = ByteArray(NONCE_LENGTH)
 
     try {
       decrypt(key, nonce, input, 0, input.size, out, 0)
