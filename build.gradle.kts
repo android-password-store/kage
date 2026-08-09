@@ -3,7 +3,6 @@
  * either an Apache 2.0 or MIT license at your discretion, that can be found in the LICENSE-APACHE
  * or LICENSE-MIT files respectively.
  */
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
 import com.vanniktech.maven.publish.SourcesJar
@@ -19,8 +18,6 @@ plugins {
   alias(libs.plugins.mavenPublish)
   alias(libs.plugins.pitest)
   alias(libs.plugins.spotless)
-  alias(libs.plugins.versions)
-  alias(libs.plugins.vcu)
 }
 
 group = requireNotNull(project.findProperty("GROUP"))
@@ -68,18 +65,6 @@ tasks.withType<KotlinCompile>().configureEach {
     moduleName = "kage"
     jvmTarget = JvmTarget.JVM_17
   }
-}
-
-tasks.withType<DependencyUpdatesTask>().configureEach {
-  fun isNonStable(version: String): Boolean {
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
-    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-    val isStable = stableKeyword || regex.matches(version)
-    return isStable.not()
-  }
-  rejectVersionIf { isNonStable(candidate.version) && !isNonStable(currentVersion) }
-  checkForGradleUpdate = false
-  checkBuildEnvironmentConstraints = true
 }
 
 spotless {
