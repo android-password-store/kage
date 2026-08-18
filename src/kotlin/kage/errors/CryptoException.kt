@@ -48,7 +48,7 @@ constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
 /** Raised when an SSH key cannot be parsed into a [kage.Recipient] or [kage.Identity]. */
-public class InvalidSshKeyException
+public open class InvalidSshKeyException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
@@ -59,6 +59,14 @@ constructor(message: String? = null, cause: Throwable? = null) : CryptoException
 public class UnsupportedSshKeyException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
+
+/**
+ * Raised when a passphrase-encrypted OpenSSH private key fails its post-decrypt integrity check.
+ */
+public class IncorrectPassphraseException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) :
+  InvalidSshKeyException(message, cause)
 
 /**
  * Raised when an error occurs while calculating the X25519 shared secret. If the X25519 share is a
