@@ -10,12 +10,15 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.io.SequenceInputStream
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.Collections
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.ArmorInputStream
 import kage.crypto.stream.ArmorOutputStream
 import kage.crypto.stream.DecryptInputStream
+import kage.crypto.stream.EncryptInputStream
 import kage.crypto.stream.EncryptOutputStream
 import kage.crypto.stream.RandomAccessSource
 import kage.crypto.stream.SeekableDecrypt
@@ -89,6 +92,34 @@ public object Age {
     stream.use { output -> plainText.use { input -> input.copyTo(output) } }
 
     return AgeFile(header, out.toByteArray())
+  }
+
+  /**
+   * Returns a stream that encrypts [plainText] for [recipients] as it's read.
+   *
+   * Nothing is encrypted until the returned stream is read. Prefer [encryptStream] when writing to
+   * an [OutputStream] directly.
+   */
+  @JvmStatic
+  public fun encryptReader(recipients: List<Recipient>, plainText: InputStream): InputStream {
+    val (ageHeader, fileKey) = buildHeader(recipients)
+
+    val headerBytes = ByteArrayOutputStream()
+    headerBytes.bufferedWriter().use { writer -> ageHeader.write(writer) }
+
+    val nonce = ByteArray(STREAM_NONCE_SIZE)
+    SecureRandom().nextBytes(nonce)
+    val streamKey = Primitives.streamKey(fileKey, nonce)
+
+    return SequenceInputStream(
+      Collections.enumeration(
+        listOf(
+          ByteArrayInputStream(headerBytes.toByteArray()),
+          ByteArrayInputStream(nonce),
+          EncryptInputStream(streamKey, plainText),
+        )
+      )
+    )
   }
 
   /**
@@ -199,6 +230,26 @@ public object Age {
     dst: OutputStream,
     writeHeaders: Boolean = true,
   ): Pair<AgeHeader, OutputStream> {
+    val (ageHeader, fileKey) = buildHeader(recipients)
+
+    val nonce = ByteArray(STREAM_NONCE_SIZE)
+    SecureRandom().nextBytes(nonce)
+
+    if (writeHeaders) {
+      val writer = dst.bufferedWriter()
+      ageHeader.write(writer)
+      // Need to flush the wrapping stream before writing again to the underlying stream
+      writer.flush()
+    }
+
+    dst.write(nonce)
+
+    val streamKey = Primitives.streamKey(fileKey, nonce)
+
+    return Pair(ageHeader, EncryptOutputStream(streamKey, dst))
+  }
+
+  private fun buildHeader(recipients: List<Recipient>): Pair<AgeHeader, ByteArray> {
     if (recipients.isEmpty()) {
       throw NoRecipientsException("No recipients specified")
     }
@@ -221,24 +272,7 @@ public object Age {
       }
     }
 
-    // TODO: Check if we need a deep copy of stanzas here
-    val ageHeader = AgeHeader.withMac(stanzas, fileKey)
-
-    val nonce = ByteArray(STREAM_NONCE_SIZE)
-    SecureRandom().nextBytes(nonce)
-
-    if (writeHeaders) {
-      val writer = dst.bufferedWriter()
-      ageHeader.write(writer)
-      // Need to flush the wrapping stream before writing again to the underlying stream
-      writer.flush()
-    }
-
-    dst.write(nonce)
-
-    val streamKey = Primitives.streamKey(fileKey, nonce)
-
-    return Pair(ageHeader, EncryptOutputStream(streamKey, dst))
+    return Pair(AgeHeader.withMac(stanzas, fileKey), fileKey)
   }
 
   private fun wrapWithLabels(
