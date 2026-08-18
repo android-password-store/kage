@@ -17,6 +17,8 @@ import kage.crypto.stream.ArmorInputStream
 import kage.crypto.stream.ArmorOutputStream
 import kage.crypto.stream.DecryptInputStream
 import kage.crypto.stream.EncryptOutputStream
+import kage.crypto.stream.RandomAccessSource
+import kage.crypto.stream.SeekableDecrypt
 import kage.errors.IncorrectHMACException
 import kage.errors.InvalidHMACHeaderException
 import kage.errors.InvalidNonceException
@@ -152,6 +154,45 @@ public object Age {
   @JvmStatic
   public fun decryptHeader(header: ByteArray, identities: List<Identity>): ByteArray =
     resolveFileKey(identities, AgeHeader.parse(ByteArrayInputStream(header).buffered()))
+
+  /**
+   * Opens an age file at [source] ([encryptedSize] bytes) for random access with one of
+   * [identities]. Unlike [decryptStream], [source] must be raw binary; armor is not handled.
+   *
+   * [encryptedSize] must be the exact length of the encrypted file, and [source] must not change
+   * for the lifetime of the returned [SeekableDecrypt]; both are trusted, not re-validated per
+   * read.
+   *
+   * This is a low-level method that most users won't need.
+   */
+  @JvmStatic
+  public fun decryptSeekable(
+    identities: List<Identity>,
+    source: RandomAccessSource,
+    encryptedSize: Long,
+  ): SeekableDecrypt {
+    val headerStream = RandomAccessSourceInputStream(source, encryptedSize).buffered()
+    val header = AgeHeader.parse(headerStream)
+    val fileKey = resolveFileKey(identities, header)
+
+    val nonce = ByteArray(STREAM_NONCE_SIZE)
+    var nonceOffset = 0
+    while (nonceOffset < STREAM_NONCE_SIZE) {
+      val read = headerStream.read(nonce, nonceOffset, STREAM_NONCE_SIZE - nonceOffset)
+      if (read == -1) throw InvalidNonceException("could not read payload nonce: stream truncated")
+      nonceOffset += read
+    }
+
+    // Re-serialize to measure the header length: BufferedInputStream's read-ahead may have
+    // already pulled past the header boundary, so the stream's own position isn't reliable.
+    val headerBytes = ByteArrayOutputStream()
+    headerBytes.bufferedWriter().use { writer -> header.write(writer) }
+    val payloadOffset = headerBytes.size().toLong() + STREAM_NONCE_SIZE
+    val payloadSize = encryptedSize - payloadOffset
+
+    val streamKey = Primitives.streamKey(fileKey, nonce)
+    return SeekableDecrypt(streamKey, source, payloadOffset, payloadSize)
+  }
 
   private fun encryptInternal(
     recipients: List<Recipient>,
@@ -312,5 +353,31 @@ public object Age {
     DecryptInputStream(streamKey, src).use { decrypted ->
       dstStream.use { dst -> decrypted.copyTo(dst) }
     }
+  }
+}
+
+/** Presents a [RandomAccessSource] as a plain sequential stream, bounded to [size] bytes. */
+private class RandomAccessSourceInputStream(
+  private val source: RandomAccessSource,
+  private val size: Long,
+) : InputStream() {
+  private var position = 0L
+
+  override fun read(): Int {
+    val single = ByteArray(1)
+    return if (read(single, 0, 1) <= 0) -1 else single[0].toInt() and 0xFF
+  }
+
+  override fun read(b: ByteArray, off: Int, len: Int): Int {
+    if (len == 0) return 0
+    if (position >= size) return -1
+    var n: Int
+    do {
+      val toRead = minOf(len.toLong(), size - position).toInt()
+      n = source.readAt(b, off, toRead, position)
+    } while (n == 0)
+    if (n < 0) return -1
+    position += n
+    return n
   }
 }
