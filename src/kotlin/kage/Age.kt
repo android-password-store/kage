@@ -6,6 +6,7 @@
 package kage
 
 import java.io.BufferedInputStream
+import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -14,6 +15,8 @@ import java.io.SequenceInputStream
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Collections
+import kage.crypto.mlkem.MlKem768X25519Identity
+import kage.crypto.mlkem.MlKem768X25519Recipient
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.ArmorInputStream
 import kage.crypto.stream.ArmorOutputStream
@@ -22,10 +25,14 @@ import kage.crypto.stream.EncryptInputStream
 import kage.crypto.stream.EncryptOutputStream
 import kage.crypto.stream.RandomAccessSource
 import kage.crypto.stream.SeekableDecrypt
+import kage.crypto.x25519.X25519Identity
+import kage.crypto.x25519.X25519Recipient
 import kage.errors.IncorrectHMACException
 import kage.errors.IncorrectIdentityException
 import kage.errors.InvalidHMACHeaderException
+import kage.errors.InvalidIdentityFileException
 import kage.errors.InvalidNonceException
+import kage.errors.InvalidRecipientFileException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
 import kage.errors.NoRecipientsException
@@ -40,6 +47,7 @@ public object Age {
   internal const val FILE_KEY_SIZE: Int = 16
   private const val STREAM_NONCE_SIZE = 16
   private const val HMAC_SIZE = 32
+  private const val KEY_FILE_SIZE_LIMIT = 1 shl 24 // 16 MiB
 
   /**
    * Starts encrypting data for [recipients] to [outputStream].
@@ -218,6 +226,52 @@ public object Age {
 
     val streamKey = Primitives.streamKey(fileKey, nonce)
     return SeekableDecrypt(streamKey, source, payloadOffset, payloadSize)
+  }
+
+  /** Parses [X25519Identity]/[MlKem768X25519Identity] lines from [reader], one per line. */
+  @JvmStatic
+  public fun parseIdentities(reader: BufferedReader): List<Identity> {
+    val identities = mutableListOf<Identity>()
+    var bytesRead = 0L
+    for (rawLine in reader.lineSequence()) {
+      bytesRead += rawLine.length + 1
+      if (bytesRead > KEY_FILE_SIZE_LIMIT)
+        throw InvalidIdentityFileException("identities file exceeds the 16 MiB size limit")
+      val line = rawLine.trim()
+      if (line.isEmpty() || line.startsWith("#")) continue
+      identities.add(
+        when {
+          line.startsWith("AGE-SECRET-KEY-1") -> X25519Identity.decode(line)
+          line.startsWith("AGE-SECRET-KEY-PQ-1") -> MlKem768X25519Identity.decode(line)
+          else -> throw InvalidIdentityFileException("unknown identity type: $line")
+        }
+      )
+    }
+    if (identities.isEmpty()) throw InvalidIdentityFileException("no identities found")
+    return identities
+  }
+
+  /** Parses [X25519Recipient]/[MlKem768X25519Recipient] lines from [reader], one per line. */
+  @JvmStatic
+  public fun parseRecipients(reader: BufferedReader): List<Recipient> {
+    val recipients = mutableListOf<Recipient>()
+    var bytesRead = 0L
+    for (rawLine in reader.lineSequence()) {
+      bytesRead += rawLine.length + 1
+      if (bytesRead > KEY_FILE_SIZE_LIMIT)
+        throw InvalidRecipientFileException("recipients file exceeds the 16 MiB size limit")
+      val line = rawLine.trim()
+      if (line.isEmpty() || line.startsWith("#")) continue
+      recipients.add(
+        when {
+          line.startsWith("age1pq1") -> MlKem768X25519Recipient.decode(line)
+          line.startsWith("age1") -> X25519Recipient.decode(line)
+          else -> throw InvalidRecipientFileException("unknown recipient type: $line")
+        }
+      )
+    }
+    if (recipients.isEmpty()) throw InvalidRecipientFileException("no recipients found")
+    return recipients
   }
 
   private fun encryptInternal(
