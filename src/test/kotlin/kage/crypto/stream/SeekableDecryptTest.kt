@@ -12,8 +12,8 @@ import java.io.RandomAccessFile
 import java.nio.file.Files
 import kage.Age
 import kage.crypto.x25519.X25519Identity
+import kage.errors.IncorrectIdentityException
 import kage.errors.StreamException
-import kage.errors.X25519IdentityException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -147,7 +147,7 @@ class SeekableDecryptTest {
 
     // X25519 stanzas carry no fingerprint hint (recipient-anonymous by design), so a wrong key
     // fails at AEAD authentication rather than a fast fingerprint mismatch.
-    assertThrows<X25519IdentityException> {
+    assertThrows<IncorrectIdentityException> {
       Age.decryptSeekable(
         listOf(wrongIdentity),
         byteArraySource(ciphertext),
