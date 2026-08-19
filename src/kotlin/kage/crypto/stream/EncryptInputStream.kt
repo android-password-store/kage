@@ -19,6 +19,7 @@ import kage.crypto.stream.Stream.setLastChunkFlag
 internal class EncryptInputStream(private val key: ByteArray, private val src: InputStream) :
   InputStream() {
   private val nonce = ByteArray(NONCE_LENGTH)
+  private val singleByte = ByteArray(1)
 
   // One byte past CHUNK_SIZE so a full read tells us whether more plaintext follows, without
   // which we can't know whether this chunk is the last one to encrypt.
@@ -31,9 +32,8 @@ internal class EncryptInputStream(private val key: ByteArray, private val src: I
   private var streamDone = false
 
   override fun read(): Int {
-    val b = ByteArray(1)
-    val n = read(b, 0, 1)
-    return if (n == -1) -1 else (b[0].toInt() and 0xff)
+    val n = read(singleByte, 0, 1)
+    return if (n == -1) -1 else (singleByte[0].toInt() and 0xff)
   }
 
   override fun read(b: ByteArray, off: Int, len: Int): Int {
