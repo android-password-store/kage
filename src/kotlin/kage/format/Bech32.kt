@@ -116,9 +116,6 @@ internal object Bech32 {
         },
       )
 
-    if (hrp.length + values.size + 7 > 90) {
-      return Err(Bech32Exception("too long: hrp length=${hrp.length}, data length=${values.size}"))
-    }
     if (hrp.isEmpty()) {
       return Err(Bech32Exception("invalid HRP: $hrp"))
     }
@@ -149,9 +146,6 @@ internal object Bech32 {
 
   // Decode decodes a Bech32 string. If the string is uppercase, the HRP will be uppercase.
   fun decode(s: String): Bech32Result<Pair<String, ByteArray>> {
-    if (s.length > 90) {
-      return Err(Bech32Exception("too long: len=${s.length}"))
-    }
     if (s.lowercase() != s && s.uppercase() != s) {
       return Err(Bech32Exception("mixed case"))
     }

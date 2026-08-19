@@ -8,6 +8,7 @@ package kage.kage.test.utils
 import java.io.ByteArrayInputStream
 import java.util.zip.InflaterInputStream
 import kage.Identity
+import kage.crypto.mlkem.MlKem768X25519Identity
 import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.x25519.X25519Identity
 import kage.test.utils.Expect
@@ -43,7 +44,7 @@ private constructor(
         when (key) {
           "expect" -> expect = Expect.fromString(value)
           "payload" -> payloadHash = PayloadHash.from(value)
-          "identity" -> identities.add(X25519Identity.decode(value))
+          "identity" -> identities.add(parseIdentity(value))
           "passphrase" -> identities.add(ScryptIdentity(value.encodeToByteArray()))
           "armored" -> armored = true
           "file key" -> {}
@@ -69,5 +70,10 @@ private constructor(
 
       return TestSuite(expect, payloadHash, identities, armored, remaining)
     }
+
+    private fun parseIdentity(value: String): Identity =
+      if (value.startsWith(MlKem768X25519Identity.AGE_SECRET_KEY_PQ_PREFIX))
+        MlKem768X25519Identity.decode(value)
+      else X25519Identity.decode(value)
   }
 }

@@ -12,7 +12,9 @@ import kage.Age
 import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
+import kage.errors.X25519IdentityException
 import kage.errors.X25519LowOrderPointException
+import kage.format.AgeStanza
 import kage.utils.decodeBase64
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -41,6 +43,15 @@ class X25519RecipientTest {
     val unwrapped = identity.unwrap(listOf(stanza))
 
     assertThat(fileKey).asList().containsExactlyElementsIn(unwrapped.asList())
+  }
+
+  @Test
+  fun malformedMatchingStanzaIsFatal() {
+    val identity = X25519Identity.new()
+    val stanza = identity.recipient().wrap(ByteArray(Age.FILE_KEY_SIZE)).single()
+    val malformedStanza = AgeStanza(stanza.type, stanza.args, stanza.body.plus(0))
+
+    assertThrows<X25519IdentityException> { identity.unwrap(listOf(malformedStanza, stanza)) }
   }
 
   @Test

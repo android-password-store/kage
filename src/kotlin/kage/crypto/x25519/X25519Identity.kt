@@ -11,6 +11,7 @@ import com.github.michaelbull.result.mapError
 import java.security.SecureRandom
 import kage.Age
 import kage.Identity
+import kage.crypto.stream.AeadAuthenticationException
 import kage.crypto.stream.ChaCha20Poly1305
 import kage.crypto.x25519.X25519Recipient.Companion.MAC_KEY_LENGTH
 import kage.crypto.x25519.X25519Recipient.Companion.X25519_INFO
@@ -53,6 +54,8 @@ public class X25519Identity(private val secretKey: ByteArray, private val public
         hkdf.extractAndExpand(salt, sharedSecret, X25519_INFO.toByteArray(), MAC_KEY_LENGTH)
 
       return ChaCha20Poly1305.aeadDecrypt(wrappingKey, stanza.body, Age.FILE_KEY_SIZE)
+    } catch (err: AeadAuthenticationException) {
+      throw IncorrectIdentityException(err)
     } catch (err: Exception) {
       if (err is X25519IdentityException) {
         throw err
