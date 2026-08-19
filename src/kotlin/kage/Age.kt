@@ -206,13 +206,7 @@ public object Age {
     val header = AgeHeader.parse(headerStream)
     val fileKey = resolveFileKey(identities, header)
 
-    val nonce = ByteArray(STREAM_NONCE_SIZE)
-    var nonceOffset = 0
-    while (nonceOffset < STREAM_NONCE_SIZE) {
-      val read = headerStream.read(nonce, nonceOffset, STREAM_NONCE_SIZE - nonceOffset)
-      if (read == -1) throw InvalidNonceException("could not read payload nonce: stream truncated")
-      nonceOffset += read
-    }
+    val nonce = readPayloadNonce(headerStream)
 
     // Re-serialize to measure the header length: BufferedInputStream's read-ahead may have
     // already pulled past the header boundary, so the stream's own position isn't reliable.
@@ -349,6 +343,13 @@ public object Age {
     } else markSupportedStream
   }
 
+  private fun readPayloadNonce(stream: InputStream): ByteArray {
+    val nonce = ByteArray(STREAM_NONCE_SIZE)
+    if (stream.readFully(nonce) != nonce.size)
+      throw InvalidNonceException("could not read payload nonce: stream truncated")
+    return nonce
+  }
+
   private fun decryptInternal(identities: List<Identity>, ageFile: AgeFile): InputStream {
     val fileKey = resolveFileKey(identities, ageFile.header)
 
@@ -374,13 +375,7 @@ public object Age {
 
     val fileKey = resolveFileKey(identities, header)
 
-    val nonce = ByteArray(STREAM_NONCE_SIZE)
-    var nonceOffset = 0
-    while (nonceOffset < STREAM_NONCE_SIZE) {
-      val read = src.read(nonce, nonceOffset, STREAM_NONCE_SIZE - nonceOffset)
-      if (read == -1) throw InvalidNonceException("could not read payload nonce: stream truncated")
-      nonceOffset += read
-    }
+    val nonce = readPayloadNonce(src)
 
     val streamKey = Primitives.streamKey(fileKey, nonce)
 
