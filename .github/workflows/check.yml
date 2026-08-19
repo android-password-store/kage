@@ -3,6 +3,8 @@ on:
   pull_request:
     branches:
       - main
+  merge_group:
+    types: [checks_requested]
 
 permissions:
   contents: read
@@ -84,7 +86,7 @@ jobs:
 
     - name: Add coverage report to PR
       id: kover
-      if: ${{ !github.event.pull_request.head.repo.fork }}
+      if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
       uses: mi-kas/kover-report@ea8425161dd880a7dea9e76b3c89cf168b1d1162 # v2
       with:
         path: ${{ github.workspace }}/build/reports/kover/report.xml
