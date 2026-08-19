@@ -131,6 +131,16 @@ class SeekableDecryptTest {
   }
 
   @Test
+  fun seekableDecrypt_rejectsPayloadSizesNearLongMaxWithoutArithmeticOverflow() {
+    val key = ByteArray(ChaCha20Poly1305.KEY_LENGTH)
+    val payloadSize = Long.MAX_VALUE - 200
+
+    assertThrows<StreamException> {
+      SeekableDecrypt(key, byteArraySource(ByteArray(0)), 0L, payloadSize)
+    }
+  }
+
+  @Test
   fun decryptSeekable_rejectsTheWrongIdentity() {
     val ciphertext = encrypt("hello".toByteArray())
     val wrongIdentity = X25519Identity.`new`()

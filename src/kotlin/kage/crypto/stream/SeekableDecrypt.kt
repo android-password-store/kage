@@ -117,13 +117,16 @@ internal constructor(
 
     fun encryptedChunkCount(payloadSize: Long): Long {
       if (payloadSize < 0) throw StreamException("invalid encrypted payload size: $payloadSize")
-      val chunks = (payloadSize + ENC_CHUNK_SIZE - 1) / ENC_CHUNK_SIZE
+      val chunks = ceilingDivide(payloadSize, ENC_CHUNK_SIZE)
+      if (chunks <= 0) throw StreamException("invalid encrypted payload size: $payloadSize")
       val plaintextSize = payloadSize - chunks * MAC_SIZE
-      var expectedChunks = (plaintextSize + CHUNK_SIZE - 1) / CHUNK_SIZE
-      if (plaintextSize == 0L) expectedChunks = 1
+      val expectedChunks = if (plaintextSize == 0L) 1 else ceilingDivide(plaintextSize, CHUNK_SIZE)
       if (expectedChunks != chunks)
         throw StreamException("invalid encrypted payload size: $payloadSize")
       return chunks
     }
+
+    fun ceilingDivide(dividend: Long, divisor: Int): Long =
+      dividend / divisor + if (dividend % divisor == 0L) 0 else 1
   }
 }
