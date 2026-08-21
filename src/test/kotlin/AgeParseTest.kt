@@ -50,6 +50,14 @@ class AgeParseTest {
   }
 
   @Test
+  fun parseKeyFiles_rejectInputOverTheCharacterLimit() {
+    val overLimitComment = "#${"x".repeat(16 * 1024 * 1024)}"
+
+    assertThrows<InvalidIdentityFileException> { Age.parseIdentities(reader(overLimitComment)) }
+    assertThrows<InvalidRecipientFileException> { Age.parseRecipients(reader(overLimitComment)) }
+  }
+
+  @Test
   fun parseIdentities_rejectsAnEmptyFile() {
     assertThrows<InvalidIdentityFileException> { Age.parseIdentities(reader("# only a comment")) }
   }
