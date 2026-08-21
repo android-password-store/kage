@@ -57,3 +57,13 @@ constructor(message: String? = null, cause: Throwable? = null) : ParseException(
 public class InvalidNonceException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
+
+/** Raised by [kage.Age.parseIdentities] on an unrecognized line or an empty identities file. */
+public class InvalidIdentityFileException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
+
+/** Raised by [kage.Age.parseRecipients] on an unrecognized line or an empty recipients file. */
+public class InvalidRecipientFileException
+@JvmOverloads
+constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
