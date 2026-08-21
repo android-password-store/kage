@@ -79,7 +79,16 @@ class AgeParseTest {
   fun parseRecipients_recognizesX25519AndHybridPqRecipients() {
     val x25519 = X25519Identity.new().recipient()
     val hybrid = MlKem768X25519Identity.new().recipient()
-    val file = "${x25519.encodeToString()}\n${hybrid.encodeToString()}"
+    val file =
+      """
+
+      # X25519 recipient
+      ${x25519.encodeToString()}
+
+      # Hybrid post-quantum recipient
+      ${hybrid.encodeToString()}
+      """
+        .trimIndent()
 
     val recipients = Age.parseRecipients(reader(file))
 
