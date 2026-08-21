@@ -39,6 +39,7 @@ import kage.errors.NoRecipientsException
 import kage.errors.ScryptIdentityException
 import kage.format.AgeFile
 import kage.format.AgeHeader
+import kage.format.AgeKeyFile
 import kage.format.AgeStanza
 import kage.utils.readFully
 
@@ -48,6 +49,13 @@ public object Age {
   private const val STREAM_NONCE_SIZE = 16
   private const val HMAC_SIZE = 32
   private const val KEY_FILE_SIZE_LIMIT = 1 shl 24 // 16 MiB
+  private const val BECH32_SEPARATOR = "1"
+  private const val X25519_IDENTITY_PREFIX = AgeKeyFile.AGE_SECRET_KEY_PREFIX + BECH32_SEPARATOR
+  private const val MLKEM768_X25519_IDENTITY_PREFIX =
+    MlKem768X25519Identity.AGE_SECRET_KEY_PQ_PREFIX + BECH32_SEPARATOR
+  private const val X25519_RECIPIENT_PREFIX = AgeKeyFile.AGE_PUBLIC_KEY_PREFIX + BECH32_SEPARATOR
+  private const val MLKEM768_X25519_RECIPIENT_PREFIX =
+    MlKem768X25519Recipient.AGE_PUBLIC_KEY_PQ_PREFIX + BECH32_SEPARATOR
 
   /**
    * Starts encrypting data for [recipients] to [outputStream].
@@ -241,8 +249,8 @@ public object Age {
       if (line.isEmpty() || line.startsWith("#")) continue
       identities.add(
         when {
-          line.startsWith("AGE-SECRET-KEY-1") -> X25519Identity.decode(line)
-          line.startsWith("AGE-SECRET-KEY-PQ-1") -> MlKem768X25519Identity.decode(line)
+          line.startsWith(X25519_IDENTITY_PREFIX) -> X25519Identity.decode(line)
+          line.startsWith(MLKEM768_X25519_IDENTITY_PREFIX) -> MlKem768X25519Identity.decode(line)
           else -> throw InvalidIdentityFileException("unknown identity type: $line")
         }
       )
@@ -264,8 +272,8 @@ public object Age {
       if (line.isEmpty() || line.startsWith("#")) continue
       recipients.add(
         when {
-          line.startsWith("age1pq1") -> MlKem768X25519Recipient.decode(line)
-          line.startsWith("age1") -> X25519Recipient.decode(line)
+          line.startsWith(MLKEM768_X25519_RECIPIENT_PREFIX) -> MlKem768X25519Recipient.decode(line)
+          line.startsWith(X25519_RECIPIENT_PREFIX) -> X25519Recipient.decode(line)
           else -> throw InvalidRecipientFileException("unknown recipient type: $line")
         }
       )
