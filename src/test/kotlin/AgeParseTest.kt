@@ -99,8 +99,10 @@ class AgeParseTest {
 
   @Test
   fun parseRecipients_rejectsAnUnknownLine() {
+    val validRecipient = X25519Identity.new().recipient().encodeToString()
+
     assertThrows<InvalidRecipientFileException> {
-      Age.parseRecipients(reader("not-a-recipient"))
+      Age.parseRecipients(reader("$validRecipient\nnot-a-recipient"))
     }
   }
 
