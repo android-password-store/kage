@@ -87,7 +87,7 @@ jobs:
     - name: Add coverage report to PR
       id: kover
       if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
-      uses: mi-kas/kover-report@ea8425161dd880a7dea9e76b3c89cf168b1d1162 # v2
+      uses: mi-kas/kover-report@94d69bc9d417de89b808cd5fe846bca2840911bb # v2
       with:
         path: ${{ github.workspace }}/build/reports/kover/report.xml
         token: ${{ secrets.GITHUB_TOKEN }}
