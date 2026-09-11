@@ -123,6 +123,43 @@ internal fun tamperRsaPrivateKeyOuterPublicKey(
   return encodeOpenSshPem(rewrittenBlob.toByteArray())
 }
 
+/**
+ * Rewrites an encrypted OpenSSH private key's bcrypt kdfoptions to claim [rounds], keeping the
+ * original salt and everything else unchanged. For testing the rounds ceiling without waiting on a
+ * real key encrypted at that cost.
+ */
+internal fun tamperEncryptedKeyRounds(privateKeyPem: String, rounds: Long): String {
+  val blob = decodeOpenSshPem(privateKeyPem)
+  val reader = SshWireReader(blob)
+  val magic = reader.readRaw(AUTH_MAGIC.size)
+  val cipherName = reader.readString()
+  val kdfName = reader.readString()
+  val kdfOptions = SshWireReader(reader.readString())
+  val salt = kdfOptions.readString()
+  val numKeys = reader.readUInt32()
+  val publicKeyBlob = reader.readString()
+  val privateSection = reader.readString()
+
+  val rewrittenKdfOptions =
+    ByteArrayOutputStream().apply {
+      writeSshString(salt)
+      writeUInt32(rounds)
+    }
+
+  val rewrittenBlob =
+    ByteArrayOutputStream().apply {
+      write(magic)
+      writeSshString(cipherName)
+      writeSshString(kdfName)
+      writeSshString(rewrittenKdfOptions.toByteArray())
+      writeUInt32(numKeys)
+      writeSshString(publicKeyBlob)
+      writeSshString(privateSection)
+    }
+
+  return encodeOpenSshPem(rewrittenBlob.toByteArray())
+}
+
 internal fun encodeOpenSshPem(blob: ByteArray): String {
   val body = Base64.getMimeEncoder(64, "\n".toByteArray()).encodeToString(blob)
   return "-----BEGIN OPENSSH PRIVATE KEY-----\n$body\n-----END OPENSSH PRIVATE KEY-----"
