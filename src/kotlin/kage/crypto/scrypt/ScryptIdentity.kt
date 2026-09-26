@@ -7,6 +7,7 @@ package kage.crypto.scrypt
 
 import kage.Age
 import kage.Identity
+import kage.crypto.stream.AeadAuthenticationException
 import kage.crypto.stream.ChaCha20Poly1305
 import kage.crypto.stream.ChaCha20Poly1305.KEY_LENGTH
 import kage.errors.IncorrectIdentityException
@@ -67,6 +68,8 @@ constructor(
     try {
       val wrappingKey = SCrypt.generate(password, fullSalt, 1 shl workFactor, 8, 1, KEY_LENGTH)
       return ChaCha20Poly1305.aeadDecrypt(wrappingKey, stanza.body, Age.FILE_KEY_SIZE)
+    } catch (err: AeadAuthenticationException) {
+      throw IncorrectIdentityException(err)
     } catch (err: Exception) {
       throw ScryptIdentityException(null, err)
     }

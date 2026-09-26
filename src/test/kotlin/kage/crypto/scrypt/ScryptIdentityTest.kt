@@ -32,6 +32,20 @@ class ScryptIdentityTest {
   }
 
   @Test
+  fun rejectStanzaAboveMaximumWorkFactor() {
+    val stanza =
+      AgeStanza(
+        ScryptRecipient.SCRYPT_STANZA_TYPE,
+        args = listOf("AAAAAAAAAAAAAAAAAAAAAA", "3"),
+        ByteArray(16),
+      )
+
+    val identity = ScryptIdentity("mypass".toByteArray(), maxWorkFactor = 2)
+
+    assertThrows<ScryptIdentityException> { identity.unwrap(listOf(stanza)) }
+  }
+
+  @Test
   fun validateWorkFactor() {
     assertThrows<IllegalArgumentException> { ScryptIdentity("mypass".toByteArray(), 1) }
     assertThrows<IllegalArgumentException> { ScryptIdentity("mypass".toByteArray(), 31) }

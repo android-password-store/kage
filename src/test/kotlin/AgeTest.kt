@@ -197,6 +197,25 @@ class AgeTest {
   }
 
   @Test
+  fun testTriesLaterScryptIdentityAfterWrongPassword() {
+    val password = "correct password".toByteArray()
+    val recipient = ScryptRecipient(password, workFactor = 2)
+    val payload = "scrypt identity retry".toByteArray()
+    val ageFile = Age.encrypt(listOf(recipient), ByteArrayInputStream(payload))
+
+    val decrypted =
+      Age.decrypt(
+        listOf(
+          ScryptIdentity("wrong password".toByteArray(), maxWorkFactor = 2),
+          ScryptIdentity(password, maxWorkFactor = 2),
+        ),
+        ageFile,
+      )
+
+    assertThat(decrypted.readAllBytes()).isEqualTo(payload)
+  }
+
+  @Test
   fun testScryptIdentityIsTheOnlyIdentity() {
     val (recipient, _) = genX25519Identity()
     val scryptRecipient = ScryptRecipient("mypass1".toByteArray())
