@@ -35,31 +35,50 @@ internal class DecryptInputStream(private val key: ByteArray, private val input:
   private var inputEOF = false
 
   override fun read(): Int {
-    if (unreadOffset < unreadSize) {
-      return (unread[unreadOffset++].toInt() and 0xff)
+    val n = read(singleByte, 0, 1)
+    return if (n == -1) -1 else singleByte[0].toInt() and 0xff
+  }
+
+  private val singleByte = ByteArray(1)
+
+  override fun read(b: ByteArray, off: Int, len: Int): Int {
+    if (off < 0 || len < 0 || len > b.size - off) {
+      throw IndexOutOfBoundsException()
+    }
+    if (len == 0) return 0
+
+    var copied = 0
+    while (copied < len) {
+      if (unreadOffset == unreadSize && !loadChunk()) {
+        return if (copied == 0) -1 else copied
+      }
+
+      val n = minOf(len - copied, unreadSize - unreadOffset)
+      unread.copyInto(b, off + copied, unreadOffset, unreadOffset + n)
+      unreadOffset += n
+      copied += n
     }
 
-    if (inputEOF) // There is nothing else to read, and we read last chunk already
-     return -1
+    return copied
+  }
+
+  /** Load the next authenticated plaintext chunk, returning false once the stream is exhausted. */
+  private fun loadChunk(): Boolean {
+    if (inputEOF) return false
 
     val last = readChunk()
-
-    if (last) { // Check for more data after the last chunk
+    if (last) {
       inputEOF = true
 
       try {
         val next = input.read()
-
         if (next != -1) throw StreamException("trailing data after end of encrypted file")
       } catch (err: EOFException) {
-        return -1
+        // Treat EOFException as EOF, as with the single-byte read implementation.
       }
     }
 
-    // We tried to read more, but there wasn't anything, this stream is EOF
-    if (unreadSize == 0) return -1
-
-    return (unread[unreadOffset++].toInt() and 0xff)
+    return unreadSize > 0
   }
 
   // Returns true if this was the last chunk
