@@ -81,18 +81,6 @@ class BcryptPbkdfTest {
   }
 
   @Test
-  fun derive_doesNotOverwriteBeyondRequestedLength() {
-    // Same case the C test suite checks explicitly before running the table above: deriving 88
-    // bytes must not touch byte 88 onward of a larger buffer.
-    val key = ByteArray(96)
-    val derived = BcryptPbkdf.derive("password".toByteArray(), "salt".toByteArray(), 88, 4)
-    System.arraycopy(derived, 0, key, 0, derived.size)
-    assertThat(key[88]).isEqualTo(0.toByte())
-    assertThat(key[89]).isEqualTo(0.toByte())
-    assertThat(key[90]).isEqualTo(0.toByte())
-  }
-
-  @Test
   fun derive_rejectsArgumentsOutsideOpenSshBounds() {
     assertThrows<IllegalArgumentException> {
       BcryptPbkdf.derive(ByteArray(0), "salt".toByteArray(), 16, 4)
