@@ -26,6 +26,17 @@ class ExtensionsTest {
   }
 
   @Test
+  fun headerBudgetCountsNewlineBytesAtTheExactLimit() {
+    val line = "ab\n".byteInputStream().buffered()
+    assertThat(line.readLine(maxBytes = 3, budget = HeaderByteBudget(3))).isEqualTo("ab")
+
+    val overLimit = "abc\n".byteInputStream().buffered()
+    assertThrows<HeaderTooLargeException> {
+      overLimit.readLine(maxBytes = 4, budget = HeaderByteBudget(3))
+    }
+  }
+
+  @Test
   fun testDecodeBase64() {
     val canonicalString = "rF0/NwblUHHTpgQgRpe5CQ"
     val nonCanonicalString = "rF0/NwblUHHTpgQgRpe5CR"

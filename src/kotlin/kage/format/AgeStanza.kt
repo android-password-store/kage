@@ -10,6 +10,7 @@ import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import java.io.BufferedInputStream
 import java.io.BufferedWriter
+import java.io.ByteArrayOutputStream
 import kage.errors.InvalidArbitraryStringException
 import kage.errors.InvalidRecipientException
 import kage.format.AgeFile.Companion.BYTES_PER_LINE
@@ -18,6 +19,9 @@ import kage.format.AgeFile.Companion.FOOTER_PREFIX
 import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.ParseUtils.isValidArbitraryString
 import kage.format.ParseUtils.splitArgs
+import kage.utils.HeaderByteBudget
+import kage.utils.HeaderTooLargeException
+import kage.utils.LineTooLongException
 import kage.utils.decodeBase64
 import kage.utils.encodeBase64
 import kage.utils.readFully
@@ -58,18 +62,29 @@ public class AgeStanza(
     return result
   }
 
+  internal fun serializedSize(): Int {
+    val recipientLineBytes = 3 + type.length + args.sumOf { it.length + 1 } + 1
+    val encodedLength = (body.size * 4 + 2) / 3
+    val lines = (encodedLength + COLUMNS_PER_LINE - 1) / COLUMNS_PER_LINE
+    val blankLine = if (encodedLength % COLUMNS_PER_LINE == 0) 1 else 0
+    return recipientLineBytes + encodedLength + lines + blankLine
+  }
+
   internal companion object {
     @JvmStatic
-    internal fun parse(reader: BufferedInputStream): AgeStanza {
+    internal fun parse(reader: BufferedInputStream): AgeStanza =
+      parse(reader, HeaderByteBudget(AgeHeader.MAX_HEADER_BYTES))
+
+    internal fun parse(reader: BufferedInputStream, budget: HeaderByteBudget): AgeStanza {
       // The first line should be a recipient line with at least one argument
       val recipientLine =
-        reader.readLine()
+        readHeaderLine(reader, budget)
           ?: throw InvalidRecipientException("Line is null, could not parse recipient")
 
       val (type, args) = parseRecipientLine(recipientLine)
 
       // Pass the reader object to parse the body of the recipient
-      val body = parseBodyLines(reader)
+      val body = parseBodyLines(reader, budget)
 
       return AgeStanza(type, args, body)
     }
@@ -113,6 +128,21 @@ public class AgeStanza(
      * Example:
      * ->(RECIPIENT_PREFIX) X25519(TYPE_NAME) 8hWaIUmk67IuRZ41zMk2V9f/w3f5qUnXLL7MGPA+zE8(ARGUMENTS)
      */
+    private const val MAX_LINE_BYTES = 64 * 1024
+    internal const val MAX_STANZA_BODY_BYTES = 1024 * 1024
+
+    private fun readHeaderLine(
+      reader: BufferedInputStream,
+      budget: HeaderByteBudget? = null,
+    ): String? =
+      try {
+        reader.readLine(MAX_LINE_BYTES, budget)
+      } catch (e: HeaderTooLargeException) {
+        throw InvalidRecipientException("Header exceeds the maximum size", e)
+      } catch (e: LineTooLongException) {
+        throw InvalidRecipientException("Header line exceeds the maximum length", e)
+      }
+
     @JvmStatic
     internal fun parseRecipientLine(recipientLine: String): Pair<String, List<String>> {
       val (prefix, args) = splitArgs(recipientLine)
@@ -140,9 +170,11 @@ public class AgeStanza(
      * exactly 64 columns.
      */
     @JvmStatic
-    internal fun parseBodyLines(reader: BufferedInputStream): ByteArray {
-      // Create a mutable byteList which will hold all the bytes while we're parsing the body
-      val byteList = mutableListOf<Byte>()
+    internal fun parseBodyLines(
+      reader: BufferedInputStream,
+      budget: HeaderByteBudget? = null,
+    ): ByteArray {
+      val body = ByteArrayOutputStream()
       val charArray = ByteArray(3)
       var stopParsing = false
 
@@ -159,18 +191,14 @@ public class AgeStanza(
         // Always check using startsWith instead of contains otherwise "\n->" will be a false
         // positive
         if (incompleteString.startsWith(RECIPIENT_PREFIX)) {
-          throw InvalidRecipientException(
-            "Encountered a new stanza while parsing the current one : ${reader.readLine()}"
-          )
+          throw InvalidRecipientException("Encountered a new stanza while parsing the current one")
         }
         if (incompleteString.startsWith(FOOTER_PREFIX)) {
-          throw InvalidRecipientException(
-            "Encountered the footer while parsing the current stanza: ${reader.readLine()}"
-          )
+          throw InvalidRecipientException("Encountered the footer while parsing the current stanza")
         }
 
         val line =
-          reader.readLine()
+          readHeaderLine(reader, budget)
             ?: throw InvalidRecipientException(
               "Line is null, did you forget an extra newline after a full length body chunk?"
             )
@@ -183,13 +211,14 @@ public class AgeStanza(
         if (bytes.size > BYTES_PER_LINE)
           throw InvalidRecipientException("Body line is too long: $line")
 
-        // Add the bytes to the byteList
-        byteList.addAll(bytes.asList())
+        if (body.size() > MAX_STANZA_BODY_BYTES - bytes.size)
+          throw InvalidRecipientException("Stanza body exceeds the maximum size")
+        body.write(bytes)
 
         if (bytes.size < BYTES_PER_LINE) stopParsing = true
       } while (!stopParsing)
 
-      return byteList.toByteArray()
+      return body.toByteArray()
     }
   }
 }

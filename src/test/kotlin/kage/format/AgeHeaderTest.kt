@@ -171,6 +171,38 @@ class AgeHeaderTest {
   }
 
   @Test
+  fun rejectsHeaderOverTotalSizeLimit() {
+    val stanza = "-> " + "X".repeat(65_530) + "\n\n"
+    val input = "age-encryption.org/v1\n" + stanza.repeat(257) + "--- AAAA\n"
+
+    assertThrows<InvalidRecipientException> { AgeHeader.parse(input.byteInputStream().buffered()) }
+  }
+
+  @Test
+  fun acceptsRecipientLineAtWireByteLimitIncludingNewline() {
+    val line = "-> X " + "A".repeat(65_530)
+    val parsed = AgeHeader.parseRecipients((line + "\n\n---").byteInputStream().buffered())
+
+    assertThat(parsed).hasSize(1)
+  }
+
+  @Test
+  fun rejectsRecipientLineOneWireByteOverLimitIncludingNewline() {
+    val line = "-> X " + "A".repeat(65_531)
+
+    assertThrows<InvalidRecipientException> {
+      AgeHeader.parseRecipients((line + "\n\n---").byteInputStream().buffered())
+    }
+  }
+
+  @Test
+  fun rejectsOversizedUnterminatedRecipientLine() {
+    val input = "age-encryption.org/v1\n-> " + "X".repeat(70_000)
+
+    assertThrows<InvalidRecipientException> { AgeHeader.parse(input.byteInputStream().buffered()) }
+  }
+
+  @Test
   fun testEmptyReader() {
     val header =
       """

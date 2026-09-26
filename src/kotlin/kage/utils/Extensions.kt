@@ -55,15 +55,37 @@ internal fun InputStream.readFully(dst: ByteArray): Int {
   return offset
 }
 
-internal fun BufferedInputStream.readLine(): String? {
-  val baos = ByteArrayOutputStream()
+internal class LineTooLongException : Exception()
+
+internal class HeaderByteBudget(private val maxBytes: Int) {
+  private var consumed = 0
+
+  fun consumeByte() {
+    if (consumed == maxBytes) throw HeaderTooLargeException()
+    consumed++
+  }
+}
+
+internal class HeaderTooLargeException : Exception()
+
+internal fun BufferedInputStream.readLine(
+  maxBytes: Int = Int.MAX_VALUE,
+  budget: HeaderByteBudget? = null,
+): String? {
+  val baos = ByteArrayOutputStream(minOf(maxBytes, 256))
 
   while (true) {
     val r = this.read()
+    if (r != -1) budget?.consumeByte()
 
-    if (r.toChar() == '\n') return baos.toByteArray().decodeToString()
+    if (r == '\n'.code) {
+      if (baos.size() >= maxBytes) throw LineTooLongException()
+      return baos.toByteArray().decodeToString()
+    }
 
-    if (r != -1) baos.write(r)
-    else if (baos.size() > 0) return baos.toByteArray().decodeToString() else return null
+    if (r != -1) {
+      if (baos.size() == maxBytes) throw LineTooLongException()
+      baos.write(r)
+    } else if (baos.size() > 0) return baos.toByteArray().decodeToString() else return null
   }
 }

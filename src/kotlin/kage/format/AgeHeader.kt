@@ -16,6 +16,9 @@ import kage.format.AgeFile.Companion.FOOTER_PREFIX
 import kage.format.AgeFile.Companion.RECIPIENT_PREFIX
 import kage.format.AgeFile.Companion.VERSION_LINE
 import kage.format.ParseUtils.splitArgs
+import kage.utils.HeaderByteBudget
+import kage.utils.HeaderTooLargeException
+import kage.utils.LineTooLongException
 import kage.utils.decodeBase64
 import kage.utils.encodeBase64
 import kage.utils.readFully
@@ -69,15 +72,32 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
   internal companion object {
 
     internal fun parse(reader: BufferedInputStream): AgeHeader {
-      parseVersion(reader)
-      val recipients = parseRecipients(reader)
-      val mac = parseFooter(reader)
-
+      val budget = HeaderByteBudget(MAX_HEADER_BYTES)
+      parseVersion(reader, budget)
+      val recipients = parseRecipients(reader, budget)
+      val mac = parseFooter(reader, budget)
       return AgeHeader(recipients, mac)
     }
 
-    internal fun parseVersion(reader: BufferedInputStream) {
-      val versionLine = reader.readLine()
+    private const val MAX_HEADER_LINE_BYTES = 64 * 1024
+    internal const val MAX_HEADER_BYTES = 16 * 1024 * 1024
+
+    private fun readHeaderLine(
+      reader: BufferedInputStream,
+      budget: HeaderByteBudget? = null,
+    ): String? =
+      try {
+        reader.readLine(MAX_HEADER_LINE_BYTES, budget)
+      } catch (e: HeaderTooLargeException) {
+        throw InvalidRecipientException("Header exceeds the maximum size", e)
+      } catch (e: LineTooLongException) {
+        throw InvalidRecipientException("Header line exceeds the maximum length", e)
+      }
+
+    internal fun parseVersion(reader: BufferedInputStream) = parseVersion(reader, null)
+
+    private fun parseVersion(reader: BufferedInputStream, budget: HeaderByteBudget?) {
+      val versionLine = readHeaderLine(reader, budget)
       parseVersionLine(versionLine)
     }
 
@@ -90,7 +110,13 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
         throw InvalidVersionException("Version line is not correct: $versionLine")
     }
 
-    internal fun parseRecipients(reader: BufferedInputStream): List<AgeStanza> {
+    internal fun parseRecipients(reader: BufferedInputStream): List<AgeStanza> =
+      parseRecipients(reader, HeaderByteBudget(MAX_HEADER_BYTES - VERSION_LINE.length - 1))
+
+    private fun parseRecipients(
+      reader: BufferedInputStream,
+      budget: HeaderByteBudget,
+    ): List<AgeStanza> {
       val recipientList = mutableListOf<AgeStanza>()
       val buf = ByteArray(3)
 
@@ -106,17 +132,29 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
         reader.reset()
 
         if (prefix.startsWith(RECIPIENT_PREFIX)) {
-          recipientList.add(AgeStanza.parse(reader))
+          val stanza = AgeStanza.parse(reader, budget)
+          recipientList.add(stanza)
         } else if (prefix.startsWith(FOOTER_PREFIX)) {
           return recipientList
         } else {
-          throw InvalidRecipientException("Unexpected line found: ${reader.readLine()}")
+          val unexpectedLine = readHeaderLine(reader, budget)
+          throw InvalidRecipientException("Unexpected line found: $unexpectedLine")
         }
       }
     }
 
-    internal fun parseFooter(reader: BufferedInputStream): ByteArray {
-      val footerLine = reader.readLine() ?: throw InvalidFooterException("Footer line is empty")
+    internal fun parseFooter(reader: BufferedInputStream): ByteArray = parseFooter(reader, null)
+
+    private fun parseFooter(
+      reader: BufferedInputStream,
+      budget: HeaderByteBudget?,
+    ): ByteArray {
+      val footerLine =
+        try {
+          readHeaderLine(reader, budget)
+        } catch (e: InvalidRecipientException) {
+          throw InvalidFooterException("Footer line exceeds the maximum length", e)
+        } ?: throw InvalidFooterException("Footer line is empty")
       return parseFooterLine(footerLine)
     }
 
