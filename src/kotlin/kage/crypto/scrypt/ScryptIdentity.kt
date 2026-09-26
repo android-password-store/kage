@@ -20,7 +20,9 @@ import org.bouncycastle.crypto.generators.SCrypt
  * An age identity that decrypts files encrypted with the supplied password.
  *
  * @param password Password bytes used to derive the wrapping key.
- * @param maxWorkFactor Largest scrypt work factor accepted while decrypting, to bound resource use.
+ * @param maxWorkFactor Largest scrypt work factor accepted while decrypting. The default accepts up
+ *   to 256 MiB of scrypt working memory; configure a larger value only when the caller can tolerate
+ *   the corresponding resource cost.
  */
 public class ScryptIdentity
 @JvmOverloads
@@ -73,8 +75,9 @@ constructor(
   }
 
   private companion object {
-    // Ceiling on the work factor accepted when decrypting, bounding the scrypt cost a hostile file
-    // can force. Distinct from the encrypt-side ScryptRecipient.DEFAULT_WORK_FACTOR.
-    const val DEFAULT_MAX_WORK_FACTOR = 22
+    // SCrypt uses 128 * N * r bytes for its main working buffer. With r=8 and N=2^18,
+    // the default ceiling is 256 MiB. Higher budgets require an explicit constructor argument.
+    // Keep this aligned with ScryptRecipient.DEFAULT_WORK_FACTOR for normal round trips.
+    const val DEFAULT_MAX_WORK_FACTOR = 18
   }
 }
