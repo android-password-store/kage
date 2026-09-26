@@ -46,6 +46,28 @@ class X25519RecipientTest {
   }
 
   @Test
+  fun constructorKeyArraysAreCopied() {
+    val privateKey = ByteArray(32)
+    SecureRandom().nextBytes(privateKey)
+    val publicKey = X25519.scalarMultBase(privateKey)
+    val recipient = X25519Recipient(publicKey)
+    val identity = X25519Identity(privateKey, publicKey)
+    val fileKey = ByteArray(Age.FILE_KEY_SIZE)
+    Random().nextBytes(fileKey)
+    val encodedPrivateKey = identity.encodeToString()
+    val encodedPublicKey = recipient.encodeToString()
+
+    privateKey.fill(0)
+    publicKey.fill(0)
+
+    val stanza = recipient.wrap(fileKey).single()
+    assertThat(identity.unwrap(listOf(stanza)).asList()).containsExactlyElementsIn(fileKey.asList())
+    assertThat(identity.encodeToString()).isEqualTo(encodedPrivateKey)
+    assertThat(identity.recipient().encodeToString()).isEqualTo(encodedPublicKey)
+    assertThat(identity.recipient().wrap(fileKey)).hasSize(1)
+  }
+
+  @Test
   fun malformedMatchingStanzaIsFatal() {
     val identity = X25519Identity.new()
     val stanza = identity.recipient().wrap(ByteArray(Age.FILE_KEY_SIZE)).single()
