@@ -23,6 +23,8 @@ import org.junit.jupiter.api.assertThrows
  * ssh-keygen -t ed25519 -N 'correct horse battery staple' -f ed25519_key
  * ssh-keygen -t ed25519 -a 32 -N 'rounds32' -f ed25519_key_r32
  * ssh-keygen -t rsa -b 2048 -N 'another test passphrase!' -f rsa_key
+ * ssh-keygen -t ed25519 -Z aes128-ctr -N 'issue18-passphrase' -f aes128_key
+ * ssh-keygen -t ed25519 -Z aes192-ctr -N 'issue18-passphrase' -f aes192_key
  * age -R <pubkey> -a -o msg.age plaintext.txt   # plaintext: "the quick brown fox jumps over the lazy dog"
  * ```
  */
@@ -192,6 +194,37 @@ class SshEncryptedKeyTest {
   private val xCryptoSshAes256CbcPublicKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDne4/teO42zTDdjNwxUMNpbfmp/dxgU4ZNkC3ydgcug"
 
+  // Generated locally with OpenSSH ssh-keygen (not synthesized or altered by the test suite).
+  private val sshKeygenAes128CtrKey =
+    """
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAACmFlczEyOC1jdHIAAAAGYmNyeXB0AAAAGAAAABAX0A65kX
+    hvPK3RekWfRhpDAAAAGAAAAAEAAAAzAAAAC3NzaC1lZDI1NTE5AAAAIDkDSu9G+SDrDDpI
+    0VILLcCUk7SqQJGxYqE6X9v8+V+BAAAAoMFhXXpEERE8tGG405dPwXVIIu6Pu7nH6btbTf
+    rKbdBfQG2waIl72url8a1Mtn15aMF78nlG1NrNqC6DO66NGkASFscf5oPBl58o41Lnqwpx
+    1bnYd3sbvxr9ZD7OuXwSiApVv5f5+NlUqWDowRsVh07aRV5nAVCbSPiba4CTzmG1g7DajQ
+    qFXBHP0AjT4yuLkJz5eWrAJR6KTXskRQeRDYE=
+    -----END OPENSSH PRIVATE KEY-----
+    """
+      .trimIndent()
+  private val sshKeygenAes128CtrPublicKey =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDkDSu9G+SDrDDpI0VILLcCUk7SqQJGxYqE6X9v8+V+B"
+
+  private val sshKeygenAes192CtrKey =
+    """
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAACmFlczE5Mi1jdHIAAAAGYmNyeXB0AAAAGAAAABCKPItO6Y
+    8wUuASexwvgCgSAAAAGAAAAAEAAAAzAAAAC3NzaC1lZDI1NTE5AAAAIIIW+H5M8dSdVLNK
+    uTRL94n32mBfXUY4165eLY4NPUCbAAAAoFcVGK3d8vTiV5fErr2PV/Yeiz9bqZkzMd7FRo
+    TI8SiB9WyfW0plqh5D0VSnLOo5++MGSlIk4EtQW0wJRbnsnJBEONTM/kLYHxsYlcKNwuby
+    VE852SFE+GFoouWaz4wMxx2gzQIRRYaiu97WuSacv+mofcGn1TXelfrltQoG4kRuW2UOrO
+    Dc1LCJC87s2Ujdhm6xJAQJuhS8lFjU2SzjgJY=
+    -----END OPENSSH PRIVATE KEY-----
+    """
+      .trimIndent()
+  private val sshKeygenAes192CtrPublicKey =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIIW+H5M8dSdVLNKuTRL94n32mBfXUY4165eLY4NPUCb"
+
   @Test
   fun xCryptoSshFixture_aes256Ctr_roundTripsAgainstItsOwnPublicKey() {
     val recipient = SshKey.parseRecipient(xCryptoSshAes256CtrPublicKey)
@@ -204,6 +237,22 @@ class SshEncryptedKeyTest {
   fun xCryptoSshFixture_aes256Cbc_roundTripsAgainstItsOwnPublicKey() {
     val recipient = SshKey.parseRecipient(xCryptoSshAes256CbcPublicKey)
     val identity = SshKey.parseIdentity(xCryptoSshAes256CbcKey, "password".toByteArray())
+    val ciphertext = Age.encrypt(listOf(recipient), ByteArrayInputStream(plaintext))
+    assertThat(Age.decrypt(identity, ciphertext).readBytes()).isEqualTo(plaintext)
+  }
+
+  @Test
+  fun sshKeygenFixture_aes128Ctr_roundTripsAgainstItsOwnPublicKey() {
+    val recipient = SshKey.parseRecipient(sshKeygenAes128CtrPublicKey)
+    val identity = SshKey.parseIdentity(sshKeygenAes128CtrKey, "issue18-passphrase".toByteArray())
+    val ciphertext = Age.encrypt(listOf(recipient), ByteArrayInputStream(plaintext))
+    assertThat(Age.decrypt(identity, ciphertext).readBytes()).isEqualTo(plaintext)
+  }
+
+  @Test
+  fun sshKeygenFixture_aes192Ctr_roundTripsAgainstItsOwnPublicKey() {
+    val recipient = SshKey.parseRecipient(sshKeygenAes192CtrPublicKey)
+    val identity = SshKey.parseIdentity(sshKeygenAes192CtrKey, "issue18-passphrase".toByteArray())
     val ciphertext = Age.encrypt(listOf(recipient), ByteArrayInputStream(plaintext))
     assertThat(Age.decrypt(identity, ciphertext).readBytes()).isEqualTo(plaintext)
   }
