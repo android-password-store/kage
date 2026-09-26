@@ -93,7 +93,7 @@ class BcryptPbkdfTest {
   }
 
   @Test
-  fun derive_rejectsEmptyPasswordSaltOrZeroRounds() {
+  fun derive_rejectsArgumentsOutsideOpenSshBounds() {
     assertThrows<IllegalArgumentException> {
       BcryptPbkdf.derive(ByteArray(0), "salt".toByteArray(), 16, 4)
     }
@@ -102,6 +102,12 @@ class BcryptPbkdfTest {
     }
     assertThrows<IllegalArgumentException> {
       BcryptPbkdf.derive("password".toByteArray(), "salt".toByteArray(), 16, 0)
+    }
+    assertThrows<IllegalArgumentException> {
+      BcryptPbkdf.derive("password".toByteArray(), "salt".toByteArray(), 0, 4)
+    }
+    assertThrows<IllegalArgumentException> {
+      BcryptPbkdf.derive("password".toByteArray(), "salt".toByteArray(), 1025, 4)
     }
   }
 
