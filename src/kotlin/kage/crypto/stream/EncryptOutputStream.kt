@@ -25,6 +25,7 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
 
   private val buf = ByteArray(CHUNK_SIZE)
   private var bufSize = 0
+  private var closed = false
 
   private val encryptOutputBuf = ByteArray(ChaCha20Poly1305.getEncryptOutputSize(buf.size))
 
@@ -33,6 +34,8 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
   }
 
   override fun write(b: ByteArray, off: Int, len: Int) {
+    ensureOpen()
+
     var inputStart = off
     val inputEnd = off + len
 
@@ -52,8 +55,15 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
   }
 
   override fun close() {
+    if (closed) return
+    closed = true
+
     flushChunk(last = true)
     dst.close()
+  }
+
+  private fun ensureOpen() {
+    if (closed) throw java.io.IOException("Stream closed")
   }
 
   private fun flushChunk(last: Boolean = false) {
