@@ -68,6 +68,18 @@ class SshEd25519Test {
   }
 
   @Test
+  fun testPassphraseOverloadAcceptsUnencryptedKey() {
+    val recipient = SshKey.parseRecipient(publicKey)
+    val identity = SshKey.parseIdentity(privateKey, "ignored passphrase".toByteArray())
+
+    val plaintext = "the quick brown fox jumps over the lazy dog".toByteArray()
+    val ageFile = Age.encrypt(listOf(recipient), ByteArrayInputStream(plaintext))
+    val decrypted = Age.decrypt(identity, ageFile).readBytes()
+
+    assertThat(decrypted).isEqualTo(plaintext)
+  }
+
+  @Test
   fun testAgeRoundTrip() {
     val recipient = SshKey.parseRecipient(publicKey)
     val identity = SshKey.parseIdentity(privateKey)
