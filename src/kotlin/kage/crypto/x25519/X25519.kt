@@ -22,7 +22,6 @@ public object X25519 {
     if (!X25519.calculateAgreement(input, 0, r, 0, out, 0))
       throw X25519LowOrderPointException("Low order point")
 
-    X25519.scalarMult(input, 0, r, 0, out, 0)
     return out
   }
 
