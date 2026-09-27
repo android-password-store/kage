@@ -39,7 +39,7 @@ dependencies {
 }
 ```
 
-Documentation for the latest stable release can be found on [GitHub Pages](https://android-password-store.github.io/kage/).
+Documentation for the latest tagged release can be found on [GitHub Pages](https://android-password-store.github.io/kage/).
 
 ## Goals
 
