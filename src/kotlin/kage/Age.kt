@@ -439,8 +439,7 @@ public object Age {
   private fun decryptInternal(identities: List<Identity>, ageFile: AgeFile): InputStream {
     val fileKey = resolveFileKey(identities, ageFile.header)
 
-    val nonce = ByteArray(STREAM_NONCE_SIZE)
-    ageFile.body.copyInto(nonce, 0, 0, STREAM_NONCE_SIZE)
+    val nonce = readPayloadNonce(ByteArrayInputStream(ageFile.body))
 
     val streamKey = Primitives.streamKey(fileKey, nonce)
 

@@ -16,6 +16,7 @@ import kage.crypto.stream.EncryptOutputStream.Companion.CHUNK_SIZE
 import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
+import kage.errors.InvalidNonceException
 import kage.errors.InvalidRecipientException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
@@ -158,6 +159,17 @@ class AgeTest {
     val out = Age.decrypt(identity, ageFile)
 
     assertThat(out.readAllBytes().decodeToString()).isEqualTo("this is my file")
+  }
+
+  @Test
+  fun testDecryptRejectsTruncatedInMemoryPayloadNonce() {
+    val (recipient, identity) = genX25519Identity()
+    val ageFile = Age.encrypt(listOf(recipient), ByteArrayInputStream(ByteArray(0)))
+
+    for (nonceLength in 0 until 16) {
+      val truncated = AgeFile(ageFile.header, ageFile.body.copyOf(nonceLength))
+      assertThrows<InvalidNonceException> { Age.decrypt(identity, truncated) }
+    }
   }
 
   @Test
