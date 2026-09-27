@@ -135,6 +135,8 @@ public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: B
           val stanza = AgeStanza.parse(reader, budget)
           recipientList.add(stanza)
         } else if (prefix.startsWith(FOOTER_PREFIX)) {
+          if (recipientList.isEmpty())
+            throw InvalidRecipientException("Header does not contain any recipient stanzas")
           return recipientList
         } else {
           val unexpectedLine = readHeaderLine(reader, budget)
