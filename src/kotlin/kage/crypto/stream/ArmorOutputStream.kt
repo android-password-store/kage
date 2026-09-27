@@ -14,12 +14,15 @@ internal class ArmorOutputStream(private val dst: OutputStream) : OutputStream()
   private var bufSize = 0
 
   private var started = false
+  private var closed = false
 
   override fun write(i: Int) {
     write(byteArrayOf(i.toByte()))
   }
 
   override fun write(b: ByteArray, off: Int, len: Int) {
+    ensureOpen()
+
     if (len == 0) {
       return
     }
@@ -57,8 +60,20 @@ internal class ArmorOutputStream(private val dst: OutputStream) : OutputStream()
   }
 
   override fun close() {
-    writeLine()
+    if (closed) return
+    closed = true
+
+    if (!started) {
+      dst.write((ArmorInputStream.HEADER + "\n").toByteArray())
+      started = true
+    } else {
+      writeLine()
+    }
     dst.write((ArmorInputStream.FOOTER).toByteArray())
     dst.close()
+  }
+
+  private fun ensureOpen() {
+    if (closed) throw java.io.IOException("Stream closed")
   }
 }
