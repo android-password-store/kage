@@ -13,6 +13,8 @@ import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.ArmorInputStream
 import kage.errors.ArmorCodingException
+import kage.errors.InvalidRecipientException
+import kage.errors.InvalidVersionException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -116,14 +118,9 @@ class ArmorTest {
 
     val encryptedInput = ByteArrayInputStream(encryptedInputStr.toByteArray())
 
-    val error =
-      assertThrows<ArmorCodingException> {
-        Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
-      }
-
-    assertThat(error)
-      .hasMessageThat()
-      .isEqualTo("invalid first line: -----BEGIN AGE ENCRYPTED FILE-----something else")
+    assertThrows<InvalidVersionException> {
+      Age.decryptStream(listOf(identity), encryptedInput, decryptedOutput)
+    }
   }
 
   @Test
@@ -201,6 +198,32 @@ ec4AeigPelkT
       }
 
     assertThat(error).hasMessageThat().isEqualTo("invalid closing line")
+  }
+
+  @Test
+  fun testHeaderSuffixAfterMaximumLeadingWhitespaceIsNotDetectedAsArmor() {
+    val input = "\n".repeat(1024) + "-----BEGIN AGE ENCRYPTED FILE-----x\n"
+
+    assertThrows<InvalidVersionException> {
+      Age.decryptStream(
+        listOf(identity),
+        ByteArrayInputStream(input.toByteArray()),
+        ByteArrayOutputStream(),
+      )
+    }
+  }
+
+  @Test
+  fun testBinaryHeaderContainingFiveHyphensIsNotDetectedAsArmor() {
+    val binaryHeader = "age-encryption.org/v1\n-> scrypt -----\n".toByteArray()
+
+    assertThrows<InvalidRecipientException> {
+      Age.decryptStream(
+        listOf(identity),
+        ByteArrayInputStream(binaryHeader),
+        ByteArrayOutputStream(),
+      )
+    }
   }
 
   @Test
