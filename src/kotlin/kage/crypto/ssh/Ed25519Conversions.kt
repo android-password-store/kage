@@ -42,6 +42,12 @@ internal object Ed25519Conversions {
     return bigIntegerToLe(u)
   }
 
+  /** Derives the Ed25519 public key corresponding to a 32-byte private seed. */
+  fun publicKeyFromPrivateSeed(seed: ByteArray): ByteArray {
+    require(seed.size == 32) { "ed25519 seed must be 32 bytes" }
+    return ByteArray(32).also { Ed25519.generatePublicKey(seed, 0, it, 0) }
+  }
+
   /**
    * Derives the Curve25519 scalar from an Ed25519 private seed: the low 32 bytes of SHA-512(seed).
    * Clamping is left to the X25519 scalar multiplication, exactly as age relies on

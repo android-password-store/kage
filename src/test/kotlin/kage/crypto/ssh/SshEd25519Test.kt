@@ -114,7 +114,7 @@ class SshEd25519Test {
   }
 
   @Test
-  fun testParseIdentityRejectsMismatchedEd25519PublicKey() {
+  fun testParseIdentityRejectsEd25519PublicKeyThatDoesNotMatchPrivateSeed() {
     val tamperedPrivateKey = tamperEd25519PrivateKeyPublicParts(privateKey, alternatePublicKey)
 
     assertThrows<InvalidSshKeyException> { SshKey.parseIdentity(tamperedPrivateKey) }

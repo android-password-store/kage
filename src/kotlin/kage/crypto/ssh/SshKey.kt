@@ -130,6 +130,8 @@ public object SshKey {
         if (!ed25519PublicKeyFromBlob(publicKeyBlob).contentEquals(publicKey))
           throw InvalidSshKeyException("ed25519 public key does not match private key")
         val seed = privateKeyBytes.copyOfRange(0, 32)
+        if (!Ed25519Conversions.publicKeyFromPrivateSeed(seed).contentEquals(publicKey))
+          throw InvalidSshKeyException("ed25519 public key does not match private key")
         SshEd25519Identity(publicKeyBlob, seed, publicKey)
       }
       SSH_RSA -> {
