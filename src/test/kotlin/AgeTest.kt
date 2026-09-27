@@ -16,6 +16,7 @@ import kage.crypto.stream.EncryptOutputStream.Companion.CHUNK_SIZE
 import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
+import kage.errors.InvalidRecipientException
 import kage.errors.InvalidScryptRecipientException
 import kage.errors.NoIdentitiesException
 import kage.format.AgeFile
@@ -33,6 +34,14 @@ class AgeTest {
     val publicKey = X25519.scalarMultBase(privateKey)
 
     return Pair(X25519Recipient(publicKey), X25519Identity(privateKey, publicKey))
+  }
+
+  @Test
+  fun testDecryptHeaderWithEmptyRecipientList() {
+    val header = "age-encryption.org/v1\n--- AA==\n".toByteArray()
+    val (_, identity) = genX25519Identity()
+
+    assertThrows<InvalidRecipientException> { Age.decryptHeader(header, listOf(identity)) }
   }
 
   @Test

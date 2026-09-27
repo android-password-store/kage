@@ -203,6 +203,13 @@ class AgeHeaderTest {
   }
 
   @Test
+  fun testEmptyRecipientList() {
+    val header = "age-encryption.org/v1\n--- AA==\n"
+
+    assertThrows<InvalidRecipientException> { AgeHeader.parse(header.byteInputStream().buffered()) }
+  }
+
+  @Test
   fun testEmptyReader() {
     val header =
       """
