@@ -24,9 +24,31 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
   private var lastLineBytes = 0
 
   override fun read(): Int {
-    if (unreadOffset < unreadSize) return (unread[unreadOffset++].toInt() and 0xff)
+    if (!fillUnread()) return -1
+    return unread[unreadOffset++].toInt() and 0xff
+  }
 
-    if (isEOF) return -1
+  override fun read(dst: ByteArray, offset: Int, length: Int): Int {
+    if (offset < 0 || length < 0 || length > dst.size - offset) {
+      throw IndexOutOfBoundsException()
+    }
+    if (length == 0) return 0
+
+    var copied = 0
+    while (copied < length && fillUnread()) {
+      val count = minOf(length - copied, unreadSize - unreadOffset)
+      unread.copyInto(dst, offset + copied, unreadOffset, unreadOffset + count)
+      unreadOffset += count
+      copied += count
+    }
+
+    return if (copied == 0) -1 else copied
+  }
+
+  /** Makes decoded bytes available, reading and validating another armor line only when needed. */
+  private fun fillUnread(): Boolean {
+    if (unreadOffset < unreadSize) return true
+    if (isEOF) return false
 
     if (!started) drainLeading()
 
@@ -37,7 +59,7 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
     if (line == FOOTER) {
       drainTrailing()
       isEOF = true
-      return -1
+      return false
     }
 
     if (line.isEmpty()) {
@@ -77,7 +99,7 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
       isEOF = true
     }
 
-    return (unread[unreadOffset++].toInt() and 0xff)
+    return unreadSize > 0
   }
 
   private fun drainLeading() {
