@@ -241,19 +241,25 @@ public object Age {
   public fun parseIdentities(reader: BufferedReader): List<Identity> {
     val identities = mutableListOf<Identity>()
     var bytesRead = 0L
-    for (rawLine in reader.lineSequence()) {
+    for ((lineIndex, rawLine) in reader.lineSequence().withIndex()) {
       bytesRead += rawLine.length + 1
       if (bytesRead > KEY_FILE_SIZE_LIMIT)
         throw InvalidIdentityFileException("identities file exceeds the 16 MiB size limit")
       val line = rawLine.trim()
       if (line.isEmpty() || line.startsWith("#")) continue
-      identities.add(
-        when {
-          line.startsWith(X25519_IDENTITY_PREFIX) -> X25519Identity.decode(line)
-          line.startsWith(MLKEM768_X25519_IDENTITY_PREFIX) -> MlKem768X25519Identity.decode(line)
-          else -> throw InvalidIdentityFileException("unknown identity type: $line")
+      val lineNumber = lineIndex + 1
+      val identity =
+        try {
+          when {
+            line.startsWith(X25519_IDENTITY_PREFIX) -> X25519Identity.decode(line)
+            line.startsWith(MLKEM768_X25519_IDENTITY_PREFIX) -> MlKem768X25519Identity.decode(line)
+            else -> throw InvalidIdentityFileException("unknown identity type")
+          }
+        } catch (_: Exception) {
+          // Decoder errors can include the supplied secret key. Do not retain them as a cause.
+          throw InvalidIdentityFileException("invalid identity on line $lineNumber")
         }
-      )
+      identities.add(identity)
     }
     if (identities.isEmpty()) throw InvalidIdentityFileException("no identities found")
     return identities

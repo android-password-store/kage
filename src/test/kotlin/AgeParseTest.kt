@@ -50,6 +50,20 @@ class AgeParseTest {
   }
 
   @Test
+  fun parseIdentities_redactsMalformedSecretKeyFromError() {
+    val secretLine = "AGE-SECRET-KEY-secret-material-that-must-not-leak"
+
+    val exception =
+      assertThrows<InvalidIdentityFileException> {
+        Age.parseIdentities(reader("# comment\n$secretLine"))
+      }
+
+    assertThat(exception.message).contains("line 2")
+    assertThat(exception.message).doesNotContain(secretLine)
+    assertThat(exception.cause).isNull()
+  }
+
+  @Test
   fun parseKeyFiles_rejectInputOverTheCharacterLimit() {
     val overLimitComment = "#${"x".repeat(16 * 1024 * 1024)}"
 
