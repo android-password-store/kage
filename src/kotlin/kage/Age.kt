@@ -398,7 +398,9 @@ public object Age {
       if (srcStream.markSupported()) srcStream else BufferedInputStream(srcStream)
 
     // Check if the InputStream contains whitespace + header
-    val readLimit = ArmorInputStream.MAX_WHITESPACE + ArmorInputStream.HEADER.length
+    // Read one byte past the longest valid whitespace + header prefix to distinguish a complete
+    // opening line from a header followed by a suffix.
+    val readLimit = ArmorInputStream.MAX_WHITESPACE + ArmorInputStream.HEADER.length + 1
     markSupportedStream.mark(readLimit)
 
     val initialBytes = ByteArray(readLimit)
@@ -410,9 +412,21 @@ public object Age {
 
     markSupportedStream.reset()
 
-    return if (initialString.contains(ArmorInputStream.HEADER_START)) {
-      ArmorInputStream(markSupportedStream)
-    } else markSupportedStream
+    var leadingWhitespace = 0
+    val firstNonWhitespaceLine =
+      initialString
+        .lineSequence()
+        .dropWhile { line ->
+          line.trim().isEmpty().also { isWhitespace ->
+            if (isWhitespace) leadingWhitespace += line.length + 1
+          }
+        }
+        .firstOrNull()
+    val startsWithArmorHeader =
+      firstNonWhitespaceLine == ArmorInputStream.HEADER &&
+        leadingWhitespace <= ArmorInputStream.MAX_WHITESPACE
+
+    return if (startsWithArmorHeader) ArmorInputStream(markSupportedStream) else markSupportedStream
   }
 
   private fun readPayloadNonce(stream: InputStream): ByteArray {

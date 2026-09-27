@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.MessageDigest
+import kage.crypto.stream.ArmorInputStream
 import kage.kage.test.utils.TestSuite
 import kage.kage.utils.mapToUpstreamExpect
 import kage.test.utils.Expect.Success
@@ -34,7 +35,9 @@ class UpstreamTestSuite {
 
         val baos = ByteArrayOutputStream()
         val result = runCatching {
-          Age.decryptStream(suite.identities, suite.testContent.inputStream(), baos)
+          val source = suite.testContent.inputStream()
+          val input = if (suite.armored) ArmorInputStream(source) else source
+          Age.decryptStream(suite.identities, input, baos)
         }
 
         val error = result.getError()
