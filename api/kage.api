@@ -400,7 +400,7 @@ public final class kage/format/AgeStanza {
 	public final fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
 	public static final fun parse$kage (Ljava/io/BufferedInputStream;)Lkage/format/AgeStanza;
-	public static final fun parseBodyLines$kage (Ljava/io/BufferedInputStream;)[B
+	public static final fun parseBodyLines$kage (Ljava/io/BufferedInputStream;Lkage/utils/HeaderByteBudget;)[B
 	public static final fun parseRecipientLine$kage (Ljava/lang/String;)Lkotlin/Pair;
 	public static final fun write$kage (Ljava/io/BufferedWriter;Lkage/format/AgeStanza;)V
 	public static final fun writeBody$kage (Ljava/io/BufferedWriter;[B)V

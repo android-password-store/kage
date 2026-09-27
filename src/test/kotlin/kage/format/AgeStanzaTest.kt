@@ -120,6 +120,23 @@ class AgeStanzaTest {
   }
 
   @Test
+  fun rejectsOversizedUnterminatedBodyLine() {
+    val reader = ("A".repeat(70_000)).byteInputStream().buffered()
+
+    assertThrows<InvalidRecipientException> { AgeStanza.parseBodyLines(reader) }
+  }
+
+  @Test
+  fun rejectsStanzaBodyOverLimit() {
+    val encodedLine = "A".repeat(64)
+    val lineCount = AgeStanza.MAX_STANZA_BODY_BYTES / 48 + 1
+    val reader =
+      (List(lineCount) { encodedLine }.joinToString("\n") + "\n\n").byteInputStream().buffered()
+
+    assertThrows<InvalidRecipientException> { AgeStanza.parseBodyLines(reader) }
+  }
+
+  @Test
   fun testIncorrectBodyThrowsException() {
     // Here the body does not end on a partial line and hence should throw an error
     val stanza =

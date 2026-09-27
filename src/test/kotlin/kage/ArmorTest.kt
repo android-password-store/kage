@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream
 import kage.Age
 import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.scrypt.ScryptRecipient
+import kage.crypto.stream.ArmorInputStream
 import kage.errors.ArmorCodingException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -123,6 +124,32 @@ class ArmorTest {
     assertThat(error)
       .hasMessageThat()
       .isEqualTo("invalid first line: -----BEGIN AGE ENCRYPTED FILE-----something else")
+  }
+
+  @Test
+  fun acceptsCrLfArmorLines() {
+    val armor =
+      """-----BEGIN AGE ENCRYPTED FILE-----
+YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBEUXh3Qk95OWtmOEdBVFJH
+Ukw4aE1RIDE4CnNlY1pRR011ekJpVjZvZUFhakhGZE8rcUtyRWtEN1c4b0hXbzhr
+ZG5iekEKLS0tIEYzcXpHb2N4STExV0VEWnZtQUFpRXA4OXBLUWlWTTJnbkhPbEJs
+Sy8vNVUKjYeREvMLfFR1ZFUCohjQnSP/d1n4hPuxTeFggWM94q6dhTr6qrvjBMPL
+ec4AeigPelkT
+-----END AGE ENCRYPTED FILE-----
+"""
+        .replace("\n", "\r\n")
+
+    assertThat(ArmorInputStream(armor.byteInputStream()).readBytes()).isNotEmpty()
+  }
+
+  @Test
+  fun rejectsOversizedUnterminatedArmorLine() {
+    val input = "-----BEGIN AGE ENCRYPTED FILE-----\n" + "A".repeat(100_000)
+
+    val error =
+      assertThrows<ArmorCodingException> { ArmorInputStream(input.byteInputStream()).read() }
+
+    assertThat(error).hasMessageThat().isEqualTo("column limit exceeded")
   }
 
   @Test

@@ -21,6 +21,7 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
 
   private var started = false
   private var isEOF = false
+  private var lastLineBytes = 0
 
   override fun read(): Int {
     if (unreadOffset < unreadSize) return (unread[unreadOffset++].toInt() and 0xff)
@@ -29,7 +30,9 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
 
     if (!started) drainLeading()
 
-    val line = srcReader.readLine()
+    val line =
+      readArmorLine(COLUMNS_PER_LINE)
+        ?: throw ArmorCodingException("unexpected end of armored data")
 
     if (line == FOOTER) {
       drainTrailing()
@@ -61,7 +64,12 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
     unreadOffset = 0
 
     if (unreadSize < BYTES_PER_LINE) {
-      val trailingLine = srcReader.readLine()
+      val trailingLine =
+        try {
+          readArmorLine(FOOTER.length)
+        } catch (e: ArmorCodingException) {
+          throw ArmorCodingException("invalid closing line")
+        }
 
       if (trailingLine != FOOTER) throw ArmorCodingException("invalid closing line")
 
@@ -76,11 +84,12 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
     var removedWhitespace = 0
 
     while (!started) {
-      val line = srcReader.readLine()
+      val line =
+        readArmorLine(MAX_WHITESPACE + 1) ?: throw ArmorCodingException("missing armor header")
       val trimmedLine = line.trim()
 
       if (trimmedLine.isEmpty()) {
-        removedWhitespace += line.length + 1
+        removedWhitespace += lastLineBytes
 
         if (removedWhitespace > MAX_WHITESPACE)
           throw ArmorCodingException("too much leading whitespace")
@@ -91,6 +100,29 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
       if (line != HEADER) throw ArmorCodingException("invalid first line: $line")
 
       started = true
+    }
+  }
+
+  private fun readArmorLine(maxLength: Int): String? {
+    val line = StringBuilder(minOf(maxLength, 64))
+    lastLineBytes = 0
+    while (true) {
+      val c = srcReader.read()
+      if (c == -1) {
+        if (line.isEmpty()) return null
+        if (line.length > maxLength) throw ArmorCodingException("column limit exceeded")
+        return line.toString()
+      }
+      lastLineBytes++
+      if (c == '\n'.code) {
+        if (line.length > maxLength + 1 || (line.length == maxLength + 1 && line.last() != '\r'))
+          throw ArmorCodingException("column limit exceeded")
+        if (line.isNotEmpty() && line.last() == '\r') line.setLength(line.length - 1)
+        return line.toString()
+      }
+      if (line.length == maxLength + 1 || (line.length == maxLength && c != '\r'.code))
+        throw ArmorCodingException("column limit exceeded")
+      line.append(c.toChar())
     }
   }
 
