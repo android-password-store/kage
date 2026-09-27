@@ -127,16 +127,24 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
   }
 
   private fun drainTrailing() {
-    val buf = CharArray(MAX_WHITESPACE)
-    val bufSize = srcReader.read(buf)
+    val buf = CharArray(256)
+    var trailingWhitespace = 0
 
-    val trailingText = if (bufSize > -1) buf.sliceArray(0 until bufSize).concatToString() else ""
+    while (true) {
+      val bufSize = srcReader.read(buf)
+      if (bufSize == -1) return
 
-    if (trailingText.trim().isNotEmpty())
-      throw ArmorCodingException("trailing data after armored file")
+      for (index in 0 until bufSize) {
+        if (!buf[index].isWhitespace()) {
+          throw ArmorCodingException("trailing data after armored file")
+        }
 
-    if (trailingText.length == MAX_WHITESPACE)
-      throw ArmorCodingException("too much trailing whitespace")
+        trailingWhitespace++
+        if (trailingWhitespace >= MAX_WHITESPACE) {
+          throw ArmorCodingException("too much trailing whitespace")
+        }
+      }
+    }
   }
 
   internal companion object {
