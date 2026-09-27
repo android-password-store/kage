@@ -58,7 +58,9 @@ pitest {
   coverageThreshold.set(90)
 }
 
-tasks.named("check") { dependsOn("pitest") }
+if (!providers.gradleProperty("slimTests").isPresent) {
+  tasks.named("check") { dependsOn("pitest") }
+}
 
 tasks.withType<KotlinCompile>().configureEach {
   compilerOptions {
