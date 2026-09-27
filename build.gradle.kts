@@ -51,6 +51,7 @@ pitest {
   targetClasses.set(setOf("kage.*"))
   targetTests.set(setOf("kage.*"))
   threads.set(Runtime.getRuntime().availableProcessors())
+  verbosity.set("QUIET")
   outputFormats.set(setOf("XML", "HTML"))
   jvmArgs.set(listOf("-Xmx512m"))
   // This is the current level we hit as of introducing pitest. It should never
