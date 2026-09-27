@@ -30,8 +30,9 @@ import org.bouncycastle.math.ec.rfc7748.X25519.POINT_SIZE
  * @param secretKey Raw private X25519 key.
  * @param publicKey Raw public X25519 key corresponding to [secretKey].
  */
-public class X25519Identity(private val secretKey: ByteArray, private val publicKey: ByteArray) :
-  Identity {
+public class X25519Identity(secretKey: ByteArray, publicKey: ByteArray) : Identity {
+  private val secretKey = secretKey.copyOf()
+  private val publicKey = publicKey.copyOf()
 
   private fun unwrapSingle(stanza: AgeStanza): ByteArray {
     if (stanza.type != X25519Recipient.X25519_STANZA_TYPE) throw IncorrectIdentityException()

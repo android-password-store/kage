@@ -22,7 +22,8 @@ import kage.utils.encodeBase64
  *
  * @param publicKey Raw public X25519 key.
  */
-public class X25519Recipient(private val publicKey: ByteArray) : Recipient {
+public class X25519Recipient(publicKey: ByteArray) : Recipient {
+  private val publicKey = publicKey.copyOf()
 
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val ephemeralSecret = ByteArray(EPHEMERAL_SECRET_LEN)
