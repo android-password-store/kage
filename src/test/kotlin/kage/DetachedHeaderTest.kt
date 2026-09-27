@@ -90,6 +90,46 @@ class DetachedHeaderTest {
   }
 
   @Test
+  fun testStopsAfterFirstAuthenticatedIdentity() {
+    val identity = X25519Identity.new()
+    val header = Age.extractHeader(ByteArrayInputStream(encrypt(identity, "this is my file")))
+    var firstCalls = 0
+    var laterCalls = 0
+    val first =
+      object : Identity {
+        override fun unwrap(stanzas: List<AgeStanza>): ByteArray {
+          firstCalls++
+          return identity.unwrap(stanzas)
+        }
+      }
+    val later =
+      object : Identity {
+        override fun unwrap(stanzas: List<AgeStanza>): ByteArray {
+          laterCalls++
+          throw IncorrectIdentityException()
+        }
+      }
+
+    Age.decryptHeader(header, listOf(first, later))
+
+    assertThat(firstCalls).isEqualTo(1)
+    assertThat(laterCalls).isEqualTo(0)
+  }
+
+  @Test
+  fun testRetriesAfterUnwrappedCandidateFailsAuthentication() {
+    val identity = X25519Identity.new()
+    val header = Age.extractHeader(ByteArrayInputStream(encrypt(identity, "this is my file")))
+    val unauthenticated =
+      object : Identity {
+        override fun unwrap(stanzas: List<AgeStanza>): ByteArray = ByteArray(Age.FILE_KEY_SIZE)
+      }
+
+    assertThat(Age.decryptHeader(header, listOf(unauthenticated, identity)))
+      .hasLength(Age.FILE_KEY_SIZE)
+  }
+
+  @Test
   fun testDecryptHeaderWithTamperedMac() {
     val identity = X25519Identity.new()
     val ciphertext = encrypt(identity, "this is my file")

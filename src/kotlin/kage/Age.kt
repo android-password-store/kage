@@ -364,31 +364,27 @@ public object Age {
         throw ScryptIdentityException("an scrypt identity must be the only one")
     }
 
-    val exceptions = mutableListOf<Exception>()
-
-    var fileKey: ByteArray? = null
-
-    for (identity in identities) {
-      try {
-        val unwrappedFileKey = identity.unwrap(header.recipients)
-        if (fileKey == null) fileKey = unwrappedFileKey
-      } catch (err: IncorrectIdentityException) {
-        exceptions.add(err)
-      }
-    }
-
-    val resolvedFileKey =
-      fileKey
-        ?: throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
-
     if (header.mac.size != HMAC_SIZE) throw InvalidHMACHeaderException("invalid header mac")
 
-    val calculatedMac = Primitives.headerMAC(resolvedFileKey, header)
+    val exceptions = mutableListOf<Exception>()
+    var unwrappedCandidate = false
 
-    if (!MessageDigest.isEqual(header.mac, calculatedMac))
-      throw IncorrectHMACException("bad header MAC")
+    for (identity in identities) {
+      val fileKey =
+        try {
+          identity.unwrap(header.recipients)
+        } catch (err: IncorrectIdentityException) {
+          exceptions.add(err)
+          continue
+        }
 
-    return resolvedFileKey
+      unwrappedCandidate = true
+      val calculatedMac = Primitives.headerMAC(fileKey, header)
+      if (MessageDigest.isEqual(header.mac, calculatedMac)) return fileKey
+    }
+
+    if (unwrappedCandidate) throw IncorrectHMACException("bad header MAC")
+    throw exceptions.reduce { acc, exception -> acc.apply { addSuppressed(exception) } }
   }
 
   // Wraps [srcStream] in an ArmorInputStream when it starts with an armor header, so that callers

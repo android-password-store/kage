@@ -143,9 +143,12 @@ class MlKem768X25519RecipientTest {
     assertThrows<MlKem768X25519IdentityException> {
       Age.decrypt(listOf(testIdentity, x25519Identity), malformedAgeFile)
     }
-    assertThrows<MlKem768X25519IdentityException> {
-      Age.decrypt(listOf(x25519Identity, testIdentity), malformedAgeFile)
-    }
+    assertThat(
+        Age.decrypt(listOf(x25519Identity, testIdentity), malformedAgeFile)
+          .readBytes()
+          .decodeToString()
+      )
+      .isEqualTo("plaintext")
   }
 
   @Test
