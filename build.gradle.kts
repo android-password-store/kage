@@ -45,13 +45,16 @@ mavenPublishing {
 
 pitest {
   junit5PluginVersion.set("1.2.3")
-  pitestVersion.set("1.21.0")
+  pitestVersion.set("1.30.0")
   avoidCallsTo.set(setOf("kotlin.jvm.internal"))
   mutators.set(setOf("STRONGER"))
   targetClasses.set(setOf("kage.*"))
   targetTests.set(setOf("kage.*"))
-  threads.set(Runtime.getRuntime().availableProcessors())
+  // Use half of available CPUs, minimum floor at 2 threads
+  threads.set(Runtime.getRuntime().availableProcessors().div(2).coerceAtLeast(2))
+  verbosity.set("QUIET")
   outputFormats.set(setOf("XML", "HTML"))
+  jvmArgs.set(listOf("-Xmx512m"))
   // This is the current level we hit as of introducing pitest. It should never
   // be allowed to regress.
   mutationThreshold.set(73)
