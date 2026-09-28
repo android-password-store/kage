@@ -50,7 +50,8 @@ pitest {
   mutators.set(setOf("STRONGER"))
   targetClasses.set(setOf("kage.*"))
   targetTests.set(setOf("kage.*"))
-  threads.set(Runtime.getRuntime().availableProcessors())
+  // Use half of available CPUs, minimum floor at 2 threads
+  threads.set(Runtime.getRuntime().availableProcessors().div(2).coerceAtLeast(2))
   verbosity.set("QUIET")
   outputFormats.set(setOf("XML", "HTML"))
   jvmArgs.set(listOf("-Xmx512m"))
