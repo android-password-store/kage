@@ -133,7 +133,7 @@ public class AgeStanza(
 
     private fun readHeaderLine(
       reader: BufferedInputStream,
-      budget: HeaderByteBudget? = null,
+      budget: HeaderByteBudget?,
     ): String? =
       try {
         reader.readLine(MAX_LINE_BYTES, budget)
