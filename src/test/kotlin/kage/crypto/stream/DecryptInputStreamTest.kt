@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.security.SecureRandom
+import kage.errors.StreamException
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
@@ -98,6 +99,19 @@ class DecryptInputStreamTest {
     assertThrows(IndexOutOfBoundsException::class.java) { input.read(buffer, 0, -1) }
     assertThrows(IndexOutOfBoundsException::class.java) { input.read(buffer, 3, 2) }
     assertThrows(IndexOutOfBoundsException::class.java) { input.read(buffer, 5, 0) }
+  }
+
+  @Test
+  fun invalidFinalChunkAuthenticationFailsImmediately() {
+    val key = ByteArray(ChaCha20Poly1305.KEY_LENGTH)
+    val ciphertext = ByteArrayOutputStream()
+    EncryptOutputStream(key, ciphertext).use { it.write("payload".toByteArray()) }
+    val corrupted =
+      ciphertext.toByteArray().also { it[it.lastIndex] = (it.last().toInt() xor 1).toByte() }
+
+    assertThrows(StreamException::class.java) {
+      DecryptInputStream(key, ByteArrayInputStream(corrupted)).readAllBytes()
+    }
   }
 
   @Test

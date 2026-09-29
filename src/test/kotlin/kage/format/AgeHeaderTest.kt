@@ -76,6 +76,69 @@ class AgeHeaderTest {
   }
 
   @Test
+  fun equalityRejectsNullAndDifferentTypes() {
+    val header = AgeHeader(emptyList(), byteArrayOf(1))
+
+    assertThat(header.equals(null)).isFalse()
+    assertThat(header.equals(Any())).isFalse()
+    assertThat(header.equals(header)).isTrue()
+  }
+
+  @Test
+  fun equalityRejectsDifferentRecipientsAndMacs() {
+    val stanza = AgeStanza("test", emptyList(), byteArrayOf())
+    val header = AgeHeader(listOf(stanza), byteArrayOf(1))
+
+    assertThat(header == AgeHeader(emptyList(), byteArrayOf(1))).isFalse()
+    assertThat(header == AgeHeader(listOf(stanza), byteArrayOf(2))).isFalse()
+    assertThat(header == AgeHeader(listOf(stanza), byteArrayOf(1))).isTrue()
+  }
+
+  @Test
+  fun footerCannotExceedRemainingTotalHeaderBudget() {
+    val input = StringBuilder("age-encryption.org/v1\n")
+    val fullBody = ByteArray(1_048_512)
+    repeat(11) { input.append(testStanza(fullBody)) }
+
+    val budgetRemaining = AgeHeader.MAX_HEADER_BYTES - input.length
+    val targetStanzaSize = budgetRemaining - 32
+    var bodySize = ((targetStanzaSize - 6) * 48 / 65 / 48) * 48
+    var stanza = testStanza(ByteArray(bodySize))
+    while (stanza.length > targetStanzaSize) {
+      bodySize -= 48
+      stanza = testStanza(ByteArray(bodySize))
+    }
+    while (testStanza(ByteArray(bodySize + 48)).length <= targetStanzaSize) {
+      bodySize += 48
+      stanza = testStanza(ByteArray(bodySize))
+    }
+    input.append(stanza)
+    input.append("--- ").append("A".repeat(100)).append('\n')
+
+    assertThrows<InvalidFooterException> {
+      AgeHeader.parse(input.toString().byteInputStream().buffered())
+    }
+  }
+
+  private fun testStanza(body: ByteArray): String {
+    val encoded = Base64.getEncoder().withoutPadding().encodeToString(body)
+    return buildString {
+      append("-> test\n")
+      encoded.chunked(64).forEach { append(it).append('\n') }
+      if (encoded.length % 64 == 0) append('\n')
+    }
+  }
+
+  @Test
+  fun rejectsOverlongFooterLine() {
+    val input = "--- " + "A".repeat(65_536)
+
+    assertThrows<InvalidFooterException> {
+      AgeHeader.parseFooter(input.byteInputStream().buffered())
+    }
+  }
+
+  @Test
   fun testEquality() {
     val headerString =
       """

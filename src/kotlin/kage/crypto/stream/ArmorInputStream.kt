@@ -66,10 +66,6 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
       throw ArmorCodingException("empty line in armored data")
     }
 
-    if (line.length > COLUMNS_PER_LINE) {
-      throw ArmorCodingException("column limit exceeded")
-    }
-
     unread =
       try {
         line.decodeBase64(isArmor = true)
@@ -99,7 +95,7 @@ internal class ArmorInputStream(src: InputStream) : InputStream() {
       isEOF = true
     }
 
-    return unreadSize > 0
+    return true
   }
 
   private fun drainLeading() {

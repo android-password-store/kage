@@ -79,6 +79,40 @@ class MlKem768X25519KeyFileTest {
   }
 
   @Test
+  fun testRejectsMissingPrivateKey() {
+    assertThrows<InvalidAgeKeyException> {
+      MlKem768X25519KeyFile.parse("# created: timestamp".reader().buffered())
+    }
+  }
+
+  @Test
+  fun testRejectsMalformedCreatedLine() {
+    val keyString = "# created: invalid: timestamp\n$secretKey"
+
+    assertThrows<InvalidAgeKeyException> {
+      MlKem768X25519KeyFile.parse(keyString.reader().buffered())
+    }
+  }
+
+  @Test
+  fun testRejectsMalformedPublicKeyLine() {
+    val keyString = "# public key: invalid: key\n$secretKey"
+
+    assertThrows<InvalidAgeKeyException> {
+      MlKem768X25519KeyFile.parse(keyString.reader().buffered())
+    }
+  }
+
+  @Test
+  fun testRejectsPublicKeyWithWrongPrefix() {
+    val keyString = "# public key: age1invalid\n$secretKey"
+
+    assertThrows<InvalidAgeKeyException> {
+      MlKem768X25519KeyFile.parse(keyString.reader().buffered())
+    }
+  }
+
+  @Test
   fun testExtraDataIsIgnored() {
     val keyString =
       """
@@ -202,6 +236,48 @@ class MlKem768X25519KeyFileTest {
     writer.flush()
 
     assertThat(out.toString()).isEqualTo(keyString)
+  }
+
+  @Test
+  fun testWriteWithoutPublicKey() {
+    val keyFile = MlKem768X25519KeyFile("", null, MlKem768X25519Identity.decode(secretKey))
+    val out = ByteArrayOutputStream()
+    val writer = out.bufferedWriter()
+
+    MlKem768X25519KeyFile.write(writer, keyFile)
+    writer.flush()
+
+    assertThat(out.toString())
+      .isEqualTo(
+        "# created: ${System.lineSeparator()}${System.lineSeparator()}$secretKey${System.lineSeparator()}"
+      )
+  }
+
+  @Test
+  fun testEqualsHandlesNullAndOtherTypes() {
+    val keyFile = MlKem768X25519KeyFile("", null, MlKem768X25519Identity.decode(secretKey))
+
+    assertThat(keyFile.equals(null)).isFalse()
+    assertThat(keyFile.equals("not a key file")).isFalse()
+    assertThat(keyFile.equals(keyFile)).isTrue()
+  }
+
+  @Test
+  fun testDifferentPrivateKeysAreNotEqual() {
+    val first = MlKem768X25519KeyFile("", null, MlKem768X25519Identity.decode(secretKey))
+    val second = MlKem768X25519KeyFile("", null, MlKem768X25519Identity.new())
+
+    assertThat(first).isNotEqualTo(second)
+  }
+
+  @Test
+  fun testPublicKeyDifferenceMakesKeyFilesUnequal() {
+    val identity = MlKem768X25519Identity.decode(secretKey)
+    val privateOnly = MlKem768X25519KeyFile("", null, identity)
+    val withPublic = MlKem768X25519KeyFile("", identity.recipient(), identity)
+
+    assertThat(privateOnly).isNotEqualTo(withPublic)
+    assertThat(withPublic.hashCode()).isNotEqualTo(privateOnly.hashCode())
   }
 
   @Test

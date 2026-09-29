@@ -6,9 +6,11 @@
 package kage.kage.format
 
 import com.google.common.truth.Truth.assertThat
+import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import kage.crypto.scrypt.ScryptRecipient
 import kage.format.AgeFile
+import kage.format.AgeHeader
 import org.bouncycastle.util.encoders.Base64
 import org.junit.jupiter.api.Test
 
@@ -30,6 +32,34 @@ class AgeFileTest {
     assertThat(ageFile.body)
       .asList()
       .containsExactlyElementsIn(testFile.takeLast(ageFile.body.size))
+  }
+
+  @Test
+  fun equalityRejectsNullAndDifferentTypes() {
+    val ageFile = AgeFile(AgeHeader(emptyList(), byteArrayOf(1)), byteArrayOf(2))
+
+    assertThat(ageFile.equals(null)).isFalse()
+    assertThat(ageFile.equals(Any())).isFalse()
+    assertThat(ageFile.equals(ageFile)).isTrue()
+  }
+
+  @Test
+  fun equalityRejectsDifferentHeadersAndBodies() {
+    val header = AgeHeader(emptyList(), byteArrayOf(1))
+    val sameHeader = AgeHeader(emptyList(), byteArrayOf(1))
+    val differentHeader = AgeHeader(emptyList(), byteArrayOf(3))
+    val file = AgeFile(header, byteArrayOf(2))
+
+    assertThat(file == AgeFile(differentHeader, byteArrayOf(2))).isFalse()
+    assertThat(file == AgeFile(sameHeader, byteArrayOf(4))).isFalse()
+    assertThat(file == AgeFile(sameHeader, byteArrayOf(2))).isTrue()
+  }
+
+  @Test
+  fun parseAcceptsAlreadyBufferedInput() {
+    val parsed = AgeFile.parse(BufferedInputStream(ByteArrayInputStream(testFile)))
+
+    assertThat(parsed.body).isNotEmpty()
   }
 
   // Mostly exists to appease the coverage gods but it's still a

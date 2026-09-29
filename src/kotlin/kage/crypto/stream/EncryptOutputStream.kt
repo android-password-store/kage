@@ -8,9 +8,7 @@ package kage.crypto.stream
 import java.io.OutputStream
 import kage.crypto.stream.ChaCha20Poly1305.NONCE_LENGTH
 import kage.crypto.stream.Stream.incNonce
-import kage.crypto.stream.Stream.nonceIsZero
 import kage.crypto.stream.Stream.setLastChunkFlag
-import kage.errors.StreamException
 
 /**
  * Encrypts data written to this OutputStream and writes the resulting ciphertext to the underlying
@@ -67,13 +65,6 @@ internal class EncryptOutputStream(private val key: ByteArray, private val dst: 
   }
 
   private fun flushChunk(last: Boolean = false) {
-    if (!last && bufSize != CHUNK_SIZE) {
-      throw StreamException("internal error: flush called with partial chunk")
-    }
-
-    if (bufSize == 0 && !nonceIsZero(this.nonce))
-      throw StreamException("only the first chunk can be empty")
-
     if (last) setLastChunkFlag(nonce)
 
     val encryptSize = ChaCha20Poly1305.encrypt(key, nonce, buf, 0, bufSize, encryptOutputBuf)

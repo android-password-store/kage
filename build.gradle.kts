@@ -3,6 +3,7 @@
  * either an Apache 2.0 or MIT license at your discretion, that can be found in the LICENSE-APACHE
  * or LICENSE-MIT files respectively.
  */
+import com.commonsware.kovergate.CoverageMetric
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
 import com.vanniktech.maven.publish.SourcesJar
@@ -15,6 +16,7 @@ plugins {
   alias(libs.plugins.dokka)
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kover)
+  alias(libs.plugins.kovergate)
   alias(libs.plugins.mavenPublish)
   alias(libs.plugins.pitest)
   alias(libs.plugins.spotless)
@@ -32,6 +34,14 @@ kotlin {
 java {
   sourceCompatibility = JavaVersion.VERSION_17
   targetCompatibility = JavaVersion.VERSION_17
+}
+
+koverGate {
+  disabledMetrics.set(listOf(CoverageMetric.INSTRUCTION))
+  minLineCoverage.set(99)
+  minBranchCoverage.set(97)
+  minMethodCoverage.set(97)
+  minClassCoverage.set(98)
 }
 
 mavenPublishing {

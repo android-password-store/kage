@@ -35,6 +35,21 @@ class EncryptOutputStreamTest {
   }
 
   @Test
+  fun writeFlushesFullChunksBeforeTheFinalPartialChunk() {
+    val plaintext = ByteArray(EncryptOutputStream.CHUNK_SIZE + 1) { (it % 251).toByte() }
+    val ciphertext = ByteArrayOutputStream()
+    val stream = EncryptOutputStream(key, ciphertext)
+
+    stream.write(plaintext)
+    stream.close()
+
+    assertThat(
+        DecryptInputStream(key, ByteArrayInputStream(ciphertext.toByteArray())).readAllBytes()
+      )
+      .isEqualTo(plaintext)
+  }
+
+  @Test
   fun armorCloseIsIdempotentForEmptyAndNonEmptyStreams() {
     for (payload in listOf(byteArrayOf(), "armored payload".toByteArray())) {
       val armored = ByteArrayOutputStream()

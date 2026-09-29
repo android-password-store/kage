@@ -119,6 +119,65 @@ class AgeKeyFileTest {
   }
 
   @Test
+  fun malformedMetadataAndMissingPrivateKeyAreRejected() {
+    assertThrows<InvalidAgeKeyException> { AgeKeyFile.parse("# note".reader().buffered()) }
+    assertThrows<InvalidAgeKeyException> {
+      AgeKeyFile.parse(
+        "# created: date: extra\nAGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS"
+          .reader()
+          .buffered()
+      )
+    }
+    assertThrows<InvalidAgeKeyException> {
+      AgeKeyFile.parse(
+        "# public key: age: extra\nAGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS"
+          .reader()
+          .buffered()
+      )
+    }
+    assertThrows<InvalidAgeKeyException> {
+      AgeKeyFile.parse(
+        "# public key: nope\nAGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS"
+          .reader()
+          .buffered()
+      )
+    }
+  }
+
+  @Test
+  fun equalityUsesBothKeysAndHandlesOtherTypes() {
+    val privateKey =
+      X25519Identity.decode(
+        "AGE-SECRET-KEY-1EKYFFCK627939WTZMTT4ZRS2PM3U2K7PZ3MVGEL2M76W3PYJMSHQMTT6SS"
+      )
+    val otherPrivateKey =
+      X25519Identity.decode(
+        "AGE-SECRET-KEY-1705XN76M8EYQ8M9PY4E2G3KA8DN7NSCGT3V4HMN20H3GCX4AS6HSSTG8D3"
+      )
+    val publicKey =
+      X25519Recipient.decode("age1mrmfnwhtlprn4jquex0ukmwcm7y2nxlphuzgsgv8ew2k9mewy3rs8u7su5")
+    val first = AgeKeyFile("date", publicKey, privateKey)
+    val sameKeys = AgeKeyFile("different date", publicKey, privateKey)
+    val withoutPublic = AgeKeyFile("date", null, privateKey)
+
+    assertThat(first == first).isTrue()
+    assertThat(first == sameKeys).isTrue()
+    assertThat(first == withoutPublic).isFalse()
+    assertThat(withoutPublic == first).isFalse()
+    // A missing public key never compares equal, even to another missing public key.
+    assertThat(withoutPublic == AgeKeyFile("date", null, privateKey)).isFalse()
+    assertThat(first == AgeKeyFile("date", publicKey, otherPrivateKey)).isFalse()
+    assertThat(first == AgeKeyFile("date", X25519Recipient(ByteArray(32)), privateKey)).isFalse()
+    assertThat(first.equals(null)).isFalse()
+    assertThat(first.equals("not an age key")).isFalse()
+    assertThat(first.hashCode()).isEqualTo(sameKeys.hashCode())
+
+    assertThat(withoutPublic.hashCode()).isNotEqualTo(0)
+    val out = ByteArrayOutputStream()
+    AgeKeyFile.write(out.bufferedWriter(), withoutPublic)
+  }
+
+  @Test
   fun testWrite() {
     val keyString =
       """

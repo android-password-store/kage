@@ -15,11 +15,13 @@ pluginManagement {
         listOf(
             "ru.vyarus.animalsniffer",
             "org.jetbrains.kotlin.jvm",
+            "com.commonsware.kovergate",
             "com.diffplug.spotless",
             "info.solidsoft.pitest",
           )
           .forEach { plugin -> includeModule(plugin, "${plugin}.gradle.plugin") }
         includeModule("info.solidsoft.gradle.pitest", "gradle-pitest-plugin")
+        includeModule("com.commonsware.kovergate", "kovergate")
       }
     }
     mavenCentral()

@@ -8,8 +8,8 @@ package kage.format
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getOrThrow
 import com.github.michaelbull.result.map
-import com.github.michaelbull.result.mapBoth
 import kage.errors.Bech32Exception
 
 /**
@@ -107,14 +107,7 @@ internal object Bech32 {
   // Encode encodes the HRP and a bytes slice to Bech32. If the HRP is uppercase,
   // the output will be uppercase.
   fun encode(hrp: String, data: ByteArray): Bech32Result<String> {
-    val maybeValues = convertBits(data, 8, 5, true)
-    val values =
-      maybeValues.mapBoth(
-        success = { it },
-        failure = {
-          return Err(it)
-        },
-      )
+    val values = convertBits(data, 8, 5, true).getOrThrow()
 
     if (hrp.isEmpty()) {
       return Err(Bech32Exception("invalid HRP: $hrp"))

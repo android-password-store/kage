@@ -65,6 +65,18 @@ class EncryptInputStreamTest {
   }
 
   @Test
+  fun read_returnsZeroForAnEmptyRequestAndEncryptsInSmallPieces() {
+    val src = ByteArrayInputStream("hello".toByteArray())
+    val encrypted = EncryptInputStream(ByteArray(ChaCha20Poly1305.KEY_LENGTH), src)
+    val buf = ByteArray(1)
+
+    assertThat(encrypted.read(buf, 0, 0)).isEqualTo(0)
+    assertThat(encrypted.read()).isNotEqualTo(-1)
+    while (encrypted.read(buf, 0, 1) != -1) {}
+    assertThat(encrypted.read()).isEqualTo(-1)
+  }
+
+  @Test
   fun encryptReader_closingTheStreamClosesTheSource() {
     var closed = false
     val src =

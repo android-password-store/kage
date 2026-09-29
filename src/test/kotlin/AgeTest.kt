@@ -13,13 +13,16 @@ import java.security.SecureRandom
 import kage.crypto.scrypt.ScryptIdentity
 import kage.crypto.scrypt.ScryptRecipient
 import kage.crypto.stream.EncryptOutputStream.Companion.CHUNK_SIZE
+import kage.crypto.stream.RandomAccessSource
 import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
 import kage.errors.InvalidNonceException
 import kage.errors.InvalidRecipientException
 import kage.errors.InvalidScryptRecipientException
+import kage.errors.InvalidVersionException
 import kage.errors.NoIdentitiesException
+import kage.errors.NoRecipientsException
 import kage.format.AgeFile
 import kage.format.AgeStanza
 import org.bouncycastle.util.encoders.Base64
@@ -43,6 +46,84 @@ class AgeTest {
     val (_, identity) = genX25519Identity()
 
     assertThrows<InvalidRecipientException> { Age.decryptHeader(header, listOf(identity)) }
+  }
+
+  @Test
+  fun encryptRejectsEmptyRecipientList() {
+    assertThrows<NoRecipientsException> {
+      Age.encrypt(emptyList(), ByteArrayInputStream(ByteArray(0)))
+    }
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  @Test
+  fun encryptRejectsNullRecipientEntry() {
+    val recipients = listOf(null) as List<Recipient>
+
+    assertThrows<IllegalArgumentException> {
+      Age.encrypt(recipients, ByteArrayInputStream(ByteArray(0)))
+    }
+  }
+
+  @Test
+  fun encryptReaderProducesDecryptableStream() {
+    val (recipient, identity) = genX25519Identity()
+    val encrypted = Age.encryptReader(listOf(recipient), "reader payload".byteInputStream())
+
+    val decrypted = ByteArrayOutputStream()
+    Age.decryptStream(listOf(identity), encrypted, decrypted)
+
+    assertThat(decrypted.toByteArray().decodeToString()).isEqualTo("reader payload")
+  }
+
+  @Test
+  fun armorHeaderBeyondWhitespaceLimitIsNotTreatedAsArmor() {
+    val input = " ".repeat(1024) + "\n-----BEGIN AGE ENCRYPTED FILE-----\n"
+
+    assertThrows<InvalidVersionException> {
+      Age.extractHeader(ByteArrayInputStream(input.toByteArray()))
+    }
+  }
+
+  @Test
+  fun randomAccessInputStreamHandlesSingleAndBulkReads() {
+    val data = byteArrayOf(1, 2)
+    var calls = 0
+    val source = RandomAccessSource { destination, destinationOffset, length, sourceOffset ->
+      if (calls++ == 0) return@RandomAccessSource 0
+      if (sourceOffset >= data.size) return@RandomAccessSource -1
+      val count = minOf(length.toLong(), data.size - sourceOffset).toInt()
+      data.copyInto(
+        destination,
+        destinationOffset,
+        sourceOffset.toInt(),
+        sourceOffset.toInt() + count,
+      )
+      count
+    }
+    val stream = newRandomAccessInputStream(source, data.size.toLong())
+
+    assertThat(stream.read()).isEqualTo(1)
+    assertThat(stream.read(ByteArray(0), 0, 0)).isEqualTo(0)
+    val remaining = ByteArray(1)
+    assertThat(stream.read(remaining, 0, 1)).isEqualTo(1)
+    assertThat(remaining).isEqualTo(byteArrayOf(2))
+    assertThat(stream.read()).isEqualTo(-1)
+    assertThat(stream.read(ByteArray(1), 0, 1)).isEqualTo(-1)
+
+    val prematurelyEnded = newRandomAccessInputStream(RandomAccessSource { _, _, _, _ -> -1 }, 1)
+    assertThat(prematurelyEnded.read(ByteArray(1), 0, 1)).isEqualTo(-1)
+  }
+
+  private fun newRandomAccessInputStream(source: RandomAccessSource, size: Long): InputStream {
+    val streamClass = Class.forName("kage.RandomAccessSourceInputStream")
+    val constructor =
+      streamClass.getDeclaredConstructor(
+        RandomAccessSource::class.java,
+        Long::class.javaPrimitiveType,
+      )
+    constructor.isAccessible = true
+    return constructor.newInstance(source, size) as InputStream
   }
 
   @Test
