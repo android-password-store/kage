@@ -215,6 +215,21 @@ class MlKem768X25519RecipientTest {
   }
 
   @Test
+  fun testDecodeRejectsWrongPublicKeySize() {
+    val malformedKey = Bech32.encode("age1pq", ByteArray(1)).getOrThrow()
+
+    assertThrows<InvalidRecipientException> { MlKem768X25519Recipient.decode(malformedKey) }
+  }
+
+  @Test
+  fun testDecodeRejectsWrongHumanReadablePart() {
+    val publicKey = Bech32.decode(testIdentity.recipient().encodeToString()).getOrThrow().second
+    val malformedKey = Bech32.encode("age1xx", publicKey).getOrThrow()
+
+    assertThrows<InvalidRecipientException> { MlKem768X25519Recipient.decode(malformedKey) }
+  }
+
+  @Test
   fun testDecodeRejectsMalformedMlKemPublicKey() {
     val malformedKey = Bech32.encode("age1pq", ByteArray(1216) { 0xff.toByte() }).getOrThrow()
 
