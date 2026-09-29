@@ -300,4 +300,47 @@ class AgeStanzaTest {
     assertThat(endsWithSpace).isFalse()
     assertThat(output).isEqualTo(stanza)
   }
+
+  @Test
+  fun testEqualsDistinguishesStanzas() {
+    val stanza = AgeStanza("X25519", listOf("arg"), byteArrayOf(1, 2, 3))
+
+    assertThat(stanza.equals(null)).isFalse()
+    assertThat(stanza.equals("not a stanza")).isFalse()
+    assertThat(stanza.equals(stanza)).isTrue()
+    assertThat(stanza).isEqualTo(AgeStanza("X25519", listOf("arg"), byteArrayOf(1, 2, 3)))
+    assertThat(stanza).isNotEqualTo(AgeStanza("ssh-rsa", listOf("arg"), byteArrayOf(1, 2, 3)))
+    assertThat(stanza).isNotEqualTo(AgeStanza("X25519", listOf("other"), byteArrayOf(1, 2, 3)))
+    assertThat(stanza).isNotEqualTo(AgeStanza("X25519", listOf("arg"), byteArrayOf(9)))
+  }
+
+  @Test
+  fun testSerializedSizeAccountsForBlankLine() {
+    // 48 bytes encode to exactly one full 64-column line, requiring a trailing blank line.
+    val fullLine = AgeStanza("X25519", listOf("arg"), ByteArray(48))
+    val partialLine = AgeStanza("X25519", listOf("arg"), ByteArray(47))
+
+    assertThat(fullLine.serializedSize()).isEqualTo(80)
+    assertThat(partialLine.serializedSize()).isEqualTo(78)
+  }
+
+  @Test
+  fun testParseEmptyReaderThrows() {
+    val reader = "".byteInputStream().buffered()
+
+    assertThrows<InvalidRecipientException> { AgeStanza.parse(reader) }
+  }
+
+  @Test
+  fun testRecipientLineFailsWithoutPrefix() {
+    assertThrows<InvalidRecipientException> { AgeStanza.parseRecipientLine("X25519 ARG1") }
+  }
+
+  @Test
+  fun testBodyRejectsNestedStanza() {
+    val reader = "-> X25519 arg\n-> X25519 arg2\n".byteInputStream().buffered()
+    reader.readLine()
+
+    assertThrows<InvalidRecipientException> { AgeStanza.parseBodyLines(reader) }
+  }
 }
