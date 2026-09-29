@@ -6,6 +6,7 @@
 package kage
 
 import com.google.common.truth.Truth.assertThat
+import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import kage.crypto.stream.ArmorOutputStream
@@ -56,6 +57,15 @@ class DetachedHeaderTest {
     )
 
     assertThat(decrypted.toByteArray().decodeToString()).isEqualTo("this is my file")
+  }
+
+  @Test
+  fun extractHeaderAcceptsAlreadyBufferedInput() {
+    val identity = X25519Identity.new()
+    val ciphertext = encrypt(identity, "already buffered")
+
+    assertThat(Age.extractHeader(BufferedInputStream(ByteArrayInputStream(ciphertext))))
+      .isEqualTo(Age.extractHeader(ByteArrayInputStream(ciphertext)))
   }
 
   @Test
