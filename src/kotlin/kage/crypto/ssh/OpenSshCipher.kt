@@ -64,7 +64,7 @@ internal object OpenSshCipher {
     val out = ByteArray(buffered.getOutputSize(ciphertext.size))
     var len = buffered.processBytes(ciphertext, 0, ciphertext.size, out, 0)
     len += buffered.doFinal(out, len)
-    return if (len == out.size) out else out.copyOf(len)
+    return out
   }
 
   private fun spec(cipherName: String): Spec =
