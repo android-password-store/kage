@@ -5,6 +5,7 @@
  */
 package kage.kage.crypto.x25519
 
+import com.github.michaelbull.result.getOrThrow
 import com.google.common.truth.Truth.assertThat
 import java.security.SecureRandom
 import java.util.Random
@@ -12,9 +13,11 @@ import kage.Age
 import kage.crypto.x25519.X25519
 import kage.crypto.x25519.X25519Identity
 import kage.crypto.x25519.X25519Recipient
+import kage.errors.InvalidRecipientException
 import kage.errors.X25519IdentityException
 import kage.errors.X25519LowOrderPointException
 import kage.format.AgeStanza
+import kage.format.Bech32
 import kage.utils.decodeBase64
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -74,6 +77,24 @@ class X25519RecipientTest {
     val malformedStanza = AgeStanza(stanza.type, stanza.args, stanza.body.plus(0))
 
     assertThrows<X25519IdentityException> { identity.unwrap(listOf(malformedStanza, stanza)) }
+  }
+
+  @Test
+  fun decodeRejectsPublicKeyWithIncorrectLength() {
+    val encoded = Bech32.encode("age", ByteArray(31)).getOrThrow()
+
+    val exception = assertThrows<InvalidRecipientException> { X25519Recipient.decode(encoded) }
+
+    assertThat(exception).hasMessageThat().contains("Invalid key size")
+  }
+
+  @Test
+  fun decodeRejectsIncorrectHumanReadablePart() {
+    val encoded = Bech32.encode("notage", ByteArray(32)).getOrThrow()
+
+    val exception = assertThrows<InvalidRecipientException> { X25519Recipient.decode(encoded) }
+
+    assertThat(exception).hasMessageThat().contains("Invalid human readable part")
   }
 
   @Test
