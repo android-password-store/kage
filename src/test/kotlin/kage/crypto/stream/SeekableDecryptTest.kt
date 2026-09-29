@@ -157,6 +157,51 @@ class SeekableDecryptTest {
   }
 
   @Test
+  fun readAt_returnsZeroForAnEmptyBufferOrAtTheEnd() {
+    val ciphertext = encrypt("hello".toByteArray())
+    val decrypted =
+      Age.decryptSeekable(listOf(identity), byteArraySource(ciphertext), ciphertext.size.toLong())
+
+    assertThat(decrypted.readAt(ByteArray(0), 0)).isEqualTo(0)
+    assertThat(decrypted.readAt(ByteArray(1), decrypted.plaintextSize)).isEqualTo(0)
+  }
+
+  @Test
+  fun readAt_rejectsANegativeOffset() {
+    val ciphertext = encrypt("hello".toByteArray())
+    val decrypted =
+      Age.decryptSeekable(listOf(identity), byteArraySource(ciphertext), ciphertext.size.toLong())
+
+    assertThrows<StreamException> { decrypted.readAt(ByteArray(1), -1) }
+  }
+
+  @Test
+  fun seekableDecrypt_rejectsAnEmptyPayloadSize() {
+    val key = ByteArray(ChaCha20Poly1305.KEY_LENGTH)
+
+    assertThrows<StreamException> {
+      SeekableDecrypt(key, byteArraySource(ByteArray(0)), 0L, 0L)
+    }
+  }
+
+  @Test
+  fun seekableDecrypt_rejectsAPayloadWithAnIncompleteNonfinalChunk() {
+    val key = ByteArray(ChaCha20Poly1305.KEY_LENGTH)
+
+    assertThrows<StreamException> {
+      SeekableDecrypt(key, byteArraySource(ByteArray(0)), 0L, 65_553L)
+    }
+  }
+
+  @Test
+  fun seekableDecrypt_rejectsASourceThatCannotReadTheInitialChunk() {
+    val key = ByteArray(ChaCha20Poly1305.KEY_LENGTH)
+    val source = RandomAccessSource { _, _, _, _ -> 0 }
+
+    assertThrows<StreamException> { SeekableDecrypt(key, source, 0L, 16L) }
+  }
+
+  @Test
   fun readAt_rejectsAnOffsetPastTheEnd() {
     val ciphertext = encrypt("hello".toByteArray())
     val decrypted =
