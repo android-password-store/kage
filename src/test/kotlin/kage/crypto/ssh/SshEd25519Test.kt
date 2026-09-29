@@ -12,8 +12,11 @@ import kage.Age
 import kage.crypto.ssh.SshEd25519Identity
 import kage.crypto.ssh.SshEd25519Recipient
 import kage.crypto.ssh.SshKey
+import kage.errors.IncorrectIdentityException
 import kage.errors.InvalidSshKeyException
+import kage.errors.SshIdentityException
 import kage.format.AgeFile
+import kage.format.AgeStanza
 import org.bouncycastle.util.encoders.Base64
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -53,6 +56,36 @@ class SshEd25519Test {
     val identity = SshKey.parseIdentity(privateKey)
     val unwrapped = identity.unwrap(listOf(stanza))
     assertThat(unwrapped.asList()).containsExactlyElementsIn(fileKey.asList())
+  }
+
+  @Test
+  fun testUnwrapRejectsNonmatchingStanzasAndMalformedBlocks() {
+    val identity = SshKey.parseIdentity(privateKey) as SshEd25519Identity
+    val valid = identity.recipient().wrap(ByteArray(Age.FILE_KEY_SIZE)).single()
+    val fingerprint = valid.args[0]
+
+    assertThrows<IncorrectIdentityException> {
+      identity.unwrap(listOf(AgeStanza("other-type", listOf(fingerprint), valid.body)))
+    }
+    assertThrows<IncorrectIdentityException> {
+      identity.unwrap(listOf(AgeStanza(valid.type, emptyList(), valid.body)))
+    }
+    assertThrows<IncorrectIdentityException> {
+      identity.unwrap(
+        listOf(AgeStanza(valid.type, listOf("not-our-key", valid.args[1]), valid.body))
+      )
+    }
+    assertThrows<SshIdentityException> {
+      identity.unwrap(listOf(AgeStanza(valid.type, listOf(fingerprint), valid.body)))
+    }
+    assertThrows<SshIdentityException> {
+      identity.unwrap(listOf(AgeStanza(valid.type, listOf(fingerprint, "AA"), valid.body)))
+    }
+    assertThrows<SshIdentityException> {
+      identity.unwrap(
+        listOf(AgeStanza(valid.type, listOf(fingerprint, valid.args[1]), byteArrayOf(1)))
+      )
+    }
   }
 
   @Test
