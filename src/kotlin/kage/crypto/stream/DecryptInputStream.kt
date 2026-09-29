@@ -83,8 +83,6 @@ internal class DecryptInputStream(private val key: ByteArray, private val input:
 
   // Returns true if this was the last chunk
   private fun readChunk(): Boolean {
-    if (unreadOffset != unreadSize) throw StreamException("readChunk called with dirty buffer")
-
     var last = false
 
     val read = readFull(buf)
