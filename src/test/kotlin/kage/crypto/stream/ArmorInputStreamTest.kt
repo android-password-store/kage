@@ -33,6 +33,96 @@ AA==
 $trailing"""
 
   @Test
+  fun bulkReadHandlesZeroLengthAndRejectsInvalidBounds() {
+    val input = ArmorInputStream(ByteArrayInputStream(armor().toByteArray()))
+
+    assertThat(input.read(ByteArray(1), 0, 0)).isEqualTo(0)
+    assertThrows<IndexOutOfBoundsException> { input.read(ByteArray(1), -1, 1) }
+    assertThrows<IndexOutOfBoundsException> { input.read(ByteArray(1), 0, -1) }
+    assertThrows<IndexOutOfBoundsException> { input.read(ByteArray(1), 1, 1) }
+  }
+
+  @Test
+  fun rejectsMissingHeaderAndMissingArmoredData() {
+    val missingHeader = ArmorInputStream(ByteArrayInputStream(ByteArray(0)))
+    assertThat(assertThrows<ArmorCodingException> { missingHeader.read() }.message)
+      .isEqualTo("missing armor header")
+
+    val missingData =
+      ArmorInputStream(ByteArrayInputStream("${ArmorInputStream.HEADER}\n".toByteArray()))
+    assertThat(assertThrows<ArmorCodingException> { missingData.read() }.message)
+      .isEqualTo("unexpected end of armored data")
+  }
+
+  @Test
+  fun rejectsLeadingWhitespaceOverLimitAndInvalidHeader() {
+    val leading = " ".repeat(ArmorInputStream.MAX_WHITESPACE) + "\n" + armor()
+    val tooMuchWhitespace = ArmorInputStream(ByteArrayInputStream(leading.toByteArray()))
+    assertThat(assertThrows<ArmorCodingException> { tooMuchWhitespace.read() }.message)
+      .isEqualTo("too much leading whitespace")
+
+    val invalidHeader = ArmorInputStream(ByteArrayInputStream("not age\n".toByteArray()))
+    assertThat(assertThrows<ArmorCodingException> { invalidHeader.read() }.message)
+      .isEqualTo("invalid first line: not age")
+  }
+
+  @Test
+  fun rejectsEmptyLinesInvalidBase64MissingPaddingAndInvalidFooter() {
+    fun input(body: String) =
+      ArmorInputStream(ByteArrayInputStream("${ArmorInputStream.HEADER}\n$body".toByteArray()))
+
+    assertThat(assertThrows<ArmorCodingException> { input("\n").read() }.message)
+      .isEqualTo("empty line in armored data")
+    assertThat(assertThrows<ArmorCodingException> { input("!\n").read() }.message)
+      .isEqualTo("invalid base64 string")
+    assertThat(assertThrows<ArmorCodingException> { input("AAA\n").read() }.message)
+      .isEqualTo("missing base64 padding")
+    assertThat(assertThrows<ArmorCodingException> { input("AA==\nwrong\n").read() }.message)
+      .isEqualTo("invalid closing line")
+  }
+
+  @Test
+  fun rejectsOverlongArmorLineAndAcceptsCarriageReturnLineEnding() {
+    val tooLong =
+      ArmorInputStream(
+        ByteArrayInputStream(
+          "${ArmorInputStream.HEADER}\n${"A".repeat(ArmorInputStream.COLUMNS_PER_LINE + 1)}\n"
+            .toByteArray()
+        )
+      )
+    assertThat(assertThrows<ArmorCodingException> { tooLong.read() }.message)
+      .isEqualTo("column limit exceeded")
+
+    val extraAfterCarriageReturn =
+      ArmorInputStream(
+        ByteArrayInputStream(
+          "${ArmorInputStream.HEADER}\n${"A".repeat(ArmorInputStream.COLUMNS_PER_LINE)}\rX"
+            .toByteArray()
+        )
+      )
+    assertThat(assertThrows<ArmorCodingException> { extraAfterCarriageReturn.read() }.message)
+      .isEqualTo("column limit exceeded")
+
+    val overlongLineAtEof =
+      ArmorInputStream(
+        ByteArrayInputStream(
+          "${ArmorInputStream.HEADER}\n${"A".repeat(ArmorInputStream.COLUMNS_PER_LINE)}\r"
+            .toByteArray()
+        )
+      )
+    assertThat(assertThrows<ArmorCodingException> { overlongLineAtEof.read() }.message)
+      .isEqualTo("column limit exceeded")
+
+    val input =
+      ArmorInputStream(
+        ByteArrayInputStream(
+          "${ArmorInputStream.HEADER}\r\nAA==\r\n${ArmorInputStream.FOOTER}\r\n".toByteArray()
+        )
+      )
+    assertThat(input.readAllBytes()).isEqualTo(byteArrayOf(0))
+  }
+
+  @Test
   fun drainsTrailingWhitespaceThroughShortReads() {
     val stream =
       ArmorInputStream(ShortReadInputStream(ByteArrayInputStream(armor(" \t\n").toByteArray())))
