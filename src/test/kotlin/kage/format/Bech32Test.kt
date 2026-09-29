@@ -14,6 +14,22 @@ import org.bouncycastle.util.encoders.Hex
 import org.junit.jupiter.api.Test
 
 class Bech32Test {
+  private val charset = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+  private val generators = intArrayOf(0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3)
+
+  private fun encodedWithData(hrp: String, data: List<Int>): String {
+    val expanded =
+      hrp.map { it.code ushr 5 } + 0 + hrp.map { it.code and 31 } + data + List(6) { 0 }
+    var checksum = 1
+    for (value in expanded) {
+      val top = checksum ushr 25
+      checksum = (checksum and 0x1ffffff) shl 5 xor value
+      for (bit in 0 until 5) if ((top ushr bit and 1) != 0) checksum = checksum xor generators[bit]
+    }
+    checksum = checksum xor 1
+    val chars = data + (0 until 6).map { (checksum ushr (5 * (5 - it))) and 31 }
+    return hrp + "1" + chars.joinToString("") { charset[it].toString() }
+  }
 
   @Test
   fun testEncode() {
@@ -37,6 +53,36 @@ class Bech32Test {
     assertThat(hrp).isEqualTo("age")
     assertThat(Hex.toHexString(data))
       .isEqualTo("1292e55a1e907ddb45726667ab19b48efdf323732cbd31ade84ef2ec0eb0eb0b")
+  }
+
+  @Test
+  fun encodeRejectsInvalidHrpAndPreservesUppercase() {
+    assertThat(Bech32.encode("", byteArrayOf()).unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
+    assertThat(Bech32.encode("has space", byteArrayOf()).unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
+    assertThat(Bech32.encode("mixedCase", byteArrayOf()).unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
+    assertThat(Bech32.encode("AGE", byteArrayOf()).getOrThrow()).startsWith("AGE1")
+  }
+
+  @Test
+  fun decodeRejectsMixedCaseAndInvalidHrpCharacters() {
+    assertThat(Bech32.decode("aB1qqqqqq").unwrapError()).isInstanceOf(Bech32Exception::class.java)
+    assertThat(Bech32.decode("a\u007f1qqqqqq").unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
+    assertThat(Bech32.decode(encodedWithData("a", listOf(0))).unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
+    assertThat(Bech32.decode(encodedWithData("a", listOf(1))).unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
+  }
+
+  @Test
+  fun encodeRejectsOutOfRangeHrpCharacters() {
+    assertThat(Bech32.encode("\u0000", byteArrayOf()).unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
+    assertThat(Bech32.encode("\u007f", byteArrayOf()).unwrapError())
+      .isInstanceOf(Bech32Exception::class.java)
   }
 
   // Test used by age.go
