@@ -38,10 +38,10 @@ java {
 
 koverGate {
   disabledMetrics.set(listOf(CoverageMetric.INSTRUCTION))
-  minLineCoverage.set(0)
-  minBranchCoverage.set(0)
-  minMethodCoverage.set(0)
-  minClassCoverage.set(0)
+  minLineCoverage.set(99)
+  minBranchCoverage.set(97)
+  minMethodCoverage.set(97)
+  minClassCoverage.set(98)
 }
 
 mavenPublishing {
