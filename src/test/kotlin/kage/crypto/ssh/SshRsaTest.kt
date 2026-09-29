@@ -168,6 +168,13 @@ class SshRsaTest {
   }
 
   @Test
+  fun testParseRejectsOtherKeyTypes() {
+    assertThrows<InvalidSshKeyException> {
+      SshRsaRecipient.parse("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5")
+    }
+  }
+
+  @Test
   fun testParseRejectsGarbage() {
     assertThrows<InvalidSshKeyException> { SshRsaRecipient.parse("not a key") }
   }
