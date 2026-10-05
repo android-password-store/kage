@@ -86,14 +86,14 @@ spotless {
   val ktfmtVersion = "0.64"
   kotlin {
     ktfmt(ktfmtVersion).googleStyle()
-    target("**/*.kt")
+    target("src/**/*.kt")
     targetExclude("**/build/")
     licenseHeaderFile("spotless.license", "package")
   }
   kotlinGradle {
     ktfmt(ktfmtVersion).googleStyle()
     target("**/*.kts")
-    licenseHeaderFile("spotless.license", "package |import|enableFeaturePreview")
+    licenseHeaderFile("spotless.license", "package|plugins|import|enableFeaturePreview")
   }
 }
 
