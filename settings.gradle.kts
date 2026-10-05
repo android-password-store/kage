@@ -7,6 +7,8 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "kage"
 
+include(":examples:cli")
+
 pluginManagement {
   repositories {
     exclusiveContent {
