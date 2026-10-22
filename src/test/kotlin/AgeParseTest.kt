@@ -7,6 +7,7 @@ package kage
 
 import com.google.common.truth.Truth.assertThat
 import java.io.BufferedReader
+import java.io.Reader
 import java.io.StringReader
 import kage.crypto.mlkem.MlKem768X25519Identity
 import kage.crypto.mlkem.MlKem768X25519Recipient
@@ -69,6 +70,52 @@ class AgeParseTest {
 
     assertThrows<InvalidIdentityFileException> { Age.parseIdentities(reader(overLimitComment)) }
     assertThrows<InvalidRecipientFileException> { Age.parseRecipients(reader(overLimitComment)) }
+  }
+
+  @Test
+  fun parseIdentities_stopsReadingAnOverlongLineAtTheLimit() {
+    val totalChars = 2 * 16 * 1024 * 1024
+    var charsRead = 0
+    val reader =
+      BufferedReader(
+        object : Reader() {
+          override fun read(buffer: CharArray, offset: Int, length: Int): Int {
+            if (charsRead == totalChars) return -1
+            val count = minOf(length, totalChars - charsRead)
+            buffer.fill('x', offset, offset + count)
+            charsRead += count
+            return count
+          }
+
+          override fun close() = Unit
+        }
+      )
+
+    assertThrows<InvalidIdentityFileException> { Age.parseIdentities(reader) }
+    assertThat(charsRead).isLessThan(totalChars)
+  }
+
+  @Test
+  fun parseRecipients_stopsReadingAnOverlongLineAtTheLimit() {
+    val totalChars = 2 * 16 * 1024 * 1024
+    var charsRead = 0
+    val reader =
+      BufferedReader(
+        object : Reader() {
+          override fun read(buffer: CharArray, offset: Int, length: Int): Int {
+            if (charsRead == totalChars) return -1
+            val count = minOf(length, totalChars - charsRead)
+            buffer.fill('x', offset, offset + count)
+            charsRead += count
+            return count
+          }
+
+          override fun close() = Unit
+        }
+      )
+
+    assertThrows<InvalidRecipientFileException> { Age.parseRecipients(reader) }
+    assertThat(charsRead).isLessThan(totalChars)
   }
 
   @Test

@@ -240,14 +240,18 @@ public object Age {
   @JvmStatic
   public fun parseIdentities(reader: BufferedReader): List<Identity> {
     val identities = mutableListOf<Identity>()
-    var bytesRead = 0L
-    for ((lineIndex, rawLine) in reader.lineSequence().withIndex()) {
+    var bytesRead = 0
+    var lineIndex = 0
+    while (true) {
+      val rawLine =
+        readBoundedLine(reader, KEY_FILE_SIZE_LIMIT - bytesRead) {
+          throw InvalidIdentityFileException("identities file exceeds the 16 MiB size limit")
+        } ?: break
       bytesRead += rawLine.length + 1
-      if (bytesRead > KEY_FILE_SIZE_LIMIT)
-        throw InvalidIdentityFileException("identities file exceeds the 16 MiB size limit")
+      lineIndex++
       val line = rawLine.trim()
       if (line.isEmpty() || line.startsWith("#")) continue
-      val lineNumber = lineIndex + 1
+      val lineNumber = lineIndex
       val identity =
         try {
           when {
@@ -265,15 +269,40 @@ public object Age {
     return identities
   }
 
+  /** Reads one line without allowing it to exceed the remaining key-file size budget. */
+  private fun readBoundedLine(
+    reader: BufferedReader,
+    remaining: Int,
+    onLimitExceeded: () -> Nothing,
+  ): String? {
+    val line = StringBuilder()
+    while (true) {
+      val char = reader.read()
+      if (char == -1) return if (line.isEmpty()) null else line.toString()
+      if (char == '\n'.code || char == '\r'.code) {
+        if (line.length + 1 > remaining) onLimitExceeded()
+        if (char == '\r'.code) {
+          reader.mark(1)
+          if (reader.read() != '\n'.code) reader.reset()
+        }
+        return line.toString()
+      }
+      if (line.length + 2 > remaining) onLimitExceeded()
+      line.append(char.toChar())
+    }
+  }
+
   /** Parses [X25519Recipient]/[MlKem768X25519Recipient] lines from [reader], one per line. */
   @JvmStatic
   public fun parseRecipients(reader: BufferedReader): List<Recipient> {
     val recipients = mutableListOf<Recipient>()
-    var bytesRead = 0L
-    for (rawLine in reader.lineSequence()) {
+    var bytesRead = 0
+    while (true) {
+      val rawLine =
+        readBoundedLine(reader, KEY_FILE_SIZE_LIMIT - bytesRead) {
+          throw InvalidRecipientFileException("recipients file exceeds the 16 MiB size limit")
+        } ?: break
       bytesRead += rawLine.length + 1
-      if (bytesRead > KEY_FILE_SIZE_LIMIT)
-        throw InvalidRecipientFileException("recipients file exceeds the 16 MiB size limit")
       val line = rawLine.trim()
       if (line.isEmpty() || line.startsWith("#")) continue
       recipients.add(
