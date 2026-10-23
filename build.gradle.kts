@@ -89,6 +89,11 @@ spotless {
     target("src/**/*.kt", "examples/cli/src/**/*.kt")
     licenseHeaderFile("spotless.license", "package")
   }
+  java {
+    target("benchmarks/src/**/*.java")
+    googleJavaFormat()
+    licenseHeaderFile("spotless.license")
+  }
   kotlinGradle {
     ktfmt(ktfmtVersion).googleStyle()
     target("**/*.kts")
