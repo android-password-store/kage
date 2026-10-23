@@ -1,4 +1,4 @@
-# kage ![Maven Central](https://img.shields.io/maven-central/v/com.github.android-password-store/kage?style=flat-square&label=Latest%20version)
+# kage ![Maven Central](https://img.shields.io/maven-central/v/com.github.android-password-store/kage?style=flat-square&label=Latest%20version) [![CodSpeed](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://app.codspeed.io/android-password-store/kage?utm_source=badge)
 
 <p align="center"><img alt="The age logo, an wireframe of St. Peters dome in Rome, with the text: age, file encryption" width="600" src="https://user-images.githubusercontent.com/1225294/132245842-fda4da6a-1cea-4738-a3da-2dc860861c98.png"></p>
 
@@ -43,9 +43,17 @@ Documentation for the latest tagged release can be found on [GitHub Pages](https
 
 ## Benchmarks
 
-Run `./gradlew :benchmarks:jmh` for public API throughput baselines using JMH. See
-[the benchmark guide](benchmarks/README.md) for vectors, measurement boundaries,
-result files and quick smoke checks.
+Run `./gradlew :benchmarks:jmh` for public API throughput baselines using [JMH](https://github.com/openjdk/jmh). They are tracked continuously on [CodSpeed](https://app.codspeed.io/android-password-store/kage) using the CodSpeed JMH fork, which is included as a Git submodule under `third-party/codspeed-jvm`.
+
+```shell
+git submodule update --init third-party/codspeed-jvm
+git -C third-party/codspeed-jvm submodule update --init --recursive jmh-fork
+./gradlew jmh
+```
+
+Without the submodule, `./gradlew jmh` falls back to upstream JMH.
+
+See [the benchmark guide](benchmarks/README.md) for vectors, measurement boundaries, result files and quick smoke checks.
 
 ## Goals
 

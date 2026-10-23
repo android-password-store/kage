@@ -14,14 +14,6 @@ There are no performance thresholds. Keep results alongside the Git revision and
 machine/OS details when comparing runs; use an idle machine and the same JDK.
 The full suite takes roughly 15 minutes, depending on the machine.
 
-For a quick execution/fixture check (not a reliable baseline):
-
-```sh
-./gradlew :benchmarks:jmh -PjmhSmoke
-```
-
-Smoke mode uses one fork and one 200 ms iteration each for warmup and measurement,
-and writes `benchmarks/build/results/jmh/smoke.json` instead of replacing the baseline.
 Filter methods and/or the crypto fixture for a focused baseline:
 
 ```sh

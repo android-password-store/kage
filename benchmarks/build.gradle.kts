@@ -32,25 +32,22 @@ sourceSets.named("jmh") {
   }
 }
 
-val smoke = providers.gradleProperty("jmhSmoke").isPresent
-
 jmh {
   jmhVersion.set(libs.versions.jmh.get())
   includeTests.set(false)
   benchmarkMode.set(listOf("thrpt"))
   timeUnit.set("s")
   threads.set(1)
-  fork.set(if (smoke) 1 else 2)
-  warmupIterations.set(if (smoke) 1 else 3)
-  warmup.set(if (smoke) "200ms" else "1s")
-  iterations.set(if (smoke) 1 else 5)
-  timeOnIteration.set(if (smoke) "200ms" else "1s")
+  fork.set(1)
+  warmupIterations.set(2)
+  warmup.set("1s")
+  iterations.set(3)
+  timeOnIteration.set("1s")
   jvmArgs.set(listOf("-Xms1g", "-Xmx1g"))
+  // Reset heap state between iterations so GC pauses do not land in measurement windows.
+  forceGC.set(true)
   failOnError.set(true)
   resultFormat.set("JSON")
-  resultsFile.set(
-    layout.buildDirectory.file("results/jmh/${if (smoke) "smoke" else "baseline"}.json")
-  )
   providers.gradleProperty("jmhInclude").orNull?.let { includes.set(listOf(it)) }
   providers.gradleProperty("jmhFixture").orNull?.let {
     benchmarkParameters.put(

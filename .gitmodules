@@ -1,0 +1,3 @@
+[submodule "third-party/codspeed-jvm"]
+	path = third-party/codspeed-jvm
+	url = https://github.com/CodSpeedHQ/codspeed-jvm.git

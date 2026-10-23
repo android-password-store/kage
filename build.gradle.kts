@@ -97,6 +97,7 @@ spotless {
   kotlinGradle {
     ktfmt(ktfmtVersion).googleStyle()
     target("**/*.kts")
+    targetExclude("third-party/**")
     licenseHeaderFile("spotless.license", "package|plugins|import|enableFeaturePreview")
   }
 }
