@@ -7,7 +7,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "kage"
 
-include(":examples:cli")
+include(":examples:cli", ":benchmarks")
 
 pluginManagement {
   repositories {
@@ -16,6 +16,7 @@ pluginManagement {
       filter {
         listOf(
             "ru.vyarus.animalsniffer",
+            "me.champeau.jmh",
             "org.jetbrains.kotlin.jvm",
             "com.commonsware.kovergate",
             "com.diffplug.spotless",
@@ -23,6 +24,7 @@ pluginManagement {
           )
           .forEach { plugin -> includeModule(plugin, "${plugin}.gradle.plugin") }
         includeModule("info.solidsoft.gradle.pitest", "gradle-pitest-plugin")
+        includeModule("me.champeau.jmh", "jmh-gradle-plugin")
         includeModule("com.commonsware.kovergate", "kovergate")
       }
     }

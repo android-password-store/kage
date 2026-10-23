@@ -41,6 +41,12 @@ dependencies {
 
 Documentation for the latest tagged release can be found on [GitHub Pages](https://android-password-store.github.io/kage/).
 
+## Benchmarks
+
+Run `./gradlew :benchmarks:jmh` for public API throughput baselines using JMH. See
+[the benchmark guide](benchmarks/README.md) for vectors, measurement boundaries,
+result files and quick smoke checks.
+
 ## Goals
 
 - Provide a library that can generate and parse age keys, as well as encrypt or decrypt bytes using said keys.
