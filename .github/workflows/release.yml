@@ -38,9 +38,13 @@ jobs:
         dependency-graph: generate-and-submit
         validate-wrappers: true
 
+    - name: Run mutation testing
+      shell: bash
+      run: ./gradlew --no-configuration-cache pitest
+
     - name: Upload binaries
       shell: bash
-      run: ./gradlew --no-daemon --no-configuration-cache publishAllPublicationsToMavenCentralRepository
+      run: ./gradlew --no-configuration-cache publishAllPublicationsToMavenCentralRepository
       env:
         ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.NEXUS_PUBLISH_USERNAME }}
         ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.NEXUS_PUBLISH_PASSWORD }}
