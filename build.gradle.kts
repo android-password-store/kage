@@ -3,6 +3,7 @@
  * either an Apache 2.0 or MIT license at your discretion, that can be found in the LICENSE-APACHE
  * or LICENSE-MIT files respectively.
  */
+import com.commonsware.kovergate.CoverageMetric
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
 import com.vanniktech.maven.publish.SourcesJar
@@ -35,14 +36,13 @@ java {
   targetCompatibility = JavaVersion.VERSION_17
 }
 
-// TODO: Re-enable KoverGate, adding the CLI project made it freak out
-// koverGate {
-//   disabledMetrics.set(listOf(CoverageMetric.INSTRUCTION))
-//   minLineCoverage.set(99)
-//   minBranchCoverage.set(97)
-//   minMethodCoverage.set(97)
-//   minClassCoverage.set(98)
-// }
+koverGate {
+  disabledMetrics.set(listOf(CoverageMetric.INSTRUCTION))
+  minLineCoverage.set(99)
+  minBranchCoverage.set(97)
+  minMethodCoverage.set(97)
+  minClassCoverage.set(98)
+}
 
 mavenPublishing {
   publishToMavenCentral(automaticRelease = true)
