@@ -19,7 +19,7 @@ pitest-kotlin = "com.arcmutate:pitest-kotlin-plugin:1.5.2"
 truth = "com.google.truth:truth:1.4.5"
 
 [plugins]
-jmh = "me.champeau.jmh:0.7.3"
+jmh = "me.champeau.jmh:0.7.4"
 animalsniffer = "ru.vyarus.animalsniffer:2.0.1"
 dokka = "org.jetbrains.dokka:2.2.0"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
