@@ -5,7 +5,7 @@ kotlin = "2.4.21"
 
 [libraries]
 animalsniffer-signature-android = "com.toasttab.android:gummy-bears-api-26:0.16.0"
-bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.86"
+bouncycastle-bcprov = "org.bouncycastle:bcprov-jdk15to18:1.87"
 hkdf = "at.favre.lib:hkdf:2.0.0"
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
