@@ -9,10 +9,10 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
 /**
- * An in-memory age-encrypted file.
+ * Holds an age-encrypted file in memory.
  *
- * @property header The file header containing recipient stanzas and its MAC.
- * @property body The encrypted payload, including its nonce.
+ * @property header file header containing recipient stanzas and its MAC
+ * @property body encrypted payload, including its nonce
  */
 public class AgeFile(public val header: AgeHeader, public val body: ByteArray) {
 

@@ -9,11 +9,11 @@ import kage.errors.IncorrectIdentityException
 import kage.format.AgeStanza
 
 /**
- * An Identity is passed to Decrypt to unwrap an opaque file key from a recipient stanza. It can be
- * for example a secret key like X25519Identity, a plugin, or a custom implementation.
+ * Unwraps an opaque file key from recipient stanzas during decryption.
  *
- * Unwrap must throw [kage.errors.IncorrectIdentityException] if none of the recipient stanzas match
- * the identity; any other error is considered fatal.
+ * An identity can be a secret key, such as [kage.crypto.x25519.X25519Identity], a plugin, or a
+ * custom implementation. [unwrap] must throw [IncorrectIdentityException] when no stanza matches;
+ * other errors are fatal.
  *
  * [Age docs](https://github.com/FiloSottile/age/blob/ab3707c085f2c1/age.go#L59-L72)
  */
@@ -21,7 +21,7 @@ public interface Identity {
   /**
    * Unwraps the file key from a stanza in [stanzas].
    *
-   * @throws kage.errors.IncorrectIdentityException if none of the stanzas match this identity.
+   * @throws IncorrectIdentityException if none of the stanzas match this identity
    */
   public fun unwrap(stanzas: List<AgeStanza>): ByteArray
 }

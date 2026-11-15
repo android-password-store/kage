@@ -8,14 +8,14 @@ package kage
 import kage.format.AgeStanza
 
 /**
- * An [Identity] that unconditionally returns [fileKey], allowing the use of a file key obtained
- * out-of-band, for example via [Age.decryptHeader].
+ * Returns a file key obtained out of band, for example through [Age.decryptHeader].
  *
- * The stanzas it is handed are ignored, so the file key is only correct for the file it was
- * obtained from. Decryption still fails on any other file because the header MAC will not match.
+ * [unwrap] ignores the stanzas. Use the key only with its corresponding file; a different file's
+ * header MAC will not match.
  *
- * @param fileKey Raw file key to unwrap to.
+ * @param fileKey raw file key to return
  */
 public class InjectedFileKeyIdentity(private val fileKey: ByteArray) : Identity {
+  /** Returns the supplied file key without inspecting [stanzas]. */
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray = fileKey
 }

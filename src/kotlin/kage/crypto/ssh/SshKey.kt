@@ -35,7 +35,14 @@ public object SshKey {
   // can force. `ssh-keygen -a` defaults to 16-24.
   private const val MAX_KDF_ROUNDS = 1000L
 
-  /** Parses an `authorized_keys`-style public key line into a [Recipient]. */
+  /**
+   * Parses an `authorized_keys` public key line into a [Recipient].
+   *
+   * @param authorizedKey public key line, optionally with options and a comment
+   * @return the parsed Ed25519 or RSA recipient
+   * @throws UnsupportedSshKeyException if the key type is not supported
+   * @throws InvalidSshKeyException if the key line is malformed
+   */
   public fun parseRecipient(authorizedKey: String): Recipient {
     val (type, _) = parseAuthorizedKey(authorizedKey)
     return when (type) {
@@ -48,16 +55,25 @@ public object SshKey {
   /**
    * Parses an unencrypted OpenSSH private key (PEM) into an [Identity].
    *
+   * @param privateKey OpenSSH private key in PEM format
+   * @return the parsed Ed25519 or RSA identity
    * @throws UnsupportedSshKeyException if the key is passphrase-encrypted; use the overload taking
-   *   a passphrase instead.
+   *   a passphrase instead
+   * @throws InvalidSshKeyException if the key is malformed
    */
   public fun parseIdentity(privateKey: String): Identity =
     decodeAndReadIdentity(privateKey, passphrase = null)
 
   /**
    * Parses an OpenSSH private key (PEM) into an [Identity]. If the key isn't passphrase-encrypted,
-   * [passphrase] is ignored (not an error) so callers don't need to know in advance which case
-   * they're in.
+   * [passphrase] is ignored.
+   *
+   * @param privateKey OpenSSH private key in PEM format
+   * @param passphrase passphrase bytes for an encrypted key
+   * @return the parsed Ed25519 or RSA identity
+   * @throws IncorrectPassphraseException if [passphrase] does not decrypt the key
+   * @throws UnsupportedSshKeyException if the key format or cipher is unsupported
+   * @throws InvalidSshKeyException if the key is malformed
    */
   public fun parseIdentity(privateKey: String, passphrase: ByteArray): Identity =
     decodeAndReadIdentity(privateKey, passphrase)

@@ -27,10 +27,10 @@ import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
 /**
- * The authenticated header of an age file.
+ * Holds the authenticated header of an age file.
  *
- * @property recipients Stanzas that wrap the file key for each recipient.
- * @property mac Message authentication code for the serialized header.
+ * @property recipients stanzas that wrap the file key for each recipient
+ * @property mac message authentication code for the serialized header
  */
 public class AgeHeader(public val recipients: List<AgeStanza>, public val mac: ByteArray) {
 

@@ -5,71 +5,119 @@
  */
 package kage.errors
 
-/** Wrapper class for errors raised during a cryptographic operation. */
+/**
+ * Signals an error during a cryptographic operation.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public sealed class CryptoException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
-/** Raised when encryption is requested without any [kage.Recipient]s. */
+/**
+ * Signals an encryption request with no [kage.Recipient]s.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class NoRecipientsException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
 /**
- * Raised when there are more than one [kage.Recipient]s and one is an
- * [kage.crypto.scrypt.ScryptRecipient]. This is a specially cased situation from the spec which
- * requires that there only be one [kage.Recipient] if it is a [kage.crypto.scrypt.ScryptRecipient].
+ * Signals multiple [kage.Recipient]s when one is a [kage.crypto.scrypt.ScryptRecipient].
+ *
+ * The age specification requires a scrypt recipient to be the only recipient.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
  */
 public class InvalidScryptRecipientException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
-/** Raised when an incompatible stanza is provided to [kage.Identity.unwrap] */
+/**
+ * Signals an incompatible stanza passed to [kage.Identity.unwrap].
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public sealed class InvalidIdentityException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
-/** Raised when an error occurs when unwrapping an scrypt stanza from an [kage.Identity]. */
+/**
+ * Signals a failure while unwrapping an scrypt stanza with an [kage.Identity].
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class ScryptIdentityException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
-/** Raised when an error occurs when unwrapping a X25519 stanza from an [kage.Identity]. */
+/**
+ * Signals a failure while unwrapping an X25519 stanza with an [kage.Identity].
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class X25519IdentityException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
 /**
- * Raised when an error occurs when unwrapping an MLKEM768-X25519 stanza from an [kage.Identity].
+ * Signals a failure while unwrapping an ML-KEM-768-X25519 stanza with an [kage.Identity].
+ *
+ * @param message detail about the error
+ * @param cause underlying error
  */
 public class MlKem768X25519IdentityException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
-/** Raised when an error occurs when unwrapping an SSH stanza from an [kage.Identity]. */
+/**
+ * Signals a failure while unwrapping an SSH stanza with an [kage.Identity].
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class SshIdentityException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
-/** Raised when an SSH key cannot be parsed into a [kage.Recipient] or [kage.Identity]. */
+/**
+ * Signals an SSH key that cannot be parsed as a [kage.Recipient] or [kage.Identity].
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public open class InvalidSshKeyException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
 /**
- * Raised when an SSH key is well-formed but not supported, e.g. a passphrase-encrypted private key
- * or an unsupported key type.
+ * Signals an SSH key format or type that the implementation does not support.
+ *
+ * This includes passphrase-encrypted private keys and unsupported key types.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
  */
 public class UnsupportedSshKeyException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
 /**
- * Raised when a passphrase-encrypted OpenSSH private key fails its post-decrypt integrity check.
+ * Signals a failed integrity check after decrypting a passphrase-encrypted OpenSSH private key.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
  */
 public class IncorrectPassphraseException
 @JvmOverloads
@@ -77,54 +125,91 @@ constructor(message: String? = null, cause: Throwable? = null) :
   InvalidSshKeyException(message, cause)
 
 /**
- * Raised when an error occurs while calculating the X25519 shared secret. If the X25519 share is a
- * low order point, the shared secret is the disallowed all-zero value.
+ * Signals a disallowed all-zero shared secret from an X25519 low-order point.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
  */
 public class X25519LowOrderPointException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
-/** Raised when there are no [kage.Identity]s when decrypting a ciphertext */
+/**
+ * Signals decryption without any [kage.Identity]s.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class NoIdentitiesException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) :
   InvalidIdentityException(message, cause)
 
-/** Raised when ciphertext does not have the size required by its cryptographic operation. */
+/**
+ * Signals ciphertext whose size does not meet the cryptographic operation's requirements.
+ *
+ * @param cause underlying error
+ */
 public class IncorrectCipherTextSizeException(cause: Throwable? = null) :
   CryptoException("Incorrect cipher text size", cause)
 
 /**
- * Raised when an identity is not suitable to decrypt a specific recipient block.
+ * Signals an identity that cannot decrypt a recipient block.
  *
- * This is not a fatal exception, kage code should catch this exception and try a different
- * identity, or fail if other identity does not exist
+ * The decryption code should try another identity or fail if none remain.
+ *
+ * @param cause underlying error
  */
 public class IncorrectIdentityException(cause: Throwable? = null) :
   CryptoException("incorrect identity for recipient block", cause)
 
-/** Thrown when an error occurs while streaming encrypted or decrypted data */
+/**
+ * Signals an error while streaming encrypted or decrypted data.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class StreamException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
-/** Raised when the Base64 string is not canonical according to RFC 4648 section 3.5 */
+/**
+ * Signals a Base64 string that is not canonical under RFC 4648 section 3.5.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class InvalidBase64StringException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
-/** Raised when the mac is incorrect */
+/**
+ * Signals an incorrect message authentication code (MAC).
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class IncorrectHMACException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
-/** Raised when the mac is invalid (truncated or the wrong size) */
+/**
+ * Signals a truncated MAC or one with an invalid size.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class InvalidHMACHeaderException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)
 
-/** Thrown when an error occurs while encoding/decoding armor data */
+/**
+ * Signals an error while encoding or decoding armor data.
+ *
+ * @param message detail about the error
+ * @param cause underlying error
+ */
 public class ArmorCodingException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : CryptoException(message, cause)

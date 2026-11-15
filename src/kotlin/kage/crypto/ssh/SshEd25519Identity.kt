@@ -68,6 +68,13 @@ internal constructor(
     }
   }
 
+  /**
+   * Unwraps the file key from the first matching `ssh-ed25519` stanza.
+   *
+   * @param stanzas recipient stanzas to try
+   * @throws IncorrectIdentityException if no stanza matches this identity
+   * @throws SshIdentityException if a matching stanza cannot be unwrapped
+   */
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray = multiUnwrap(::unwrapSingle, stanzas)
 
   /** Returns the SSH Ed25519 recipient corresponding to this identity. */

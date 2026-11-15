@@ -18,13 +18,19 @@ import kage.format.Bech32
 import kage.utils.encodeBase64
 
 /**
- * An age recipient backed by an X25519 public key.
+ * Encrypts age file keys for an X25519 public key.
  *
- * @param publicKey Raw public X25519 key.
+ * @param publicKey raw 32-byte public X25519 key
  */
 public class X25519Recipient(publicKey: ByteArray) : Recipient {
   private val publicKey = publicKey.copyOf()
 
+  /**
+   * Encrypts [fileKey] for this recipient.
+   *
+   * @param fileKey file key to encrypt
+   * @return recipient stanza containing the encrypted key
+   */
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val ephemeralSecret = ByteArray(EPHEMERAL_SECRET_LEN)
     SecureRandom().nextBytes(ephemeralSecret)
@@ -47,7 +53,11 @@ public class X25519Recipient(publicKey: ByteArray) : Recipient {
     return listOf(stanza)
   }
 
-  /** Encodes this recipient as an `age1...` Bech32 public key. */
+  /**
+   * Encodes this recipient as an `age1...` Bech32 public key.
+   *
+   * @return Bech32-encoded public key
+   */
   public fun encodeToString(): String = Bech32.encode(AGE_PUBLIC_KEY_PREFIX, publicKey).getOrThrow()
 
   public companion object {
@@ -57,7 +67,12 @@ public class X25519Recipient(publicKey: ByteArray) : Recipient {
     internal const val MAC_KEY_LENGTH = 32 // bytes
     internal const val EPHEMERAL_SECRET_LEN = 32 // bytes
 
-    /** Decodes an `age1...` Bech32 public key into an X25519 recipient. */
+    /**
+     * Decodes an `age1...` Bech32 public key into an [X25519Recipient].
+     *
+     * @param string Bech32-encoded public key
+     * @return decoded recipient
+     */
     public fun decode(string: String): X25519Recipient {
       val (hrp, key) =
         Bech32.decode(string)

@@ -6,64 +6,108 @@
 package kage.errors
 
 /**
- * Wrapper type for errors triggered while parsing age-formatted structures (for example,
- * [kage.format.AgeHeader], [kage.format.AgeKeyFile], and [kage.format.AgeStanza]).
+ * Signals an error while parsing age-formatted structures, such as [kage.format.AgeHeader].
+ *
+ * Other parsed structures include [kage.format.AgeKeyFile] and [kage.format.AgeStanza].
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
  */
 public sealed class ParseException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
 /**
- * Raised when an invalid arbitrary string is encountered when parsing an [kage.format.AgeHeader],
- * such as one containing disallowed non-ASCII characters.
+ * Signals a disallowed string while parsing an [kage.format.AgeHeader].
+ *
+ * For example, the string may contain non-ASCII characters.
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
  */
 public class InvalidArbitraryStringException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
-/** Raised when the parsed version is not an expected one. */
+/**
+ * Signals a version that does not match the expected version.
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
+ */
 public class InvalidVersionException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
-/** Raised when a failure occurs while parsing [kage.format.AgeStanza] for [kage.Recipient]s. */
+/**
+ * Signals an error while parsing [kage.format.AgeStanza] for [kage.Recipient]s.
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
+ */
 public class InvalidRecipientException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
-/** Raised when the footer for a [kage.format.AgeHeader] is incorrect. */
+/**
+ * Signals an invalid footer for an [kage.format.AgeHeader].
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
+ */
 public class InvalidFooterException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
-/** Raised when the [kage.format.AgeHeader.mac] is empty when writing a [kage.format.AgeHeader]. */
+/**
+ * Signals an empty MAC while writing an [kage.format.AgeHeader].
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
+ */
 public class InvalidHMACException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
 /**
- * Raised when the [kage.format.AgeKeyFile.privateKey] is empty when parsing a
- * [kage.format.AgeKeyFile].
+ * Signals an empty private key while parsing an [kage.format.AgeKeyFile].
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
  */
 public class InvalidAgeKeyException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
 /**
- * Raised when the payload nonce cannot be read after the header. age reads the nonce as the final
- * step of header processing, so a missing or truncated nonce is treated as a header failure rather
- * than a payload failure.
+ * Signals a missing or truncated payload nonce after the header.
+ *
+ * age reads the nonce as the final step of header processing, so it treats a missing nonce as a
+ * header failure rather than a payload failure.
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
  */
 public class InvalidNonceException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
-/** Raised by [kage.Age.parseIdentities] on an unrecognized line or an empty identities file. */
+/**
+ * Signals an unrecognized line or empty file in [kage.Age.parseIdentities].
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
+ */
 public class InvalidIdentityFileException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)
 
-/** Raised by [kage.Age.parseRecipients] on an unrecognized line or an empty recipients file. */
+/**
+ * Signals an unrecognized line or empty file in [kage.Age.parseRecipients].
+ *
+ * @param message detail about the parsing error
+ * @param cause underlying error
+ */
 public class InvalidRecipientFileException
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : ParseException(message, cause)

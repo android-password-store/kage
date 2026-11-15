@@ -15,17 +15,28 @@ import kage.format.Bech32
 import kage.utils.encodeBase64
 
 /**
- * An age recipient backed by an MLKEM768-X25519 (X-Wing) public key.
+ * Encrypts age file keys for an MLKEM768-X25519 (X-Wing) public key.
  *
- * @param publicKey Raw public key, an ML-KEM-768 encapsulation key followed by an X25519 public
- *   key.
+ * @param publicKey raw key bytes: an ML-KEM-768 encapsulation key followed by an X25519 public key
  */
 public class MlKem768X25519Recipient(publicKey: ByteArray) : Recipient, RecipientWithLabels {
 
   private val publicKey = publicKey.copyOf().also(MlKem768X25519::validatePublicKey)
 
+  /**
+   * Encrypts [fileKey] for this recipient.
+   *
+   * @param fileKey file key to encrypt
+   * @return recipient stanza containing the encrypted key
+   */
   override fun wrap(fileKey: ByteArray): List<AgeStanza> = wrapWithLabels(fileKey).first
 
+  /**
+   * Encrypts [fileKey] and returns the stanza with its post-quantum security label.
+   *
+   * @param fileKey file key to encrypt
+   * @return recipient stanza and its security label
+   */
   override fun wrapWithLabels(fileKey: ByteArray): Pair<List<AgeStanza>, List<String>> {
     val (sharedSecret, enc) = MlKem768X25519.encapsulate(publicKey)
 
@@ -36,7 +47,11 @@ public class MlKem768X25519Recipient(publicKey: ByteArray) : Recipient, Recipien
     return Pair(listOf(stanza), listOf(POST_QUANTUM_LABEL))
   }
 
-  /** Encodes this recipient as an `age1pq1...` Bech32 public key. */
+  /**
+   * Encodes this recipient as an `age1pq1...` Bech32 public key.
+   *
+   * @return Bech32-encoded public key
+   */
   public fun encodeToString(): String =
     Bech32.encode(AGE_PUBLIC_KEY_PQ_PREFIX, publicKey).getOrThrow()
 
@@ -46,7 +61,12 @@ public class MlKem768X25519Recipient(publicKey: ByteArray) : Recipient, Recipien
     internal const val AGE_PUBLIC_KEY_PQ_PREFIX = "age1pq"
     internal const val POST_QUANTUM_LABEL = "postquantum"
 
-    /** Decodes an `age1pq1...` Bech32 public key into an MLKEM768-X25519 recipient. */
+    /**
+     * Decodes an `age1pq1...` Bech32 public key into an [MlKem768X25519Recipient].
+     *
+     * @param string Bech32-encoded public key
+     * @return decoded recipient
+     */
     public fun decode(string: String): MlKem768X25519Recipient {
       val (hrp, key) =
         Bech32.decode(string)

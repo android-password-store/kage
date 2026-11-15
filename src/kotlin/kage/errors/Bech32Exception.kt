@@ -5,7 +5,12 @@
  */
 package kage.errors
 
-/** Thrown when encoding or decoding Bech32 */
+/**
+ * Signals an error while encoding or decoding Bech32 data.
+ *
+ * @param message detail about the encoding or decoding error
+ * @param cause underlying error
+ */
 public class Bech32Exception
 @JvmOverloads
 constructor(message: String? = null, cause: Throwable? = null) : Exception(message, cause)

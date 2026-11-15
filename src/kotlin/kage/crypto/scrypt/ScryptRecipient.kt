@@ -15,10 +15,10 @@ import kage.utils.encodeBase64
 import org.bouncycastle.crypto.generators.SCrypt
 
 /**
- * An age recipient that encrypts files with the supplied password.
+ * Encrypts age file keys with the supplied password.
  *
- * @param password Password bytes used to derive the wrapping key.
- * @param workFactor Base-2 logarithm of scrypt's CPU and memory cost parameter N.
+ * @param password password bytes used to derive the wrapping key
+ * @param workFactor base-2 logarithm of scrypt's CPU and memory cost parameter N
  */
 public class ScryptRecipient
 @JvmOverloads
@@ -31,6 +31,12 @@ constructor(private val password: ByteArray, private val workFactor: Int = DEFAU
     require(workFactor in 1..30) { "workFactor must be in 1..30, was $workFactor" }
   }
 
+  /**
+   * Encrypts [fileKey] with a randomly salted scrypt-derived key.
+   *
+   * @param fileKey file key to encrypt
+   * @return recipient stanza containing the encrypted key
+   */
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val salt = ByteArray(SCRYPT_SALT_SIZE)
     SecureRandom().nextBytes(salt)
@@ -49,6 +55,12 @@ constructor(private val password: ByteArray, private val workFactor: Int = DEFAU
     return listOf(stanza)
   }
 
+  /**
+   * Encrypts [fileKey] and returns the stanza with a random security label.
+   *
+   * @param fileKey file key to encrypt
+   * @return recipient stanza and its security label
+   */
   override fun wrapWithLabels(fileKey: ByteArray): Pair<List<AgeStanza>, List<String>> {
     val stanzas = wrap(fileKey)
     val label = ByteArray(16)
@@ -58,11 +70,7 @@ constructor(private val password: ByteArray, private val workFactor: Int = DEFAU
   }
 
   public companion object {
-    /**
-     * The default scrypt work factor: the base-2 logarithm of the CPU/memory cost parameter N, used
-     * when a work factor is not supplied to the constructor. Exposed so callers can reference the
-     * value kage applies by default, e.g. to surface it in a UI or to derive a relative one.
-     */
+    /** Default base-2 logarithm of scrypt's CPU and memory cost parameter N. */
     public const val DEFAULT_WORK_FACTOR: Int = 18
 
     internal const val SCRYPT_SALT_SIZE = 16

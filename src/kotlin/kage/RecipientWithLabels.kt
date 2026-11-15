@@ -8,11 +8,11 @@ package kage
 import kage.format.AgeStanza
 
 /**
- * [RecipientWithLabels] can be optionally implemented by a [Recipient], in which case Encrypt will
- * use [RecipientWithLabels.wrapWithLabels] instead of [Recipient.wrap].
+ * Wraps file keys with labels that restrict recipient compatibility.
  *
- * [Age.encrypt] will succeed only if the labels returned by all the recipients (assuming the empty
- * set for those that don't implement [RecipientWithLabels]) are the same.
+ * A [Recipient] can implement this interface to use [wrapWithLabels] instead of [Recipient.wrap].
+ * Encryption succeeds only when every recipient returns the same labels, regardless of order.
+ * Recipients without this interface use an empty list of labels.
  *
  * This can be used to ensure a recipient is only used with other recipients with equivalent
  * properties (for example by setting a "postquantum" label) or to ensure a recipient is always used
