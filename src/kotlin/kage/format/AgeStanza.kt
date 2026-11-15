@@ -30,11 +30,11 @@ import kage.utils.writeNewLine
 import kage.utils.writeSpace
 
 /**
- * A recipient stanza in an age file header.
+ * Holds a recipient stanza in an age file header.
  *
- * @property type Recipient type name.
- * @property args Recipient-specific arguments.
- * @property body Recipient-specific binary body.
+ * @property type recipient type name
+ * @property args recipient-specific arguments
+ * @property body recipient-specific binary body
  */
 public class AgeStanza(
   public val type: String,

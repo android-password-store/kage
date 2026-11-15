@@ -22,9 +22,9 @@ import kage.multiUnwrap
 import kage.utils.decodeBase64
 
 /**
- * An age identity backed by an MLKEM768-X25519 (X-Wing) key pair.
+ * Decrypts age files with an MLKEM768-X25519 (X-Wing) identity.
  *
- * @param secretKey Raw 32 byte seed the key pair is derived from.
+ * @param secretKey raw 32-byte seed used to derive the key pair
  */
 public class MlKem768X25519Identity(secretKey: ByteArray) : Identity {
 
@@ -60,22 +60,37 @@ public class MlKem768X25519Identity(secretKey: ByteArray) : Identity {
     }
   }
 
+  /**
+   * Decrypts the file key from the first stanza this identity can unwrap.
+   *
+   * @param stanzas recipient stanzas from an age file
+   * @return decrypted file key
+   */
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray {
     return multiUnwrap(::unwrapSingle, stanzas)
   }
 
-  /** Returns the public recipient corresponding to this identity. */
+  /** Returns the [MlKem768X25519Recipient] for this identity. */
   public fun recipient(): MlKem768X25519Recipient =
     MlKem768X25519Recipient(MlKem768X25519.publicKey(privateKey))
 
-  /** Encodes this identity as an `AGE-SECRET-KEY-PQ-` Bech32 string. */
+  /**
+   * Encodes this identity as an `AGE-SECRET-KEY-PQ-` Bech32 string.
+   *
+   * @return Bech32-encoded private key
+   */
   public fun encodeToString(): String =
     Bech32.encode(AGE_SECRET_KEY_PQ_PREFIX, secretKey).getOrThrow()
 
   public companion object {
     internal const val AGE_SECRET_KEY_PQ_PREFIX = "AGE-SECRET-KEY-PQ-"
 
-    /** Decodes an `AGE-SECRET-KEY-PQ-` Bech32 string into an MLKEM768-X25519 identity. */
+    /**
+     * Decodes an `AGE-SECRET-KEY-PQ-` Bech32 string into an [MlKem768X25519Identity].
+     *
+     * @param string Bech32-encoded private key
+     * @return decoded identity
+     */
     public fun decode(string: String): MlKem768X25519Identity {
       val (hrp, key) =
         Bech32.decode(string)
@@ -90,7 +105,11 @@ public class MlKem768X25519Identity(secretKey: ByteArray) : Identity {
       return MlKem768X25519Identity(key)
     }
 
-    /** Generates a new [kage.crypto.mlkem.MlKem768X25519Identity] with a random private key. */
+    /**
+     * Generates an [MlKem768X25519Identity] with a random private key.
+     *
+     * @return new identity
+     */
     public fun new(): MlKem768X25519Identity {
       val secretKey = ByteArray(MlKem768X25519.SEED_SIZE)
       SecureRandom().nextBytes(secretKey)

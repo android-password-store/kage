@@ -142,8 +142,8 @@ public object Age {
   /**
    * Decrypts an age stream using one of [identities] and writes the plaintext to [dstStream].
    *
-   * Both binary and ASCII-armored ciphertext are accepted. This method closes [dstStream] after
-   * writing the plaintext.
+   * Accepts binary and ASCII-armored ciphertext. After setup succeeds, closes both [srcStream] and
+   * [dstStream].
    */
   @JvmStatic
   public fun decryptStream(
@@ -171,11 +171,10 @@ public object Age {
     decryptInternal(listOf(identity), ageFile)
 
   /**
-   * Returns the detached header of the age file in [srcStream], leaving its payload untouched.
+   * Extracts the detached header from the age file in [srcStream].
    *
-   * Both binary and ASCII-armored ciphertext are accepted, and the header is always returned in its
-   * binary form. The detached header can be decrypted with [decryptHeader], for example on a
-   * different system, without sharing the payload.
+   * Accepts binary and ASCII-armored ciphertext and returns the header in binary form. Buffering
+   * may read ahead into the payload. Use [decryptHeader] to decrypt the header separately.
    *
    * This is a low-level method that most users won't need.
    */
@@ -190,8 +189,9 @@ public object Age {
   }
 
   /**
-   * Decrypts a detached [header] produced by [extractHeader] with one of [identities] and returns
-   * the file key it wraps.
+   * Decrypts a detached [header] with one of [identities] and returns its file key.
+   *
+   * Obtain [header] with [extractHeader].
    *
    * The file key can be handed to [InjectedFileKeyIdentity] to decrypt the corresponding payload.
    * It is the caller's responsibility to keep track of which file the returned key decrypts, and to
@@ -236,7 +236,15 @@ public object Age {
     return SeekableDecrypt(streamKey, source, payloadOffset, payloadSize)
   }
 
-  /** Parses [X25519Identity]/[MlKem768X25519Identity] lines from [reader], one per line. */
+  /**
+   * Parses [X25519Identity] and [MlKem768X25519Identity] lines from [reader].
+   *
+   * Ignores blank lines and lines starting with `#` after trimming whitespace. Limits the input to
+   * 16,777,216 characters, counting one extra character per line, and requires an identity.
+   *
+   * @throws InvalidIdentityFileException if the input is too large, empty, or contains an invalid
+   *   identity
+   */
   @JvmStatic
   public fun parseIdentities(reader: BufferedReader): List<Identity> {
     val identities = mutableListOf<Identity>()
@@ -292,7 +300,15 @@ public object Age {
     }
   }
 
-  /** Parses [X25519Recipient]/[MlKem768X25519Recipient] lines from [reader], one per line. */
+  /**
+   * Parses [X25519Recipient] and [MlKem768X25519Recipient] lines from [reader].
+   *
+   * Ignores blank lines and lines starting with `#` after trimming whitespace. Limits the input to
+   * 16,777,216 characters, counting one extra character per line, and requires a recipient.
+   *
+   * @throws InvalidRecipientFileException if the input is too large, empty, or has an unknown
+   *   recipient type
+   */
   @JvmStatic
   public fun parseRecipients(reader: BufferedReader): List<Recipient> {
     val recipients = mutableListOf<Recipient>()

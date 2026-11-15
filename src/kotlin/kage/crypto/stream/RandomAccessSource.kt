@@ -9,15 +9,23 @@ import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 
 /**
- * A byte source readable at an arbitrary offset without disturbing any position state, kage's
- * equivalent of Go's `io.ReaderAt`. Implementations must be thread safe. Mirrors
- * [FileChannel.read]'s contract: a call may return fewer than [length] bytes even mid-source, so
- * callers needing an exact count must loop.
+ * Reads bytes at arbitrary offsets without changing position state.
+ *
+ * Implementations must be thread safe. Like [FileChannel.read], [readAt] may return fewer bytes
+ * than requested, so callers needing an exact count must loop.
  */
 public fun interface RandomAccessSource {
   /**
-   * Reads up to [length] bytes starting at [sourceOffset] into [dst] starting at [destOffset].
-   * Returns the number of bytes actually read, or -1 if [sourceOffset] is at or past the end.
+   * Reads up to [length] bytes at [sourceOffset] into [dst] starting at [destOffset].
+   *
+   * A read may return fewer than [length] bytes, even before reaching the end; loop when an exact
+   * count is required. Returns `-1` when [sourceOffset] is at or past the end.
+   *
+   * @param dst destination byte array
+   * @param destOffset start index in [dst]
+   * @param length maximum number of bytes to read
+   * @param sourceOffset byte offset in the source
+   * @return bytes read, or `-1` at or beyond end of source
    */
   public fun readAt(dst: ByteArray, destOffset: Int, length: Int, sourceOffset: Long): Int
 

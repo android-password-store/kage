@@ -32,6 +32,12 @@ internal constructor(
 
   private val curvePublicKey: ByteArray = Ed25519Conversions.publicKeyToCurve25519(ed25519PublicKey)
 
+  /**
+   * Wraps [fileKey] in one `ssh-ed25519` stanza for this recipient.
+   *
+   * @param fileKey file key to encrypt
+   * @return the recipient stanza
+   */
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val ephemeralSecret = ByteArray(EPHEMERAL_SECRET_LEN)
     SecureRandom().nextBytes(ephemeralSecret)
@@ -66,7 +72,13 @@ internal constructor(
     internal const val EPHEMERAL_SECRET_LEN = 32 // bytes
     private val EMPTY = ByteArray(0)
 
-    /** Parses a single `authorized_keys`-style `ssh-ed25519 AAAA... [comment]` line. */
+    /**
+     * Parses one `authorized_keys` line containing an `ssh-ed25519` public key.
+     *
+     * @param authorizedKey key line, optionally followed by a comment
+     * @return the parsed SSH Ed25519 recipient
+     * @throws InvalidSshKeyException if the line is invalid or contains another key type
+     */
     public fun parse(authorizedKey: String): SshEd25519Recipient {
       val (type, blob) = SshKey.parseAuthorizedKey(authorizedKey)
       if (type != SSH_ED25519_STANZA_TYPE) throw InvalidSshKeyException("not an ssh-ed25519 key")

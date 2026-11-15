@@ -13,8 +13,9 @@ import kage.crypto.stream.Stream.setLastChunkFlag
 import kage.errors.StreamException
 
 /**
- * Random access into an age STREAM payload: [readAt] can decrypt any offset directly, without
- * reading everything before it first, unlike [DecryptInputStream]. Construct with
+ * Decrypts an age STREAM payload at arbitrary offsets with [readAt].
+ *
+ * Unlike [DecryptInputStream], this does not read earlier chunks first. Open it with
  * [kage.Age.decryptSeekable].
  *
  * The most recently decrypted chunk is cached, and `readAt` is safe to call concurrently.
@@ -28,7 +29,7 @@ internal constructor(
 ) {
   private val chunks: Long = encryptedChunkCount(payloadSize)
 
-  /** Size of the decrypted plaintext, in bytes. */
+  /** Gives the size of the decrypted plaintext in bytes. */
   public val plaintextSize: Long = payloadSize - chunks * MAC_SIZE
 
   private class CachedChunk(val chunkIndex: Long, val plaintext: ByteArray)
@@ -42,8 +43,16 @@ internal constructor(
   }
 
   /**
-   * Reads plaintext starting at [offset] into [dst]. Returns the number of bytes actually read,
-   * which is less than `dst.size` only at the end of the plaintext.
+   * Reads plaintext into [dst] starting at byte [offset].
+   *
+   * Reads across chunk boundaries as needed. Returns fewer than the size of [dst] only when the
+   * read reaches the end; returns `0` for an empty destination or an offset at [plaintextSize].
+   *
+   * @param dst destination byte array
+   * @param offset plaintext byte offset, from `0` through [plaintextSize]
+   * @return number of plaintext bytes read
+   * @throws StreamException if [offset] is outside the plaintext or a chunk cannot be read or
+   *   authenticated
    */
   public fun readAt(dst: ByteArray, offset: Long): Int {
     if (offset < 0 || offset > plaintextSize)

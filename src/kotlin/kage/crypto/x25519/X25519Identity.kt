@@ -25,10 +25,10 @@ import kage.utils.decodeBase64
 import org.bouncycastle.math.ec.rfc7748.X25519.POINT_SIZE
 
 /**
- * An age identity backed by an X25519 key pair.
+ * Decrypts age files with an X25519 key pair.
  *
- * @param secretKey Raw private X25519 key.
- * @param publicKey Raw public X25519 key corresponding to [secretKey].
+ * @param secretKey raw 32-byte private X25519 key
+ * @param publicKey raw 32-byte public X25519 key corresponding to [secretKey]
  */
 public class X25519Identity(secretKey: ByteArray, publicKey: ByteArray) : Identity {
   private val secretKey = secretKey.copyOf()
@@ -66,20 +66,35 @@ public class X25519Identity(secretKey: ByteArray, publicKey: ByteArray) : Identi
     }
   }
 
+  /**
+   * Decrypts the file key from the first stanza this identity can unwrap.
+   *
+   * @param stanzas recipient stanzas from an age file
+   * @return decrypted file key
+   */
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray {
     return multiUnwrap(::unwrapSingle, stanzas)
   }
 
-  /** Returns the public recipient corresponding to this identity. */
+  /** Returns the [X25519Recipient] for this identity. */
   public fun recipient(): X25519Recipient = X25519Recipient(publicKey)
 
-  /** Encodes this identity as an `AGE-SECRET-KEY-` Bech32 string. */
+  /**
+   * Encodes this identity as an `AGE-SECRET-KEY-` Bech32 string.
+   *
+   * @return Bech32-encoded private key
+   */
   public fun encodeToString(): String =
     Bech32.encode(AgeKeyFile.AGE_SECRET_KEY_PREFIX, secretKey).getOrThrow()
 
   public companion object {
 
-    /** Decodes an `AGE-SECRET-KEY-` Bech32 string into an X25519 identity. */
+    /**
+     * Decodes an `AGE-SECRET-KEY-` Bech32 string into an [X25519Identity].
+     *
+     * @param string Bech32-encoded private key
+     * @return decoded identity
+     */
     public fun decode(string: String): X25519Identity {
       val (hrp, key) =
         Bech32.decode(string)
@@ -97,7 +112,11 @@ public class X25519Identity(secretKey: ByteArray, publicKey: ByteArray) : Identi
       return X25519Identity(key, publicKey)
     }
 
-    /** Generates a new [kage.crypto.x25519.X25519Identity] with a random private key. */
+    /**
+     * Generates an [X25519Identity] with a random private key.
+     *
+     * @return new identity
+     */
     public fun new(): X25519Identity {
       val privateKey = ByteArray(POINT_SIZE)
       SecureRandom().nextBytes(privateKey)

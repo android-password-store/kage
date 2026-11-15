@@ -46,6 +46,13 @@ internal constructor(
     }
   }
 
+  /**
+   * Unwraps the file key from the first matching `ssh-rsa` stanza.
+   *
+   * @param stanzas recipient stanzas to try
+   * @throws IncorrectIdentityException if no stanza matches this identity
+   * @throws SshIdentityException if a matching stanza cannot be unwrapped
+   */
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray = multiUnwrap(::unwrapSingle, stanzas)
 
   /** Returns the SSH RSA recipient corresponding to this identity. */

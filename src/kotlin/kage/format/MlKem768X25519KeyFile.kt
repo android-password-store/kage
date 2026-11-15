@@ -15,11 +15,12 @@ import kage.errors.InvalidAgeKeyException
 import kage.utils.writeNewLine
 
 /**
- * The contents of an age MLKEM768-X25519 identity file.
+ * Holds the contents of an age MLKEM768-X25519 identity file.
  *
- * @property created Value from the file's `created` comment.
- * @property publicKey Public key from the file, if present.
- * @property privateKey Private MLKEM768-X25519 identity from the file.
+ * @property created value from the file's `created` comment
+ * @property publicKey public key from the file, if present
+ * @property privateKey private MLKEM768-X25519 identity from the file
+ * @throws InvalidAgeKeyException if [publicKey] does not match [privateKey]
  */
 public class MlKem768X25519KeyFile(
   public val created: String,

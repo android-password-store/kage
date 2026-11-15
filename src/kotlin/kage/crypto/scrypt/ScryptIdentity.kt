@@ -17,12 +17,11 @@ import kage.utils.decodeBase64
 import org.bouncycastle.crypto.generators.SCrypt
 
 /**
- * An age identity that decrypts files encrypted with the supplied password.
+ * Decrypts age files encrypted with the supplied password.
  *
- * @param password Password bytes used to derive the wrapping key.
- * @param maxWorkFactor Largest scrypt work factor accepted while decrypting. The default accepts up
- *   to 256 MiB of scrypt working memory; configure a larger value only when the caller can tolerate
- *   the corresponding resource cost.
+ * @param password password bytes used to derive the wrapping key
+ * @param maxWorkFactor largest accepted scrypt work factor. The default permits up to 256 MiB of
+ *   working memory; larger values increase resource use
  */
 public class ScryptIdentity
 @JvmOverloads
@@ -35,6 +34,12 @@ constructor(
     require(maxWorkFactor in 2..30) { "workFactor must be > 1 and <= 30" }
   }
 
+  /**
+   * Decrypts the file key from the first stanza this identity can unwrap.
+   *
+   * @param stanzas recipient stanzas from an age file
+   * @return decrypted file key
+   */
   override fun unwrap(stanzas: List<AgeStanza>): ByteArray {
     return multiUnwrap(::unwrapSingle, stanzas)
   }

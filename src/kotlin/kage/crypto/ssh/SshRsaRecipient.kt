@@ -29,6 +29,12 @@ internal constructor(
   private val publicKey: RSAKeyParameters,
 ) : Recipient {
 
+  /**
+   * Wraps [fileKey] in one `ssh-rsa` stanza for this recipient.
+   *
+   * @param fileKey file key to encrypt
+   * @return the recipient stanza
+   */
   override fun wrap(fileKey: ByteArray): List<AgeStanza> {
     val oaep = oaep()
     oaep.init(true, publicKey)
@@ -54,7 +60,13 @@ internal constructor(
     internal fun oaep(): OAEPEncoding =
       OAEPEncoding(RSAEngine(), SHA256Digest(), SHA256Digest(), SSH_RSA_LABEL.toByteArray())
 
-    /** Parses a single `authorized_keys`-style `ssh-rsa AAAA... [comment]` line. */
+    /**
+     * Parses one `authorized_keys` line containing an `ssh-rsa` public key.
+     *
+     * @param authorizedKey key line, optionally followed by a comment
+     * @return the parsed SSH RSA recipient
+     * @throws InvalidSshKeyException if the line is invalid or contains another key type
+     */
     public fun parse(authorizedKey: String): SshRsaRecipient {
       val (type, blob) = SshKey.parseAuthorizedKey(authorizedKey)
       if (type != SSH_RSA_STANZA_TYPE) throw InvalidSshKeyException("not an ssh-rsa key")
